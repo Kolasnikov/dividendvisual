@@ -97,6 +97,28 @@ const COLLECTION_LINKS: { slug: string; title: string; check: (c: Company) => bo
   { slug: 'reits',                title: 'REITs',                check: (c) => c.sector === 'Real Estate' },
 ]
 
+const BLOG_ARTICLES = {
+  weiss:      { slug: 'geraldine-weiss-dividend-valuation-method', title: 'The Geraldine Weiss Method Explained' },
+  howTo:      { slug: 'how-to-find-undervalued-dividend-stocks',   title: 'How to Find Undervalued Dividend Stocks' },
+  kings:      { slug: 'dividend-kings-list-analysis',              title: 'Dividend Kings: What 50 Years of Growth Means' },
+  comparison: { slug: 'dividend-aristocrats-vs-kings',             title: 'Dividend Aristocrats vs Kings' },
+  ko:         { slug: 'coca-cola-ko-dividend-analysis',            title: 'Coca-Cola (KO): 62 Years of Dividend Growth' },
+  trap:       { slug: 'dividend-yield-trap',                       title: 'The Dividend Yield Trap Explained' },
+} as const
+
+const HIGH_YIELD_WATCH = new Set(['MO', 'T', 'VZ', 'PFE', 'BMY', 'MAIN', 'CPB', 'HRL', 'KMB', 'CLX', 'NNN', 'D'])
+
+function getRelatedArticles(symbol: string, isDividendKing: boolean, isDividendAristocrat: boolean) {
+  const keys: (keyof typeof BLOG_ARTICLES)[] = []
+  if (symbol === 'KO') keys.push('ko')
+  if (isDividendKing) keys.push('kings')
+  if (isDividendKing || isDividendAristocrat) keys.push('comparison')
+  if (HIGH_YIELD_WATCH.has(symbol)) keys.push('trap')
+  keys.push('weiss')
+  if (keys.length < 3) keys.push('howTo')
+  return [...new Set(keys)].slice(0, 3).map((k) => BLOG_ARTICLES[k])
+}
+
 export default async function TickerPage({ params }: PageProps) {
   const { symbol } = await params
   const data = await getTickerData(symbol)
@@ -214,6 +236,22 @@ export default async function TickerPage({ params }: PageProps) {
             >
               → {company.symbol} Dividend Analysis Article
             </Link>
+          </div>
+
+          {/* Related blog articles */}
+          <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-4">
+            <p className="text-xs text-[#71717a] mb-3 font-medium uppercase tracking-wide">Related Reading</p>
+            <div className="flex flex-col gap-2">
+              {getRelatedArticles(company.symbol, company.isDividendKing, company.isDividendAristocrat).map((article) => (
+                <Link
+                  key={article.slug}
+                  href={`/blog/${article.slug}`}
+                  className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors"
+                >
+                  → {article.title}
+                </Link>
+              ))}
+            </div>
           </div>
 
           {/* Related collections */}

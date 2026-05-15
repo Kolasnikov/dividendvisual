@@ -79,15 +79,15 @@ function pct(v: number | null, decimals = 2): string {
 
 function CollectionCard({ row }: { row: CollectionRow }) {
   return (
-    <Link
-      href={`/ticker/${row.symbol}`}
-      className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-4 hover:border-[#6366f1]/40 transition-colors group"
-    >
+    <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-4 hover:border-[#6366f1]/40 transition-colors group">
       <div className="flex items-start justify-between mb-3">
         <div>
-          <div className="font-mono font-semibold text-[#f4f4f5] group-hover:text-[#6366f1] transition-colors">
+          <Link
+            href={`/ticker/${row.symbol}`}
+            className="font-mono font-semibold text-[#f4f4f5] hover:text-[#6366f1] transition-colors"
+          >
             {row.symbol}
-          </div>
+          </Link>
           <div className="text-xs text-[#71717a] mt-0.5 line-clamp-1">{row.name}</div>
         </div>
         <SignalBadge signal={row.weissSignal} size="sm" />
@@ -118,11 +118,19 @@ function CollectionCard({ row }: { row: CollectionRow }) {
         </div>
       </div>
 
-      <div className="flex gap-1 flex-wrap">
-        {row.isDividendKing && <DividendBadge type="king" />}
-        {row.isDividendAristocrat && !row.isDividendKing && <DividendBadge type="aristocrat" />}
+      <div className="flex items-center justify-between">
+        <div className="flex gap-1 flex-wrap">
+          {row.isDividendKing && <DividendBadge type="king" />}
+          {row.isDividendAristocrat && !row.isDividendKing && <DividendBadge type="aristocrat" />}
+        </div>
+        <Link
+          href={`/analysis/${row.symbol.toLowerCase()}`}
+          className="text-xs text-[#6366f1] hover:text-[#818cf8] transition-colors"
+        >
+          Analysis →
+        </Link>
       </div>
-    </Link>
+    </div>
   )
 }
 

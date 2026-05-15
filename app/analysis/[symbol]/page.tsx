@@ -327,20 +327,38 @@ export default async function AnalysisPage({ params }: PageProps) {
 
       {/* Related */}
       <div className="mt-8 pt-8 border-t border-[#1e1e2e]">
-        <p className="text-xs text-[#71717a] uppercase tracking-wide mb-4">More dividend analysis</p>
-        <div className="flex flex-wrap gap-2">
-          {['KO', 'JNJ', 'PG', 'MO', 'O', 'XOM'].filter((s) => s !== sym).slice(0, 5).map((s) => (
-            <Link
-              key={s}
-              href={`/analysis/${s.toLowerCase()}`}
-              className="px-3 py-1.5 rounded-md bg-[#1e1e2e] text-sm font-mono text-[#71717a] hover:text-[#f4f4f5] transition-colors"
-            >
-              {s}
-            </Link>
-          ))}
-          <Link href="/watchlist" className="px-3 py-1.5 rounded-md bg-[#6366f1]/10 text-sm text-[#6366f1] border border-[#6366f1]/20 hover:bg-[#6366f1]/20 transition-colors">
-            All stocks →
-          </Link>
+        <div className="grid sm:grid-cols-2 gap-8">
+          <div>
+            <p className="text-xs text-[#71717a] uppercase tracking-wide mb-4">More stock analysis</p>
+            <div className="flex flex-wrap gap-2">
+              {['KO', 'JNJ', 'PG', 'MO', 'O', 'XOM', 'HD', 'LOW'].filter((s) => s !== sym).slice(0, 6).map((s) => (
+                <Link
+                  key={s}
+                  href={`/analysis/${s.toLowerCase()}`}
+                  className="px-3 py-1.5 rounded-md bg-[#1e1e2e] text-sm font-mono text-[#71717a] hover:text-[#f4f4f5] transition-colors"
+                >
+                  {s}
+                </Link>
+              ))}
+              <Link href="/watchlist" className="px-3 py-1.5 rounded-md bg-[#6366f1]/10 text-sm text-[#6366f1] border border-[#6366f1]/20 hover:bg-[#6366f1]/20 transition-colors">
+                All stocks →
+              </Link>
+            </div>
+          </div>
+          <div>
+            <p className="text-xs text-[#71717a] uppercase tracking-wide mb-4">Related reading</p>
+            <div className="flex flex-col gap-2">
+              <Link href="/blog/geraldine-weiss-dividend-valuation-method" className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors">
+                → The Geraldine Weiss Method Explained
+              </Link>
+              <Link href="/blog/how-to-find-undervalued-dividend-stocks" className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors">
+                → How to Find Undervalued Dividend Stocks
+              </Link>
+              <Link href="/blog/dividend-yield-trap" className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors">
+                → The Dividend Yield Trap Explained
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>
