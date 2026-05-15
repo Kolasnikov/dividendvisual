@@ -54,6 +54,24 @@ const FAQ_SCHEMA = {
   })),
 }
 
+const ORG_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'DividendVisual',
+  url: 'https://dividendvisual.com',
+  description: 'Visual dividend valuation tool using the Geraldine Weiss yield method. Tracks 62 dividend stocks with Weiss valuation bands, quality scores, and income projections.',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Web',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  featureList: [
+    'Geraldine Weiss dividend yield valuation',
+    'Dividend Kings and Aristocrats screener',
+    'Quality score calculator',
+    'DRIP income projection calculator',
+    'Undervalued dividend stock opportunities',
+  ],
+}
+
 type WatchlistRow = Company & ComputedMetrics
 
 async function getTopPicks(): Promise<WatchlistRow[]> {
@@ -149,6 +167,10 @@ export default async function HomePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_SCHEMA) }}
       />
       {/* Hero */}
       <section className="relative flex flex-col items-center justify-center py-24 px-4 text-center overflow-hidden">

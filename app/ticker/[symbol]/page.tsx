@@ -98,12 +98,15 @@ const COLLECTION_LINKS: { slug: string; title: string; check: (c: Company) => bo
 ]
 
 const BLOG_ARTICLES = {
-  weiss:      { slug: 'geraldine-weiss-dividend-valuation-method', title: 'The Geraldine Weiss Method Explained' },
-  howTo:      { slug: 'how-to-find-undervalued-dividend-stocks',   title: 'How to Find Undervalued Dividend Stocks' },
-  kings:      { slug: 'dividend-kings-list-analysis',              title: 'Dividend Kings: What 50 Years of Growth Means' },
-  comparison: { slug: 'dividend-aristocrats-vs-kings',             title: 'Dividend Aristocrats vs Kings' },
-  ko:         { slug: 'coca-cola-ko-dividend-analysis',            title: 'Coca-Cola (KO): 62 Years of Dividend Growth' },
-  trap:       { slug: 'dividend-yield-trap',                       title: 'The Dividend Yield Trap Explained' },
+  weiss:      { slug: 'geraldine-weiss-dividend-valuation-method',  title: 'The Geraldine Weiss Method Explained' },
+  howTo:      { slug: 'how-to-find-undervalued-dividend-stocks',    title: 'How to Find Undervalued Dividend Stocks' },
+  kings:      { slug: 'dividend-kings-list-analysis',               title: 'Dividend Kings: What 50 Years of Growth Means' },
+  comparison: { slug: 'dividend-aristocrats-vs-kings',              title: 'Dividend Aristocrats vs Kings' },
+  ko:         { slug: 'coca-cola-ko-dividend-analysis',             title: 'Coca-Cola (KO): 62 Years of Dividend Growth' },
+  jnj:        { slug: 'johnson-johnson-jnj-dividend-analysis',      title: 'Johnson & Johnson (JNJ) Dividend Analysis' },
+  pg:         { slug: 'procter-gamble-pg-dividend-analysis',        title: 'Procter & Gamble (PG) Dividend Analysis' },
+  hd:         { slug: 'home-depot-hd-dividend-analysis',            title: 'Home Depot (HD): The Low-Yield Income Machine' },
+  trap:       { slug: 'dividend-yield-trap',                        title: 'The Dividend Yield Trap Explained' },
 } as const
 
 const HIGH_YIELD_WATCH = new Set(['MO', 'T', 'VZ', 'PFE', 'BMY', 'MAIN', 'CPB', 'HRL', 'KMB', 'CLX', 'NNN', 'D'])
@@ -111,6 +114,9 @@ const HIGH_YIELD_WATCH = new Set(['MO', 'T', 'VZ', 'PFE', 'BMY', 'MAIN', 'CPB', 
 function getRelatedArticles(symbol: string, isDividendKing: boolean, isDividendAristocrat: boolean) {
   const keys: (keyof typeof BLOG_ARTICLES)[] = []
   if (symbol === 'KO') keys.push('ko')
+  if (symbol === 'JNJ') keys.push('jnj')
+  if (symbol === 'PG') keys.push('pg')
+  if (symbol === 'HD') keys.push('hd')
   if (isDividendKing) keys.push('kings')
   if (isDividendKing || isDividendAristocrat) keys.push('comparison')
   if (HIGH_YIELD_WATCH.has(symbol)) keys.push('trap')
