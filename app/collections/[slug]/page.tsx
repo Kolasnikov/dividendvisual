@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { Company, ComputedMetrics } from '@/lib/types'
 import { SignalBadge } from '@/components/ui/SignalBadge'
 import { DividendBadge } from '@/components/ui/DividendBadge'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 type CollectionRow = Company & ComputedMetrics
 
@@ -176,6 +177,11 @@ export default async function CollectionPage({ params }: PageProps) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <Breadcrumbs items={[
+        { label: 'Home', href: '/' },
+        { label: 'Collections', href: '/watchlist' },
+        { label: meta.title },
+      ]} />
       <div className="mb-10">
         <h1 className="text-2xl font-bold text-[#f4f4f5] mb-2">{meta.title}</h1>
         <p className="text-xs text-[#52525b] mb-6">{rows.length} stocks · Weiss valuation updated daily</p>

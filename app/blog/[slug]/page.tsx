@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { getAllPosts, getPost } from '@/lib/blog'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -61,10 +62,11 @@ export default async function BlogPostPage({ params }: PageProps) {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* Back */}
-      <Link href="/blog" className="text-sm text-[#71717a] hover:text-[#f4f4f5] transition-colors mb-8 inline-block">
-        ← All posts
-      </Link>
+      <Breadcrumbs items={[
+        { label: 'Home', href: '/' },
+        { label: 'Blog', href: '/blog' },
+        { label: post.title },
+      ]} />
 
       {/* Header */}
       <header className="mb-10">

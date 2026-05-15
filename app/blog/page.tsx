@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getAllPosts } from '@/lib/blog'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 export const metadata: Metadata = {
   title: 'Dividend Investing Blog — Guides, Analysis & Strategy',
@@ -23,6 +24,7 @@ export default function BlogPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Blog' }]} />
       <div className="mb-10">
         <h1 className="text-3xl font-bold text-[#f4f4f5] mb-3">Dividend Investing Blog</h1>
         <p className="text-[#71717a]">

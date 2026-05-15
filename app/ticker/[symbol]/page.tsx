@@ -9,6 +9,7 @@ import { MetricsCard } from '@/components/cards/MetricsCard'
 import { DRIPChart } from '@/components/charts/DRIPChart'
 import { SignalBadge } from '@/components/ui/SignalBadge'
 import { DividendBadge } from '@/components/ui/DividendBadge'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 interface PageProps {
   params: Promise<{ symbol: string }>
@@ -141,6 +142,12 @@ export default async function TickerPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+
+      <Breadcrumbs items={[
+        { label: 'Home', href: '/' },
+        { label: 'Watchlist', href: '/watchlist' },
+        { label: `${company.symbol} — ${company.name}` },
+      ]} />
 
       {/* Header */}
       <div className="mb-6">

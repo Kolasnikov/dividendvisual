@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import type { TickerResponse, Company, ComputedMetrics } from '@/lib/types'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 const TICKERS = [
   'KO', 'PEP', 'JNJ', 'PG', 'MMM', 'MCD', 'WMT', 'HD', 'LOW',
@@ -196,14 +197,11 @@ export default async function AnalysisPage({ params }: PageProps) {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-xs text-[#71717a] mb-8">
-        <Link href="/blog" className="hover:text-[#f4f4f5] transition-colors">Blog</Link>
-        <span>›</span>
-        <Link href="/watchlist" className="hover:text-[#f4f4f5] transition-colors">Dividend Analysis</Link>
-        <span>›</span>
-        <span className="text-[#f4f4f5]">{sym}</span>
-      </div>
+      <Breadcrumbs items={[
+        { label: 'Home', href: '/' },
+        { label: 'Screener', href: '/watchlist' },
+        { label: `${sym.toUpperCase()} Dividend Analysis` },
+      ]} />
 
       {/* Header */}
       <header className="mb-10">
