@@ -77,7 +77,7 @@ export function TickerTape() {
           100% { transform: translateX(-50%); }
         }
         .ticker-tape-scroll {
-          animation: ticker-scroll 60s linear infinite;
+          animation: ticker-scroll 120s linear infinite;
         }
         .ticker-tape-scroll:hover {
           animation-play-state: paused;
