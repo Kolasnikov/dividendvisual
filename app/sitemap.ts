@@ -8,6 +8,14 @@ const TICKERS = [
   'ABT', 'MDT', 'ABBV', 'XOM', 'CVX', 'T', 'VZ', 'SO', 'DUK',
   'NEE', 'O', 'FRT', 'GPC', 'CLX', 'SYY', 'TGT', 'MO', 'PM',
   'MAIN', 'BEN', 'VFC',
+  'KMB', 'CL', 'HRL', 'MKC', 'HSY', 'CPB',
+  'BMY', 'PFE', 'AMGN', 'BDX', 'SYK',
+  'EMR', 'ITW', 'CTAS', 'GD', 'CAT', 'PH',
+  'USB', 'AFL', 'TROW', 'CB', 'AMP',
+  'NNN', 'AMT', 'ADC',
+  'AWK', 'WEC', 'AEP', 'D',
+  'TXN', 'MSFT',
+  'ECL', 'ATO',
 ]
 
 const COLLECTIONS = [
@@ -23,6 +31,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const statics: MetadataRoute.Sitemap = [
     { url: BASE, lastModified: now, changeFrequency: 'daily', priority: 1 },
     { url: `${BASE}/watchlist`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${BASE}/opportunities`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${BASE}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
   ]
 

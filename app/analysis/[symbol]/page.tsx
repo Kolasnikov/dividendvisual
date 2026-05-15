@@ -8,6 +8,14 @@ const TICKERS = [
   'ABT', 'MDT', 'ABBV', 'XOM', 'CVX', 'T', 'VZ', 'SO', 'DUK',
   'NEE', 'O', 'FRT', 'GPC', 'CLX', 'SYY', 'TGT', 'MO', 'PM',
   'MAIN', 'BEN', 'VFC',
+  'KMB', 'CL', 'HRL', 'MKC', 'HSY', 'CPB',
+  'BMY', 'PFE', 'AMGN', 'BDX', 'SYK',
+  'EMR', 'ITW', 'CTAS', 'GD', 'CAT', 'PH',
+  'USB', 'AFL', 'TROW', 'CB', 'AMP',
+  'NNN', 'AMT', 'ADC',
+  'AWK', 'WEC', 'AEP', 'D',
+  'TXN', 'MSFT',
+  'ECL', 'ATO',
 ]
 
 interface PageProps {

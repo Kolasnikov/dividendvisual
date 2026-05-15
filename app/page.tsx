@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowRight, TrendingUp, Shield, BarChart3 } from 'lucide-react'
 import { TickerSearch } from '@/components/ui/TickerSearch'
 import { CollectionCard } from '@/components/cards/CollectionCard'
+import { EmailCapture } from '@/components/ui/EmailCapture'
 import type { Company, ComputedMetrics } from '@/lib/types'
 import { SignalBadge } from '@/components/ui/SignalBadge'
 
@@ -269,6 +270,11 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      {/* Email capture banner */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+        <EmailCapture />
+      </div>
 
       {/* FAQ */}
       <section className="max-w-3xl mx-auto px-4 sm:px-6 py-16">

@@ -25,37 +25,55 @@ TURSO_TOKEN = os.environ["TURSO_AUTH_TOKEN"]
 HTTP_URL = TURSO_URL.replace("libsql://", "https://") + "/v2/pipeline"
 
 TICKERS = [
-    # Dividend Kings / Aristocrats
+    # Original — Dividend Kings / Aristocrats
     "KO", "PEP", "JNJ", "PG", "MMM", "MCD", "WMT", "HD", "LOW",
-    # Healthcare
+    # Original — Healthcare
     "ABT", "MDT", "ABBV",
-    # Energy
+    # Original — Energy
     "XOM", "CVX",
-    # Telecom
+    # Original — Telecom
     "T", "VZ",
-    # Utilities
+    # Original — Utilities
     "SO", "DUK", "NEE",
-    # REITs
+    # Original — REITs
     "O", "FRT",
-    # Consumer
+    # Original — Consumer
     "GPC", "CLX", "SYY", "TGT", "MO", "PM",
-    # BDC
-    "MAIN",
-    # Financial
-    "BEN",
-    # Industrial
-    "VFC",
+    # Original — BDC / Financial / Industrial
+    "MAIN", "BEN", "VFC",
+    # New — Dividend Kings (consumer staples)
+    "KMB", "CL", "HRL", "MKC", "HSY", "CPB",
+    # New — Healthcare
+    "BMY", "PFE", "AMGN", "BDX", "SYK",
+    # New — Industrial Kings & Aristocrats
+    "EMR", "ITW", "CTAS", "GD", "CAT", "PH",
+    # New — Financial
+    "USB", "AFL", "TROW", "CB", "AMP",
+    # New — REITs
+    "NNN", "AMT", "ADC",
+    # New — Utilities
+    "AWK", "WEC", "AEP", "D",
+    # New — Tech dividend growers
+    "TXN", "MSFT",
+    # New — Other Aristocrats
+    "ECL", "ATO",
 ]
 
 COLLECTIONS = {
-    "dividend-kings":         ["KO", "PEP", "MMM", "GPC", "MO", "BEN", "FRT", "CLX"],
-    "dividend-aristocrats":   ["JNJ", "PG", "MCD", "WMT", "HD", "ABT", "MDT", "XOM",
-                               "CVX", "T", "SO", "DUK", "NEE", "ABBV", "PM", "SYY", "LOW"],
-    "buffett-style":          ["KO", "JNJ", "PG", "MCD", "WMT"],
-    "utilities":              ["SO", "DUK", "NEE"],
-    "reits":                  ["O", "FRT"],
-    "high-yield":             ["MO", "T", "VZ", "MAIN"],
-    "low-payout-compounders": ["HD", "LOW", "TGT", "ABT"],
+    "dividend-kings": [
+        "KO", "PEP", "MMM", "GPC", "MO", "BEN", "FRT", "CLX",
+        "KMB", "CL", "HRL", "BDX", "EMR", "ITW", "AFL",
+    ],
+    "dividend-aristocrats": [
+        "JNJ", "PG", "MCD", "WMT", "HD", "ABT", "MDT", "XOM",
+        "CVX", "T", "SO", "DUK", "NEE", "ABBV", "PM", "SYY", "LOW",
+        "MKC", "CTAS", "GD", "CAT", "TROW", "NNN", "ECL", "ATO", "SYK", "CB",
+    ],
+    "buffett-style":          ["KO", "JNJ", "PG", "MCD", "WMT", "AMGN", "AXP"],
+    "utilities":              ["SO", "DUK", "NEE", "AWK", "WEC", "AEP", "D"],
+    "reits":                  ["O", "FRT", "NNN", "AMT", "ADC"],
+    "high-yield":             ["MO", "T", "VZ", "MAIN", "BMY", "PFE"],
+    "low-payout-compounders": ["HD", "LOW", "TGT", "ABT", "TXN", "MSFT", "CTAS"],
 }
 
 
