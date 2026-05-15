@@ -110,6 +110,14 @@ def load_prices(symbol: str) -> pd.DataFrame:
     df = pd.DataFrame(rows)
     df["date"] = pd.to_datetime(df["date"])
     df = df.set_index("date").sort_index()
+
+    # Remove obvious price outliers — weekly closes that deviate >50% from the
+    # centred 5-week rolling median (catches bad yfinance data points).
+    if len(df) >= 5:
+        rolling_med = df["close"].rolling(window=5, min_periods=3, center=True).median()
+        ratio = df["close"] / rolling_med
+        df = df[(ratio >= 0.5) & (ratio <= 2.0)]
+
     return df
 
 
@@ -127,12 +135,37 @@ def load_dividends(symbol: str) -> pd.DataFrame:
 
 
 def compute_trailing_annual_dividend(div_df: pd.DataFrame, date: pd.Timestamp) -> float:
-    """Sum of regular dividends in the trailing 12 months before date."""
+    """Annualised dividend for a given date using a capped trailing-13M window.
+
+    Uses 13 months (not 12) to avoid missing a payment that falls just outside a
+    calendar-year boundary due to declaration timing.  A year-over-year cap of 2×
+    prevents un-filtered special dividends or yfinance data artifacts from spiking
+    the bands — a legitimate 100 %+ YoY dividend raise is extremely rare.
+    """
     if div_df.empty:
         return 0.0
-    window_start = date - pd.DateOffset(years=1)
-    mask = (div_df.index >= window_start) & (div_df.index <= date) & (div_df["is_special"] == 0)
-    return float(div_df.loc[mask, "amount"].sum())
+
+    regular = div_df[div_df["is_special"] == 0]["amount"]
+
+    # Current window: trailing 13 months
+    window_start = date - pd.DateOffset(months=13)
+    current = regular[(regular.index >= window_start) & (regular.index <= date)]
+    current_sum = float(current.sum()) if not current.empty else 0.0
+
+    if current_sum == 0.0:
+        return 0.0
+
+    # Prior-year window for cap (13 months ending 12 months ago)
+    prior_end   = date - pd.DateOffset(months=12)
+    prior_start = prior_end - pd.DateOffset(months=13)
+    prior = regular[(regular.index >= prior_start) & (regular.index < prior_end)]
+    prior_sum = float(prior.sum()) if not prior.empty else 0.0
+
+    # Cap: annual dividend cannot more than double year-over-year
+    if prior_sum > 0:
+        current_sum = min(current_sum, prior_sum * 2.0)
+
+    return current_sum
 
 
 def compute_weiss_bands(symbol: str, price_df: pd.DataFrame, div_df: pd.DataFrame) -> pd.DataFrame:

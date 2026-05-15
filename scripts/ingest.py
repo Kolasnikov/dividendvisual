@@ -183,13 +183,20 @@ def init_schema():
 
 
 def detect_special_dividends(div_series: pd.Series) -> pd.Series:
-    """Return boolean mask for special dividends (>2.5x median)."""
+    """Return boolean mask for special dividends.
+
+    A payment is considered special if:
+    - It is > 1.8x the median regular payment, OR
+    - It is > 1.5x the 90th percentile of all payments (catches large one-offs
+      even when the median itself is elevated by past specials).
+    """
     if div_series.empty:
         return pd.Series(dtype=bool)
     median = div_series.median()
     if median == 0:
         return pd.Series([False] * len(div_series), index=div_series.index)
-    return div_series > (2.5 * median)
+    p90 = div_series.quantile(0.90)
+    return (div_series > (1.8 * median)) | (div_series > (1.5 * p90))
 
 
 def get_ticker_info(ticker: yf.Ticker) -> dict:
@@ -216,15 +223,15 @@ def ingest_ticker(symbol: str) -> bool:
 
         # --- Price history + dividends (10 years, weekly) ---
         # Using history() for both so dividends are period-limited and split-adjusted consistently
-        hist = tk.history(period="10y", interval="1wk", auto_adjust=True)
+        hist = tk.history(period="15y", interval="1wk", auto_adjust=True)
         if hist.empty:
             print(f"  [{symbol}] No price data, skipping.")
             return False
         prices = hist[["Close"]].dropna()
         prices.index = pd.to_datetime(prices.index).tz_localize(None)
 
-        # Dividends: use daily history to get all dividend events in the 10Y window
-        hist_daily = tk.history(period="10y", interval="1d", auto_adjust=True)
+        # Dividends: use daily history to get all dividend events in the 15Y window
+        hist_daily = tk.history(period="15y", interval="1d", auto_adjust=True)
         divs_raw = hist_daily["Dividends"] if "Dividends" in hist_daily.columns else pd.Series(dtype=float)
         divs = divs_raw[divs_raw > 0].copy()
         if not divs.empty:
