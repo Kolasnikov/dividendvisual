@@ -1,26 +1,139 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* shadcn semantic tokens */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+
+  /* DividendVisual brand tokens */
+  --color-dv-bg: #09090b;
+  --color-dv-card: #111118;
+  --color-dv-border: #1e1e2e;
+  --color-dv-text: #f4f4f5;
+  --color-dv-muted: #71717a;
+  --color-dv-accent: #6366f1;
+  --color-dv-green: #22c55e;
+  --color-dv-red: #ef4444;
+  --color-dv-amber: #f59e0b;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Always dark — no light mode */
+:root {
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --card: #111118;
+  --card-foreground: #f4f4f5;
+  --popover: #111118;
+  --popover-foreground: #f4f4f5;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --secondary: #1e1e2e;
+  --secondary-foreground: #f4f4f5;
+  --muted: #1e1e2e;
+  --muted-foreground: #71717a;
+  --accent: #6366f1;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --border: #1e1e2e;
+  --input: #1e1e2e;
+  --ring: #6366f1;
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  html {
+    @apply font-sans;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Blog prose styles */
+.prose-dv h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f4f4f5;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+.prose-dv h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #f4f4f5;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+.prose-dv p {
+  color: #a1a1aa;
+  line-height: 1.8;
+  margin-bottom: 1.25rem;
+}
+.prose-dv strong {
+  color: #f4f4f5;
+  font-weight: 600;
+}
+.prose-dv a {
+  color: #6366f1;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-dv a:hover {
+  color: #818cf8;
+}
+.prose-dv ul, .prose-dv ol {
+  color: #a1a1aa;
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.8;
+}
+.prose-dv ul { list-style-type: disc; }
+.prose-dv ol { list-style-type: decimal; }
+.prose-dv li { margin-bottom: 0.35rem; }
+.prose-dv blockquote {
+  border-left: 3px solid #6366f1;
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  color: #71717a;
+  font-style: italic;
+}
+.prose-dv code {
+  background: #1e1e2e;
+  color: #f4f4f5;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+.prose-dv hr {
+  border-color: #1e1e2e;
+  margin: 2rem 0;
 }

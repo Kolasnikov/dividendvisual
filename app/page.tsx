@@ -1,65 +1,310 @@
-import Image from "next/image";
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import { ArrowRight, TrendingUp, Shield, BarChart3 } from 'lucide-react'
+import { TickerSearch } from '@/components/ui/TickerSearch'
+import { CollectionCard } from '@/components/cards/CollectionCard'
+import type { Company, ComputedMetrics } from '@/lib/types'
+import { SignalBadge } from '@/components/ui/SignalBadge'
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: 'DividendVisual — Dividend Valuation Tool for Income Investors',
+  description: 'Visual dividend valuation using the Geraldine Weiss method. See if KO, JNJ, PG and 30+ dividend stocks are historically cheap or expensive based on yield history. Free dividend analysis tool.',
+  openGraph: {
+    title: 'DividendVisual — Dividend Valuation Tool for Income Investors',
+    description: 'Visual dividend valuation using the Geraldine Weiss method. See if 30+ dividend stocks are historically cheap or expensive based on yield history.',
+    url: 'https://dividendvisual.com',
+  },
+}
+
+const FAQ = [
+  {
+    q: 'What is the Geraldine Weiss dividend valuation method?',
+    a: 'Geraldine Weiss was a pioneering investment analyst who argued that a stock\'s intrinsic value is best measured by its dividend yield history. When a stock\'s yield reaches its historical high (stock price is low), the stock is undervalued. When yield is at a historical low (price is high), the stock is overvalued. DividendVisual visualizes these bands for each stock using 10 years of data.',
+  },
+  {
+    q: 'What does "undervalued" mean for a dividend stock?',
+    a: 'A stock is flagged as undervalued when its current dividend yield is near the top of its 10-year historical range — meaning the stock price is historically low relative to the dividend it pays. This is a buy signal in the Weiss method, not a guarantee of returns.',
+  },
+  {
+    q: 'What are Dividend Kings and Dividend Aristocrats?',
+    a: 'Dividend Kings are companies that have increased their annual dividend for 50 or more consecutive years — the gold standard of income investing. Dividend Aristocrats are S&P 500 companies with 25+ consecutive years of dividend growth. Both groups are screened for the highest dividend reliability.',
+  },
+  {
+    q: 'How is the quality score calculated?',
+    a: 'The quality score (0–100) is a composite of five factors: dividend streak (years of uninterrupted payments), payout ratio (how much of earnings is paid as dividend), free cash flow coverage, 5-year dividend CAGR, and Weiss signal strength. Higher scores indicate more reliable and sustainable dividend stocks.',
+  },
+  {
+    q: 'How often is the data updated?',
+    a: 'Price and dividend data is refreshed daily. Valuation bands, quality scores, and metrics are recalculated after each data update. Individual pages cache data for up to 1 hour.',
+  },
+  {
+    q: 'Is DividendVisual financial advice?',
+    a: 'No. DividendVisual is an informational tool for educational and research purposes only. Nothing on this site constitutes financial, investment, or tax advice. Always consult a qualified financial advisor before making investment decisions.',
+  },
+]
+
+const FAQ_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQ.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+}
+
+type WatchlistRow = Company & ComputedMetrics
+
+async function getTopPicks(): Promise<WatchlistRow[]> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
+  try {
+    const res = await fetch(`${baseUrl}/api/watchlist?sort=quality&order=desc`, {
+      next: { revalidate: 3600 },
+    })
+    if (!res.ok) return []
+    const all: WatchlistRow[] = await res.json()
+    return all.filter((r) => r.weissSignal === 'undervalued').slice(0, 4)
+  } catch {
+    return []
+  }
+}
+
+const COLLECTIONS = [
+  {
+    slug: 'dividend-kings',
+    title: 'Dividend Kings',
+    description: '50+ consecutive years of dividend growth — the most reliable income stocks.',
+    count: 8,
+    accent: '#f59e0b',
+  },
+  {
+    slug: 'dividend-aristocrats',
+    title: 'Dividend Aristocrats',
+    description: 'S&P 500 companies with 25+ years of consecutive dividend growth.',
+    count: 17,
+    accent: '#6366f1',
+  },
+  {
+    slug: 'buffett-style',
+    title: 'Buffett-Style',
+    description: 'Wide-moat compounders with durable competitive advantages.',
+    count: 5,
+    accent: '#22c55e',
+  },
+  {
+    slug: 'high-yield',
+    title: 'High Yield',
+    description: 'Above-average yields with established dividend track records.',
+    count: 4,
+    accent: '#ef4444',
+  },
+  {
+    slug: 'utilities',
+    title: 'Utilities',
+    description: 'Regulated utility companies providing stable, predictable income.',
+    count: 3,
+    accent: '#06b6d4',
+  },
+  {
+    slug: 'low-payout-compounders',
+    title: 'Low Payout Compounders',
+    description: 'Conservative payout ratios with maximum room for future growth.',
+    count: 4,
+    accent: '#8b5cf6',
+  },
+]
+
+const FEATURES = [
+  {
+    Icon: TrendingUp,
+    title: 'Weiss Valuation Bands',
+    description:
+      'See whether a stock is historically cheap or expensive based on its own dividend yield history.',
+  },
+  {
+    Icon: Shield,
+    title: 'Dividend Quality Score',
+    description:
+      'A composite 0–100 score built from payout ratio, streak, growth rate, and FCF coverage.',
+  },
+  {
+    Icon: BarChart3,
+    title: 'Income Compounder',
+    description:
+      'Project your future dividend income with DRIP reinvestment over any time horizon.',
+  },
+]
+
+function pct(v: number | null): string {
+  if (v == null) return '—'
+  return `${(v * 100).toFixed(2)}%`
+}
+
+export default async function HomePage() {
+  const topPicks = await getTopPicks()
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }}
+      />
+      {/* Hero */}
+      <section className="relative flex flex-col items-center justify-center py-24 px-4 text-center overflow-hidden">
+        {/* Subtle radial gradient */}
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse 60% 40% at 50% 0%, #6366f120 0%, transparent 70%)',
+          }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+
+        <div className="relative max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 bg-[#6366f1]/10 border border-[#6366f1]/20 rounded-full px-4 py-1.5 mb-8">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#6366f1]" />
+            <span className="text-xs text-[#6366f1] font-medium">Geraldine Weiss method, modernized</span>
+          </div>
+
+          <h1 className="text-5xl sm:text-6xl font-bold text-[#f4f4f5] leading-tight mb-6">
+            Understand dividend valuation{' '}
+            <span className="text-[#6366f1]">visually.</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+          <p className="text-lg text-[#71717a] max-w-xl mx-auto mb-10">
+            See if a stock is historically cheap or expensive — based on its own
+            dividend yield history. Built for serious income investors.
           </p>
+
+          <div className="max-w-xl mx-auto mb-6">
+            <TickerSearch size="lg" placeholder="Search any ticker — KO, JNJ, PG..." />
+          </div>
+
+          <div className="flex items-center justify-center gap-2 text-xs text-[#71717a]">
+            <span>Popular:</span>
+            {['KO', 'JNJ', 'PG', 'O', 'MO'].map((sym) => (
+              <Link
+                key={sym}
+                href={`/ticker/${sym}`}
+                className="px-2 py-0.5 rounded-md bg-[#1e1e2e] text-[#71717a] hover:text-[#f4f4f5] transition-colors font-mono text-xs"
+              >
+                {sym}
+              </Link>
+            ))}
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Features */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {FEATURES.map(({ Icon, title, description }) => (
+            <div
+              key={title}
+              className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-6"
+            >
+              <div className="w-9 h-9 rounded-lg bg-[#6366f1]/15 flex items-center justify-center mb-4">
+                <Icon className="w-5 h-5 text-[#6366f1]" />
+              </div>
+              <h3 className="font-semibold text-[#f4f4f5] mb-2">{title}</h3>
+              <p className="text-sm text-[#71717a] leading-relaxed">{description}</p>
+            </div>
+          ))}
         </div>
-      </main>
+      </section>
+
+      {/* Collections */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-[#f4f4f5]">Curated Collections</h2>
+          <Link
+            href="/watchlist"
+            className="flex items-center gap-1 text-sm text-[#71717a] hover:text-[#f4f4f5] transition-colors"
+          >
+            View all <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {COLLECTIONS.map((col) => (
+            <CollectionCard key={col.slug} {...col} />
+          ))}
+        </div>
+      </section>
+
+      {/* Top Picks — only shown if data is available */}
+      {topPicks.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+          <h2 className="text-xl font-bold text-[#f4f4f5] mb-6">
+            Currently Undervalued
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {topPicks.map((row) => (
+              <Link
+                key={row.symbol}
+                href={`/ticker/${row.symbol}`}
+                className="bg-[#111118] border border-[#22c55e]/30 rounded-xl p-4 hover:border-[#22c55e]/60 transition-colors group"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <div className="font-mono font-semibold text-[#f4f4f5] group-hover:text-[#6366f1] transition-colors">
+                      {row.symbol}
+                    </div>
+                    <div className="text-xs text-[#71717a] mt-0.5 line-clamp-1">{row.name}</div>
+                  </div>
+                  <SignalBadge signal="undervalued" size="sm" />
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <div className="text-[#71717a]">Yield</div>
+                    <div className="text-[#22c55e] font-semibold">{pct(row.currentYield)}</div>
+                  </div>
+                  <div>
+                    <div className="text-[#71717a]">Quality</div>
+                    <div className="text-[#6366f1] font-semibold">{row.qualityScore}/100</div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* FAQ */}
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 py-16">
+        <h2 className="text-xl font-bold text-[#f4f4f5] mb-8 text-center">Frequently Asked Questions</h2>
+        <div className="space-y-4">
+          {FAQ.map(({ q, a }) => (
+            <details
+              key={q}
+              className="group bg-[#111118] border border-[#1e1e2e] rounded-xl overflow-hidden"
+            >
+              <summary className="flex items-center justify-between px-5 py-4 cursor-pointer text-sm font-medium text-[#f4f4f5] list-none select-none hover:text-[#6366f1] transition-colors">
+                {q}
+                <span className="ml-4 text-[#71717a] group-open:rotate-180 transition-transform text-base leading-none">↓</span>
+              </summary>
+              <p className="px-5 pb-4 text-sm text-[#71717a] leading-relaxed">{a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-[#1e1e2e] mt-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-sm text-[#71717a]">
+            © 2026 DividendVisual.com — For informational purposes only. Not financial advice.
+          </div>
+          <div className="flex gap-4 text-sm text-[#71717a]">
+            <Link href="/watchlist" className="hover:text-[#f4f4f5] transition-colors">
+              Watchlist
+            </Link>
+            <Link href="/collections/dividend-kings" className="hover:text-[#f4f4f5] transition-colors">
+              Collections
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
-  );
+  )
 }
