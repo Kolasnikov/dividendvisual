@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, TrendingUp, Shield, BarChart3 } from 'lucide-react'
+import { ArrowRight, TrendingUp, Shield, BarChart3, Search, LineChart, Zap } from 'lucide-react'
 import { TickerSearch } from '@/components/ui/TickerSearch'
 import { CollectionCard } from '@/components/cards/CollectionCard'
 import { EmailCapture } from '@/components/ui/EmailCapture'
@@ -218,6 +218,62 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* How it works */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl font-bold text-[#f4f4f5] mb-3">How it works</h2>
+          <p className="text-[#71717a] max-w-lg mx-auto text-sm">
+            The Geraldine Weiss method in three steps — no spreadsheets, no guesswork.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+          {/* Connector line — desktop only */}
+          <div className="hidden md:block absolute top-8 left-1/3 right-1/3 h-px bg-gradient-to-r from-[#6366f1]/30 via-[#6366f1]/60 to-[#6366f1]/30" />
+
+          {[
+            {
+              step: '01',
+              Icon: Search,
+              title: 'Search a dividend stock',
+              body: 'Find any of 62 tracked blue-chip dividend payers. From Coca-Cola to Johnson & Johnson — Kings, Aristocrats, REITs, and more.',
+            },
+            {
+              step: '02',
+              Icon: LineChart,
+              title: 'Read the yield chart',
+              body: 'See where today\'s yield sits on a 10-year scale. Near the top of the range means the stock is historically cheap. Near the bottom means it\'s expensive.',
+            },
+            {
+              step: '03',
+              Icon: Zap,
+              title: 'Act with conviction',
+              body: 'The Undervalued / Fair / Overvalued signal tells you whether you\'re getting a historically attractive entry — backed by a decade of data, not gut feeling.',
+            },
+          ].map(({ step, Icon, title, body }) => (
+            <div key={step} className="relative bg-[#111118] border border-[#1e1e2e] rounded-xl p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-3xl font-bold text-[#6366f1]/25 font-mono leading-none">{step}</span>
+                <div className="w-8 h-8 rounded-lg bg-[#6366f1]/15 flex items-center justify-center">
+                  <Icon className="w-4 h-4 text-[#6366f1]" />
+                </div>
+              </div>
+              <h3 className="font-semibold text-[#f4f4f5] mb-2">{title}</h3>
+              <p className="text-sm text-[#71717a] leading-relaxed">{body}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center mt-8">
+          <Link
+            href="/blog/geraldine-weiss-dividend-valuation-method"
+            className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors"
+          >
+            Learn more about the Weiss method →
+          </Link>
+        </div>
+      </section>
+
       {/* Collections */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex items-center justify-between mb-6">
@@ -300,18 +356,80 @@ export default async function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#1e1e2e] mt-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="text-sm text-[#71717a]">
-            © 2026 DividendVisual.com — For informational purposes only. Not financial advice.
+      <footer className="border-t border-[#1e1e2e] mt-8 bg-[#09090b]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+
+            {/* Brand */}
+            <div className="col-span-2 md:col-span-1">
+              <Link href="/" className="inline-block mb-3">
+                <span className="font-bold text-[#f4f4f5] text-lg tracking-tight">
+                  Dividend<span className="text-[#6366f1]">Visual</span>
+                </span>
+              </Link>
+              <p className="text-xs text-[#52525b] leading-relaxed max-w-[180px]">
+                Visual dividend valuation for serious income investors.
+              </p>
+            </div>
+
+            {/* Tool */}
+            <div>
+              <p className="text-xs font-semibold text-[#f4f4f5] uppercase tracking-wider mb-4">Tool</p>
+              <div className="flex flex-col gap-2.5">
+                {[
+                  { href: '/watchlist',     label: 'Screener' },
+                  { href: '/opportunities', label: 'Opportunities' },
+                  { href: '/collections/dividend-kings', label: 'Collections' },
+                  { href: '/blog',          label: 'Blog' },
+                ].map(({ href, label }) => (
+                  <Link key={href} href={href} className="text-sm text-[#71717a] hover:text-[#f4f4f5] transition-colors">
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Collections */}
+            <div>
+              <p className="text-xs font-semibold text-[#f4f4f5] uppercase tracking-wider mb-4">Collections</p>
+              <div className="flex flex-col gap-2.5">
+                {[
+                  { href: '/collections/dividend-kings',       label: 'Dividend Kings' },
+                  { href: '/collections/dividend-aristocrats', label: 'Aristocrats' },
+                  { href: '/collections/utilities',            label: 'Utilities' },
+                  { href: '/collections/reits',                label: 'REITs' },
+                  { href: '/collections/high-yield',           label: 'High Yield' },
+                ].map(({ href, label }) => (
+                  <Link key={href} href={href} className="text-sm text-[#71717a] hover:text-[#f4f4f5] transition-colors">
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Learn */}
+            <div>
+              <p className="text-xs font-semibold text-[#f4f4f5] uppercase tracking-wider mb-4">Learn</p>
+              <div className="flex flex-col gap-2.5">
+                {[
+                  { href: '/blog/geraldine-weiss-dividend-valuation-method', label: 'Weiss Method' },
+                  { href: '/blog/how-to-find-undervalued-dividend-stocks',   label: 'Find Undervalued Stocks' },
+                  { href: '/blog/dividend-yield-trap',                       label: 'The Yield Trap' },
+                  { href: '/blog/dividend-kings-list-analysis',              label: 'Dividend Kings' },
+                  { href: '/blog/dividend-aristocrats-vs-kings',             label: 'Aristocrats vs Kings' },
+                ].map(({ href, label }) => (
+                  <Link key={href} href={href} className="text-sm text-[#71717a] hover:text-[#f4f4f5] transition-colors">
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
           </div>
-          <div className="flex gap-4 text-sm text-[#71717a]">
-            <Link href="/watchlist" className="hover:text-[#f4f4f5] transition-colors">
-              Watchlist
-            </Link>
-            <Link href="/collections/dividend-kings" className="hover:text-[#f4f4f5] transition-colors">
-              Collections
-            </Link>
+
+          <div className="border-t border-[#1e1e2e] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-xs text-[#52525b]">© 2026 DividendVisual. All rights reserved.</p>
+            <p className="text-xs text-[#3e3e4e]">Built for income investors.</p>
           </div>
         </div>
       </footer>
