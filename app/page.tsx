@@ -8,11 +8,11 @@ import type { Company, ComputedMetrics } from '@/lib/types'
 import { SignalBadge } from '@/components/ui/SignalBadge'
 
 export const metadata: Metadata = {
-  title: 'DividendVisual — Dividend Valuation Tool for Income Investors',
-  description: 'Visual dividend valuation using the Geraldine Weiss method. See if KO, JNJ, PG and 30+ dividend stocks are historically cheap or expensive based on yield history. Free dividend analysis tool.',
+  title: 'DividendVisual — Find Undervalued Dividend Stocks | Geraldine Weiss Method',
+  description: 'Geraldine Weiss dividend yield valuation for 60+ stocks. See if KO, JNJ, PG and other dividend kings are historically cheap or expensive. Free dividend analysis tool for income investors.',
   openGraph: {
-    title: 'DividendVisual — Dividend Valuation Tool for Income Investors',
-    description: 'Visual dividend valuation using the Geraldine Weiss method. See if 30+ dividend stocks are historically cheap or expensive based on yield history.',
+    title: 'DividendVisual — Find Undervalued Dividend Stocks',
+    description: 'Geraldine Weiss dividend yield valuation for 60+ stocks. See if dividend kings and aristocrats are historically cheap or expensive based on 10 years of yield data.',
     url: 'https://dividendvisual.com',
   },
 }
@@ -75,42 +75,42 @@ const COLLECTIONS = [
     slug: 'dividend-kings',
     title: 'Dividend Kings',
     description: '50+ consecutive years of dividend growth — the most reliable income stocks.',
-    count: 8,
+    count: 15,
     accent: '#f59e0b',
   },
   {
     slug: 'dividend-aristocrats',
     title: 'Dividend Aristocrats',
     description: 'S&P 500 companies with 25+ years of consecutive dividend growth.',
-    count: 17,
+    count: 27,
     accent: '#6366f1',
   },
   {
     slug: 'buffett-style',
     title: 'Buffett-Style',
     description: 'Wide-moat compounders with durable competitive advantages.',
-    count: 5,
+    count: 7,
     accent: '#22c55e',
   },
   {
     slug: 'high-yield',
     title: 'High Yield',
     description: 'Above-average yields with established dividend track records.',
-    count: 4,
+    count: 6,
     accent: '#ef4444',
   },
   {
     slug: 'utilities',
     title: 'Utilities',
     description: 'Regulated utility companies providing stable, predictable income.',
-    count: 3,
+    count: 7,
     accent: '#06b6d4',
   },
   {
     slug: 'low-payout-compounders',
     title: 'Low Payout Compounders',
     description: 'Conservative payout ratios with maximum room for future growth.',
-    count: 4,
+    count: 7,
     accent: '#8b5cf6',
   },
 ]
@@ -162,20 +162,24 @@ export default async function HomePage() {
         />
 
         <div className="relative max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-[#6366f1]/10 border border-[#6366f1]/20 rounded-full px-4 py-1.5 mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#6366f1]" />
-            <span className="text-xs text-[#6366f1] font-medium">Geraldine Weiss method, modernized</span>
-          </div>
-
           <h1 className="text-5xl sm:text-6xl font-bold text-[#f4f4f5] leading-tight mb-6">
-            Understand dividend valuation{' '}
+            Find undervalued dividend stocks,{' '}
             <span className="text-[#6366f1]">visually.</span>
           </h1>
 
-          <p className="text-lg text-[#71717a] max-w-xl mx-auto mb-10">
-            See if a stock is historically cheap or expensive — based on its own
-            dividend yield history. Built for serious income investors.
+          <p className="text-lg text-[#71717a] max-w-xl mx-auto mb-4">
+            The <strong className="text-[#a1a1aa] font-medium">Geraldine Weiss dividend yield method</strong> — modernized.
+            See if KO, JNJ, PG and 60+ dividend stocks are trading at historically cheap or expensive prices.
           </p>
+
+          {/* Stats bar */}
+          <div className="flex items-center justify-center gap-6 text-xs text-[#52525b] mb-10">
+            <span><span className="text-[#f4f4f5] font-semibold">62</span> stocks tracked</span>
+            <span className="w-px h-3 bg-[#2e2e3e]" />
+            <span><span className="text-[#f4f4f5] font-semibold">10</span> years of yield data</span>
+            <span className="w-px h-3 bg-[#2e2e3e]" />
+            <span><span className="text-[#f4f4f5] font-semibold">Free</span> dividend analysis</span>
+          </div>
 
           <div className="max-w-xl mx-auto mb-6">
             <TickerSearch size="lg" placeholder="Search any ticker — KO, JNJ, PG..." />
