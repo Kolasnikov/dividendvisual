@@ -134,36 +134,59 @@ def load_dividends(symbol: str) -> pd.DataFrame:
     return df
 
 
-def compute_trailing_annual_dividend(div_df: pd.DataFrame, date: pd.Timestamp) -> float:
-    """Annualised dividend for a given date using a capped trailing-13M window.
+def detect_payment_frequency(div_df: pd.DataFrame) -> int:
+    """Return expected payments per year: 12 (monthly), 4 (quarterly), 2 (semi-annual), 1 (annual)."""
+    regular = div_df[div_df["is_special"] == 0]["amount"] if not div_df.empty else pd.Series([], dtype=float)
+    if len(regular) < 2:
+        return 4  # default quarterly
+    diffs = regular.index.to_series().diff().dropna()
+    median_days = diffs.median().days
+    if median_days < 45:
+        return 12
+    if median_days < 120:
+        return 4
+    if median_days < 240:
+        return 2
+    return 1
 
-    Uses 13 months (not 12) to avoid missing a payment that falls just outside a
-    calendar-year boundary due to declaration timing.  A year-over-year cap of 2×
-    prevents un-filtered special dividends or yfinance data artifacts from spiking
-    the bands — a legitimate 100 %+ YoY dividend raise is extremely rare.
+
+def compute_trailing_annual_dividend(div_df: pd.DataFrame, date: pd.Timestamp, freq: int) -> float:
+    """Annualised dividend for a given date.
+
+    Takes exactly `freq` most-recent regular payments up to `date` and sums them.
+    Using a fixed payment count (not a time window) avoids the 4-vs-5 quarterly
+    payment oscillation that produced the sawtooth band pattern.
+    A 2× YoY cap guards against residual special-dividend artifacts.
     """
     if div_df.empty:
         return 0.0
 
     regular = div_df[div_df["is_special"] == 0]["amount"]
+    past = regular[regular.index <= date]
 
-    # Current window: trailing 13 months
-    window_start = date - pd.DateOffset(months=13)
-    current = regular[(regular.index >= window_start) & (regular.index <= date)]
-    current_sum = float(current.sum()) if not current.empty else 0.0
+    if past.empty:
+        return 0.0
+
+    # Take exactly freq payments; if history is short, extrapolate from last payment
+    n = min(freq, len(past))
+    current_sum = float(past.iloc[-n:].sum())
+    if n < freq:
+        # Scale up to a full year
+        current_sum = current_sum / n * freq
 
     if current_sum == 0.0:
         return 0.0
 
-    # Prior-year window for cap (13 months ending 12 months ago)
-    prior_end   = date - pd.DateOffset(months=12)
-    prior_start = prior_end - pd.DateOffset(months=13)
-    prior = regular[(regular.index >= prior_start) & (regular.index < prior_end)]
-    prior_sum = float(prior.sum()) if not prior.empty else 0.0
-
-    # Cap: annual dividend cannot more than double year-over-year
-    if prior_sum > 0:
-        current_sum = min(current_sum, prior_sum * 2.0)
+    # YoY cap: look at same freq payments one year earlier
+    prior_date = date - pd.DateOffset(months=12)
+    prior_past = regular[regular.index <= prior_date]
+    if not prior_past.empty:
+        np_ = min(freq, len(prior_past))
+        prior_sum = float(prior_past.iloc[-np_:].sum())
+        if np_ < freq:
+            prior_sum = prior_sum / np_ * freq
+        if prior_sum > 0:
+            current_sum = min(current_sum, prior_sum * 2.0)
 
     return current_sum
 
@@ -183,9 +206,12 @@ def compute_weiss_bands(symbol: str, price_df: pd.DataFrame, div_df: pd.DataFram
     records = []
     window_bars = WINDOW_YEARS * 52  # ~52 weeks per year
 
+    # Detect payment frequency once per ticker
+    freq = detect_payment_frequency(div_df)
+
     # Precompute annual dividends per date for efficiency
     dates = price_df.index.tolist()
-    annual_divs = [compute_trailing_annual_dividend(div_df, d) for d in dates]
+    annual_divs = [compute_trailing_annual_dividend(div_df, d, freq) for d in dates]
 
     prices = price_df["close"].values
 
