@@ -63,9 +63,13 @@ export function DRIPChart({ metrics }: DRIPChartProps) {
     ? Math.round(metrics.dividendCagr5y * 1000) / 10
     : 5.0
 
-  const [investment, setInvestment] = useState(10000)
-  const [horizon, setHorizon] = useState(10)
-  const [cagrPct, setCagrPct] = useState(defaultCagr)
+  const [investmentStr, setInvestmentStr] = useState('10000')
+  const [horizonStr, setHorizonStr] = useState('10')
+  const [cagrStr, setCagrStr] = useState(String(defaultCagr))
+
+  const investment = Math.max(100, parseFloat(investmentStr) || 100)
+  const horizon = Math.max(1, Math.min(40, parseInt(horizonStr) || 1))
+  const cagrPct = Math.max(0, Math.min(30, parseFloat(cagrStr) || 0))
 
   const data = useMemo(() => {
     if (metrics.currentYield <= 0 || metrics.currentPrice <= 0) return []
@@ -95,8 +99,9 @@ export function DRIPChart({ metrics }: DRIPChartProps) {
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#71717a] text-sm">$</span>
             <input
               type="number"
-              value={investment}
-              onChange={(e) => setInvestment(Math.max(100, Number(e.target.value)))}
+              value={investmentStr}
+              onChange={(e) => setInvestmentStr(e.target.value)}
+              onBlur={() => setInvestmentStr(String(Math.max(100, parseFloat(investmentStr) || 100)))}
               className="w-full bg-[#09090b] border border-[#1e1e2e] rounded-md pl-7 pr-3 py-2 text-sm text-[#f4f4f5] focus:outline-none focus:border-[#6366f1]"
               min={100}
               step={1000}
@@ -107,8 +112,9 @@ export function DRIPChart({ metrics }: DRIPChartProps) {
           <label className="text-xs text-[#71717a] block mb-1.5">Horizon (years)</label>
           <input
             type="number"
-            value={horizon}
-            onChange={(e) => setHorizon(Math.max(1, Math.min(40, Number(e.target.value))))}
+            value={horizonStr}
+            onChange={(e) => setHorizonStr(e.target.value)}
+            onBlur={() => setHorizonStr(String(Math.max(1, Math.min(40, parseInt(horizonStr) || 1))))}
             className="w-full bg-[#09090b] border border-[#1e1e2e] rounded-md px-3 py-2 text-sm text-[#f4f4f5] focus:outline-none focus:border-[#6366f1]"
             min={1}
             max={40}
@@ -118,8 +124,9 @@ export function DRIPChart({ metrics }: DRIPChartProps) {
           <label className="text-xs text-[#71717a] block mb-1.5">Div. CAGR (%)</label>
           <input
             type="number"
-            value={cagrPct}
-            onChange={(e) => setCagrPct(Math.max(0, Math.min(30, Number(e.target.value))))}
+            value={cagrStr}
+            onChange={(e) => setCagrStr(e.target.value)}
+            onBlur={() => setCagrStr(String(Math.max(0, Math.min(30, parseFloat(cagrStr) || 0))))}
             className="w-full bg-[#09090b] border border-[#1e1e2e] rounded-md px-3 py-2 text-sm text-[#f4f4f5] focus:outline-none focus:border-[#6366f1]"
             min={0}
             max={30}
