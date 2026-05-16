@@ -10,6 +10,7 @@ import { DRIPChart } from '@/components/charts/DRIPChart'
 import { SignalBadge } from '@/components/ui/SignalBadge'
 import { DividendBadge } from '@/components/ui/DividendBadge'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { TrackPageView } from '@/components/analytics/TrackPageView'
 
 interface PageProps {
   params: Promise<{ symbol: string }>
@@ -145,6 +146,7 @@ export default async function TickerPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <TrackPageView event="ticker_viewed" properties={{ symbol: company.symbol, signal: metrics.weissSignal ?? 'unknown', qualityScore: metrics.qualityScore ?? 0 }} />
 
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },

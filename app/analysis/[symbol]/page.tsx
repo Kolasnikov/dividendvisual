@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import type { TickerResponse, Company, ComputedMetrics } from '@/lib/types'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { TrackPageView } from '@/components/analytics/TrackPageView'
 
 const TICKERS = [
   'KO', 'PEP', 'JNJ', 'PG', 'MMM', 'MCD', 'WMT', 'HD', 'LOW',
@@ -277,6 +278,7 @@ export default async function AnalysisPage({ params }: PageProps) {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <TrackPageView event="analysis_viewed" properties={{ symbol: sym, signal: metrics.weissSignal ?? 'unknown', qualityScore: metrics.qualityScore ?? 0 }} />
 
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },

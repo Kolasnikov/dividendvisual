@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
+import { track } from '@vercel/analytics'
 import Link from 'next/link'
 import { Search, X } from 'lucide-react'
 import type { Company, ComputedMetrics } from '@/lib/types'
@@ -58,6 +59,14 @@ export function WatchlistClient({ rows }: { rows: Row[] }) {
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<SortCol>('quality')
   const [order, setOrder] = useState<'asc' | 'desc'>('desc')
+
+  const mounted = useRef(false)
+  useEffect(() => {
+    if (!mounted.current) { mounted.current = true; return }
+    if (signal || badge || sector) {
+      track('watchlist_filtered', { signal: signal || 'all', badge: badge || 'all', sector: sector || 'all' })
+    }
+  }, [signal, badge, sector])
 
   const sectors = useMemo(() => {
     const s = new Set(rows.map((r) => r.sector).filter(Boolean) as string[])

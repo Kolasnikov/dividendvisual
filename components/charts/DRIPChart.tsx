@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { track } from '@vercel/analytics'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import type { ComputedMetrics } from '@/lib/types'
 
@@ -114,7 +115,11 @@ export function DRIPChart({ metrics }: DRIPChartProps) {
             type="number"
             value={horizonStr}
             onChange={(e) => setHorizonStr(e.target.value)}
-            onBlur={() => setHorizonStr(String(Math.max(1, Math.min(40, parseInt(horizonStr) || 1))))}
+            onBlur={() => {
+              const h = Math.max(1, Math.min(40, parseInt(horizonStr) || 1))
+              setHorizonStr(String(h))
+              track('drip_calculated', { horizon: h, investment: Math.max(100, parseFloat(investmentStr) || 100) })
+            }}
             className="w-full bg-[#09090b] border border-[#1e1e2e] rounded-md px-3 py-2 text-sm text-[#f4f4f5] focus:outline-none focus:border-[#6366f1]"
             min={1}
             max={40}

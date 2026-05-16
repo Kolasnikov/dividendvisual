@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search } from 'lucide-react'
+import { track } from '@vercel/analytics'
 import type { SearchResult } from '@/lib/types'
 
 interface TickerSearchProps {
@@ -59,6 +60,7 @@ export function TickerSearch({ placeholder = 'Search ticker or company...', size
 
   function navigate(symbol: string) {
     setOpen(false)
+    track('search_performed', { query: query.trim(), symbol })
     setQuery('')
     router.push(`/ticker/${symbol}`)
   }

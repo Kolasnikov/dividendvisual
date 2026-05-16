@@ -4,6 +4,7 @@ import type { Company, ComputedMetrics } from '@/lib/types'
 import { SignalBadge } from '@/components/ui/SignalBadge'
 import { DividendBadge } from '@/components/ui/DividendBadge'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { TrackPageView } from '@/components/analytics/TrackPageView'
 
 type CollectionRow = Company & ComputedMetrics
 
@@ -428,6 +429,7 @@ export default async function CollectionPage({ params }: PageProps) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <TrackPageView event="collection_viewed" properties={{ slug }} />
 
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },

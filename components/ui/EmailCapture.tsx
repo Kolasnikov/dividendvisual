@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { track } from '@vercel/analytics'
 
 interface EmailCaptureProps {
   variant?: 'hero' | 'banner'
@@ -27,6 +28,7 @@ export function EmailCapture({ variant = 'hero' }: EmailCaptureProps) {
       if (data.ok) {
         setStatus('success')
         setEmail('')
+        track('email_subscribed')
       } else {
         setStatus('error')
         setErrorMsg(data.error ?? 'Something went wrong.')
