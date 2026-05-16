@@ -155,7 +155,7 @@ function WatchCard({ item }: { item: WatchlistItem }) {
 export default async function OpportunitiesPage() {
   const all = await getWatchlist()
 
-  const strong = all.filter((s) => s.weissSignal === 'undervalued' && s.qualityScore >= 60)
+  const strong = all.filter((s) => s.weissSignal === 'undervalued')
   const watching = all
     .filter((s) => s.weissSignal === 'fair' && s.qualityScore >= 55)
     .map((s) => ({ ...s, proximity: yieldProximity(s) }))

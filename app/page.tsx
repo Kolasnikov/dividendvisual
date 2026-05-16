@@ -5,7 +5,7 @@ import { TickerSearch } from '@/components/ui/TickerSearch'
 import { CollectionCard } from '@/components/cards/CollectionCard'
 import { EmailCapture } from '@/components/ui/EmailCapture'
 import type { Company, ComputedMetrics } from '@/lib/types'
-import { SignalBadge } from '@/components/ui/SignalBadge'
+import { UndervaluedCarousel } from '@/components/home/UndervaluedCarousel'
 
 export const metadata: Metadata = {
   title: 'DividendVisual — Find Undervalued Dividend Stocks | Geraldine Weiss Method',
@@ -82,7 +82,7 @@ async function getTopPicks(): Promise<WatchlistRow[]> {
     })
     if (!res.ok) return []
     const all: WatchlistRow[] = await res.json()
-    return all.filter((r) => r.weissSignal === 'undervalued').slice(0, 4)
+    return all.filter((r) => r.weissSignal === 'undervalued')
   } catch {
     return []
   }
@@ -153,11 +153,6 @@ const FEATURES = [
       'Project your future dividend income with DRIP reinvestment over any time horizon.',
   },
 ]
-
-function pct(v: number | null): string {
-  if (v == null) return '—'
-  return `${(v * 100).toFixed(2)}%`
-}
 
 export default async function HomePage() {
   const topPicks = await getTopPicks()
@@ -321,35 +316,7 @@ export default async function HomePage() {
           <h2 className="text-xl font-bold text-[#f4f4f5] mb-6">
             Currently Undervalued
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {topPicks.map((row) => (
-              <Link
-                key={row.symbol}
-                href={`/ticker/${row.symbol}`}
-                className="bg-[#111118] border border-[#22c55e]/30 rounded-xl p-4 hover:border-[#22c55e]/60 transition-colors group"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <div className="font-mono font-semibold text-[#f4f4f5] group-hover:text-[#6366f1] transition-colors">
-                      {row.symbol}
-                    </div>
-                    <div className="text-xs text-[#71717a] mt-0.5 line-clamp-1">{row.name}</div>
-                  </div>
-                  <SignalBadge signal="undervalued" size="sm" />
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div>
-                    <div className="text-[#71717a]">Yield</div>
-                    <div className="text-[#22c55e] font-semibold">{pct(row.currentYield)}</div>
-                  </div>
-                  <div>
-                    <div className="text-[#71717a]">Quality</div>
-                    <div className="text-[#6366f1] font-semibold">{row.qualityScore}/100</div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <UndervaluedCarousel items={topPicks} />
         </section>
       )}
 
