@@ -11,6 +11,7 @@ import { SignalBadge } from '@/components/ui/SignalBadge'
 import { DividendBadge } from '@/components/ui/DividendBadge'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
+import { WatchlistButton } from '@/components/ui/WatchlistButton'
 // import { BrokerCTA } from '@/components/cards/BrokerCTA'  // re-enable when affiliate links are ready
 
 interface PageProps {
@@ -186,6 +187,9 @@ export default async function TickerPage({ params }: PageProps) {
                 {(metrics.currentYield * 100).toFixed(2)}%
               </span>
               <SignalBadge signal={metrics.weissSignal} />
+            </div>
+            <div className="mt-2 flex justify-end">
+              <WatchlistButton symbol={company.symbol} />
             </div>
           </div>
         </div>

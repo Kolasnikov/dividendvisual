@@ -3,9 +3,10 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { track } from '@vercel/analytics'
 import Link from 'next/link'
-import { Search, X } from 'lucide-react'
+import { Search, X, Bookmark } from 'lucide-react'
 import type { Company, ComputedMetrics } from '@/lib/types'
 import { SignalBadge } from '@/components/ui/SignalBadge'
+import { useWatchlist } from '@/hooks/useWatchlist'
 
 type Row = Company & ComputedMetrics
 type SortCol = 'quality' | 'yield' | 'cagr' | 'price' | 'payout'
@@ -57,8 +58,10 @@ export function WatchlistClient({ rows }: { rows: Row[] }) {
   const [badge, setBadge] = useState('')
   const [sector, setSector] = useState('')
   const [query, setQuery] = useState('')
+  const [savedOnly, setSavedOnly] = useState(false)
   const [sort, setSort] = useState<SortCol>('quality')
   const [order, setOrder] = useState<'asc' | 'desc'>('desc')
+  const { has, toggle, count: savedCount, ready: watchlistReady } = useWatchlist()
 
   const mounted = useRef(false)
   useEffect(() => {
@@ -75,6 +78,7 @@ export function WatchlistClient({ rows }: { rows: Row[] }) {
 
   const filtered = useMemo(() => {
     let out = rows
+    if (savedOnly) out = out.filter((r) => has(r.symbol))
     if (signal) out = out.filter((r) => r.weissSignal === signal)
     if (badge === 'king') out = out.filter((r) => r.isDividendKing)
     if (badge === 'aristocrat') out = out.filter((r) => r.isDividendAristocrat && !r.isDividendKing)
@@ -84,7 +88,8 @@ export function WatchlistClient({ rows }: { rows: Row[] }) {
       out = out.filter((r) => r.symbol.toLowerCase().includes(q) || r.name.toLowerCase().includes(q))
     }
     return out
-  }, [rows, signal, badge, sector, query])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, savedOnly, signal, badge, sector, query, watchlistReady])
 
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
@@ -103,13 +108,31 @@ export function WatchlistClient({ rows }: { rows: Row[] }) {
     else { setSort(col); setOrder('desc') }
   }
 
-  const hasFilters = signal || badge || sector || query
-  function resetFilters() { setSignal(''); setBadge(''); setSector(''); setQuery('') }
+  const hasFilters = signal || badge || sector || query || savedOnly
+  function resetFilters() { setSignal(''); setBadge(''); setSector(''); setQuery(''); setSavedOnly(false) }
 
   return (
     <div>
       {/* ── Filter bar ── */}
       <div className="flex flex-wrap items-center gap-2 mb-5">
+
+        {/* Saved filter */}
+        {watchlistReady && savedCount > 0 && (
+          <>
+            <button
+              onClick={() => setSavedOnly((v) => !v)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                savedOnly
+                  ? 'bg-[#6366f1]/20 text-[#6366f1] border border-[#6366f1]/30'
+                  : 'bg-[#1e1e2e] text-[#71717a] hover:text-[#f4f4f5]'
+              }`}
+            >
+              <Bookmark className={`w-3 h-3 ${savedOnly ? 'fill-[#6366f1]' : ''}`} />
+              Saved ({savedCount})
+            </button>
+            <div className="w-px h-5 bg-[#2e2e3e]" />
+          </>
+        )}
 
         {/* Signal pills */}
         <div className="flex gap-1">
@@ -267,7 +290,7 @@ export function WatchlistClient({ rows }: { rows: Row[] }) {
                       : <span className="text-[#71717a]/40">—</span>}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex gap-1">
+                    <div className="flex items-center gap-1.5">
                       {row.isDividendKing && (
                         <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-[#f59e0b]/15 text-[#f59e0b] border border-[#f59e0b]/20 whitespace-nowrap">
                           King
@@ -277,6 +300,15 @@ export function WatchlistClient({ rows }: { rows: Row[] }) {
                         <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-[#6366f1]/15 text-[#6366f1] border border-[#6366f1]/20 whitespace-nowrap">
                           Arist.
                         </span>
+                      )}
+                      {watchlistReady && (
+                        <button
+                          onClick={(e) => { e.preventDefault(); toggle(row.symbol) }}
+                          className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity"
+                          title={has(row.symbol) ? 'Remove from saved' : 'Save'}
+                        >
+                          <Bookmark className={`w-3.5 h-3.5 ${has(row.symbol) ? 'fill-[#6366f1] text-[#6366f1] opacity-100' : 'text-[#71717a]'}`} />
+                        </button>
                       )}
                     </div>
                   </td>
