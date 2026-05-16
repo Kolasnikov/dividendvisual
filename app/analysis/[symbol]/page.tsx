@@ -6,6 +6,7 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
 
 const TICKERS = [
+  // Original universe
   'KO', 'PEP', 'JNJ', 'PG', 'MMM', 'MCD', 'WMT', 'HD', 'LOW',
   'ABT', 'MDT', 'ABBV', 'XOM', 'CVX', 'T', 'VZ', 'SO', 'DUK',
   'NEE', 'O', 'FRT', 'GPC', 'CLX', 'SYY', 'TGT', 'MO', 'PM',
@@ -16,8 +17,29 @@ const TICKERS = [
   'USB', 'AFL', 'TROW', 'CB', 'AMP',
   'NNN', 'AMT', 'ADC',
   'AWK', 'WEC', 'AEP', 'D',
-  'TXN', 'MSFT',
-  'ECL', 'ATO',
+  'TXN', 'MSFT', 'ECL', 'ATO',
+  // Dividend Kings (new)
+  'AWR', 'DOV', 'CINF', 'NDSN', 'LANC', 'GWW', 'PPG', 'RPM', 'MSA', 'NUE', 'CBSH',
+  // Dividend Aristocrats (new)
+  'SHW', 'ED', 'ADP', 'SPGI', 'CHD', 'ROP', 'AOS', 'EXPD', 'PAYX', 'BRO',
+  // Consumer
+  'GIS', 'SJM', 'DEO', 'TJX', 'SBUX', 'FAST',
+  // Healthcare
+  'UNH', 'CVS', 'DGX', 'MCK',
+  // Financials
+  'BLK', 'ICE', 'CME', 'MMC', 'PNC', 'JPM', 'MTB', 'FITB', 'ALL', 'TRV', 'HBAN',
+  // Industrials
+  'HON', 'ETN', 'LMT', 'NOC', 'UPS', 'UNP', 'NSC', 'CSX', 'ROK', 'AME',
+  // Technology
+  'CSCO', 'QCOM', 'AVGO', 'IBM', 'AAPL', 'ACN',
+  // Energy
+  'OKE', 'PSX', 'VLO', 'EPD',
+  // Utilities (new)
+  'ETR', 'CMS', 'XEL', 'LNT', 'SRE', 'PNW', 'OGE',
+  // REITs (new)
+  'PSA', 'DLR', 'PLD', 'STAG', 'EXR', 'MAA', 'OHI', 'IRM', 'ESS',
+  // Environmental
+  'WM', 'RSG',
 ]
 
 interface PageProps {

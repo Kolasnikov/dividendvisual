@@ -25,55 +25,160 @@ TURSO_TOKEN = os.environ["TURSO_AUTH_TOKEN"]
 HTTP_URL = TURSO_URL.replace("libsql://", "https://") + "/v2/pipeline"
 
 TICKERS = [
-    # Original — Dividend Kings / Aristocrats
+    # ── Dividend Kings / Aristocrats (original) ──────────────────────────────
     "KO", "PEP", "JNJ", "PG", "MMM", "MCD", "WMT", "HD", "LOW",
-    # Original — Healthcare
-    "ABT", "MDT", "ABBV",
-    # Original — Energy
-    "XOM", "CVX",
-    # Original — Telecom
-    "T", "VZ",
-    # Original — Utilities
-    "SO", "DUK", "NEE",
-    # Original — REITs
-    "O", "FRT",
-    # Original — Consumer
+    "ABT", "MDT", "ABBV", "XOM", "CVX", "T", "VZ",
+    "SO", "DUK", "NEE", "O", "FRT",
     "GPC", "CLX", "SYY", "TGT", "MO", "PM",
-    # Original — BDC / Financial / Industrial
     "MAIN", "BEN", "VFC",
-    # New — Dividend Kings (consumer staples)
     "KMB", "CL", "HRL", "MKC", "HSY", "CPB",
-    # New — Healthcare
     "BMY", "PFE", "AMGN", "BDX", "SYK",
-    # New — Industrial Kings & Aristocrats
     "EMR", "ITW", "CTAS", "GD", "CAT", "PH",
-    # New — Financial
     "USB", "AFL", "TROW", "CB", "AMP",
-    # New — REITs
     "NNN", "AMT", "ADC",
-    # New — Utilities
     "AWK", "WEC", "AEP", "D",
-    # New — Tech dividend growers
-    "TXN", "MSFT",
-    # New — Other Aristocrats
-    "ECL", "ATO",
+    "TXN", "MSFT", "ECL", "ATO",
+
+    # ── Dividend Kings (50+ years, new additions) ─────────────────────────────
+    "AWR",   # American States Water — 69 years, longest streak ever
+    "DOV",   # Dover Corporation — 68 years
+    "CINF",  # Cincinnati Financial — 63 years
+    "NDSN",  # Nordson — 61 years
+    "LANC",  # Lancaster Colony — 61 years
+    "GWW",   # W.W. Grainger — 53 years
+    "PPG",   # PPG Industries — 52 years
+    "RPM",   # RPM International — 51 years
+    "MSA",   # MSA Safety — 52 years
+    "NUE",   # Nucor — 50 years
+    "CBSH",  # Commerce Bancshares — 56 years
+
+    # ── Dividend Aristocrats (25+ years, new additions) ───────────────────────
+    "SHW",   # Sherwin-Williams — 45 years
+    "ED",    # Consolidated Edison — 49 years
+    "ADP",   # Automatic Data Processing — 48 years
+    "SPGI",  # S&P Global — 50 years
+    "CHD",   # Church & Dwight — 29 years
+    "ROP",   # Roper Technologies — 30 years
+    "AOS",   # A.O. Smith — 30 years
+    "EXPD",  # Expeditors International — 28 years
+    "PAYX",  # Paychex — 33 years
+    "BRO",   # Brown & Brown — 30 years
+
+    # ── Consumer Discretionary / Staples ──────────────────────────────────────
+    "GIS",   # General Mills
+    "SJM",   # J.M. Smucker
+    "DEO",   # Diageo ADR
+    "TJX",   # TJX Companies — 27 years
+    "SBUX",  # Starbucks — 13 years
+    "FAST",  # Fastenal — 23 years
+
+    # ── Healthcare ────────────────────────────────────────────────────────────
+    "UNH",   # UnitedHealth Group
+    "CVS",   # CVS Health
+    "DGX",   # Quest Diagnostics
+    "MCK",   # McKesson
+
+    # ── Financials ────────────────────────────────────────────────────────────
+    "BLK",   # BlackRock — 14 years
+    "ICE",   # Intercontinental Exchange — 11 years
+    "CME",   # CME Group — 14 years
+    "MMC",   # Marsh & McLennan — 14 years
+    "PNC",   # PNC Financial — 12 years
+    "JPM",   # JPMorgan Chase — 13 years
+    "MTB",   # M&T Bank — 11 years
+    "FITB",  # Fifth Third Bancorp — 11 years
+    "ALL",   # Allstate — 12 years
+    "TRV",   # Travelers — 18 years
+    "HBAN",  # Huntington Bancshares — 11 years
+
+    # ── Industrials ───────────────────────────────────────────────────────────
+    "HON",   # Honeywell — 13 years
+    "ETN",   # Eaton — 14 years
+    "LMT",   # Lockheed Martin — 21 years
+    "NOC",   # Northrop Grumman — 20 years
+    "UPS",   # United Parcel Service — 15 years
+    "UNP",   # Union Pacific — 16 years
+    "NSC",   # Norfolk Southern — 22 years
+    "CSX",   # CSX — 16 years
+    "ROK",   # Rockwell Automation — 13 years
+    "AME",   # AMETEK — 13 years
+
+    # ── Technology ────────────────────────────────────────────────────────────
+    "CSCO",  # Cisco Systems — 13 years
+    "QCOM",  # Qualcomm — 21 years
+    "AVGO",  # Broadcom — 13 years
+    "IBM",   # IBM — decades-long payer
+    "AAPL",  # Apple — 11 years
+    "ACN",   # Accenture — 14 years
+
+    # ── Energy / Midstream ────────────────────────────────────────────────────
+    "OKE",   # ONEOK — 25 years
+    "PSX",   # Phillips 66 — 12 years
+    "VLO",   # Valero Energy — 10 years
+    "EPD",   # Enterprise Products Partners — 24 years (MLP)
+
+    # ── Utilities (new) ───────────────────────────────────────────────────────
+    "ETR",   # Entergy — 20 years
+    "CMS",   # CMS Energy — 15 years
+    "XEL",   # Xcel Energy — 19 years
+    "LNT",   # Alliant Energy — 20 years
+    "SRE",   # Sempra Energy — 20 years
+    "PNW",   # Pinnacle West Capital — 30 years
+    "OGE",   # OGE Energy — 15 years
+
+    # ── REITs (new) ───────────────────────────────────────────────────────────
+    "PSA",   # Public Storage — 20 years
+    "DLR",   # Digital Realty — 17 years
+    "PLD",   # Prologis — 13 years
+    "STAG",  # STAG Industrial — 12 years (monthly)
+    "EXR",   # Extra Space Storage — 13 years
+    "MAA",   # Mid-America Apartment — 13 years
+    "OHI",   # Omega Healthcare — 12 years
+    "IRM",   # Iron Mountain — 12 years
+    "ESS",   # Essex Property Trust — 29 years
+
+    # ── Waste / Environmental ─────────────────────────────────────────────────
+    "WM",    # Waste Management — 20 years
+    "RSG",   # Republic Services — 14 years
 ]
 
 COLLECTIONS = {
     "dividend-kings": [
+        # Original Kings
         "KO", "PEP", "MMM", "GPC", "MO", "BEN", "FRT", "CLX",
         "KMB", "CL", "HRL", "BDX", "EMR", "ITW", "AFL",
+        # New Kings
+        "AWR", "DOV", "CINF", "NDSN", "LANC", "GWW", "PPG", "RPM", "MSA", "NUE", "CBSH",
     ],
     "dividend-aristocrats": [
+        # Original Aristocrats
         "JNJ", "PG", "MCD", "WMT", "HD", "ABT", "MDT", "XOM",
         "CVX", "T", "SO", "DUK", "NEE", "ABBV", "PM", "SYY", "LOW",
         "MKC", "CTAS", "GD", "CAT", "TROW", "NNN", "ECL", "ATO", "SYK", "CB",
+        # New Aristocrats (25+ years, not yet Kings)
+        "SHW", "ED", "ADP", "SPGI", "CHD", "ROP", "AOS", "EXPD",
+        "PAYX", "BRO", "MMC", "LMT", "NOC", "ESS", "TJX", "FAST",
     ],
-    "buffett-style":          ["KO", "JNJ", "PG", "MCD", "WMT", "AMGN", "AXP"],
-    "utilities":              ["SO", "DUK", "NEE", "AWK", "WEC", "AEP", "D"],
-    "reits":                  ["O", "FRT", "NNN", "AMT", "ADC"],
-    "high-yield":             ["MO", "T", "VZ", "MAIN", "BMY", "PFE"],
-    "low-payout-compounders": ["HD", "LOW", "TGT", "ABT", "TXN", "MSFT", "CTAS"],
+    "buffett-style": [
+        "KO", "JNJ", "PG", "MCD", "WMT", "AMGN",
+        "AAPL", "BLK", "UNH",
+    ],
+    "utilities": [
+        "SO", "DUK", "NEE", "AWK", "WEC", "AEP", "D",
+        "ETR", "CMS", "XEL", "LNT", "SRE", "PNW", "OGE", "ED",
+    ],
+    "reits": [
+        "O", "FRT", "NNN", "AMT", "ADC",
+        "PSA", "DLR", "PLD", "STAG", "EXR", "MAA", "OHI", "IRM", "ESS",
+    ],
+    "high-yield": [
+        "MO", "T", "VZ", "MAIN", "BMY", "PFE",
+        "OKE", "EPD", "OHI", "IRM", "STAG",
+    ],
+    "low-payout-compounders": [
+        "HD", "LOW", "TGT", "ABT", "TXN", "MSFT", "CTAS",
+        "CSCO", "QCOM", "ACN", "FAST", "ROP", "AAPL", "UNH",
+    ],
 }
 
 
