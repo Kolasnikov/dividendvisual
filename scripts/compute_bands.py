@@ -494,15 +494,21 @@ def save_weiss_chart_data(symbol: str, band_df: pd.DataFrame):
 
 
 def save_computed_metrics(symbol: str, metrics: dict, score: int, category: str, why_now: str):
+    # Read current signal before overwriting so we can detect transitions
+    existing = turso_query(
+        "SELECT weiss_signal FROM computed_metrics WHERE symbol = ?", [symbol]
+    )
+    previous_signal = existing[0]["weiss_signal"] if existing else None
+
     turso_execute([_stmt(
         """INSERT OR REPLACE INTO computed_metrics (
                symbol, current_price, annual_dividend, current_yield,
                historical_max_yield, historical_min_yield, median_yield,
-               undervalued_price, overvalued_price, weiss_signal,
+               undervalued_price, overvalued_price, weiss_signal, previous_weiss_signal,
                quality_score, quality_category,
                payout_ratio, fcf_payout, dividend_cagr_5y, dividend_cagr_10y,
                years_no_cut, why_now_text, updated_at
-           ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))""",
+           ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))""",
         [
             symbol,
             metrics.get("current_price"),
@@ -514,6 +520,7 @@ def save_computed_metrics(symbol: str, metrics: dict, score: int, category: str,
             metrics.get("undervalued_price"),
             metrics.get("overvalued_price"),
             metrics.get("weiss_signal"),
+            previous_signal,
             score,
             category,
             metrics.get("payout_ratio"),
@@ -593,7 +600,20 @@ def process_ticker(symbol: str, company_name: str) -> bool:
         return False
 
 
+def ensure_previous_signal_column():
+    """Add previous_weiss_signal column if it doesn't exist yet."""
+    turso_execute([_stmt(
+        "ALTER TABLE computed_metrics ADD COLUMN previous_weiss_signal TEXT"
+    )])
+
+
 def main():
+    # Ensure schema is up to date
+    try:
+        ensure_previous_signal_column()
+    except Exception:
+        pass  # column already exists
+
     companies = turso_query("SELECT symbol, name FROM companies ORDER BY symbol")
     if not companies:
         print("No companies found. Run ingest.py first.")
