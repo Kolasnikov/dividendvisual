@@ -2,32 +2,32 @@ import Link from 'next/link'
 
 // ─── Affiliate link config ────────────────────────────────────────────────────
 // Replace each href with your actual affiliate URL from the broker's program.
+// IBKR:        https://www.interactivebrokers.com/en/trading/ibkr-affiliate-program.php
 // M1 Finance:  https://www.impact.com/marketplace/brand/m1-finance/
-// Webull:      https://www.webull.com/introducing
-// Schwab:      https://www.schwab.com/affiliate-referral
+// Schwab:      https://www.cj.com (search "Charles Schwab" in CJ Affiliate marketplace)
 const BROKERS = [
   {
-    name: 'M1 Finance',
-    tagline: 'Auto-reinvest dividends',
-    badge: 'Best for DRIP',
+    name: 'Interactive Brokers',
+    tagline: 'Built for serious investors',
+    badge: 'Best overall',
     badgeColor: 'text-[#22c55e] bg-[#22c55e]/10 border-[#22c55e]/20',
+    // TODO: replace with your IBKR affiliate link
+    href: 'https://www.interactivebrokers.com/?utm_source=dividendvisual&utm_medium=referral&utm_campaign=broker-cta',
+  },
+  {
+    name: 'M1 Finance',
+    tagline: 'Auto-reinvest dividends (DRIP)',
+    badge: 'Best for DRIP',
+    badgeColor: 'text-[#6366f1] bg-[#6366f1]/10 border-[#6366f1]/20',
     // TODO: replace with your M1 Finance affiliate link
     href: 'https://m1.finance/?utm_source=dividendvisual&utm_medium=referral&utm_campaign=broker-cta',
   },
   {
-    name: 'Webull',
-    tagline: 'Commission-free trading',
-    badge: 'Free stocks offer',
-    badgeColor: 'text-[#6366f1] bg-[#6366f1]/10 border-[#6366f1]/20',
-    // TODO: replace with your Webull affiliate link
-    href: 'https://www.webull.com/activity?utm_source=dividendvisual&utm_medium=referral&utm_campaign=broker-cta',
-  },
-  {
-    name: 'Schwab',
+    name: 'Charles Schwab',
     tagline: 'Trusted for 50+ years',
     badge: 'No minimums',
     badgeColor: 'text-[#f59e0b] bg-[#f59e0b]/10 border-[#f59e0b]/20',
-    // TODO: replace with your Charles Schwab affiliate link
+    // TODO: replace with your Schwab affiliate link
     href: 'https://www.schwab.com/open-an-account?utm_source=dividendvisual&utm_medium=referral&utm_campaign=broker-cta',
   },
 ]
