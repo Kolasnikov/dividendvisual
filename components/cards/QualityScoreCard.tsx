@@ -31,7 +31,7 @@ function ScoreArc({ score }: { score: number }) {
     score >= 80 ? '#22c55e' : score >= 60 ? '#6366f1' : score >= 40 ? '#f59e0b' : '#ef4444'
 
   return (
-    <svg viewBox="0 0 128 90" className="w-36 h-auto mx-auto">
+    <svg viewBox="0 0 128 90" className="w-36 h-auto mx-auto" role="img" aria-label={`Dividend quality score: ${score} out of 100`}>
       <path
         d={describeArc(START_DEG, bgEnd)}
         fill="none"

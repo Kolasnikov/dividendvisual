@@ -15,6 +15,7 @@ import type { WeissChartPoint } from '@/lib/types'
 interface WeissChartProps {
   data: WeissChartPoint[]
   currentPrice: number
+  label?: string
 }
 
 type Range = '1Y' | '3Y' | '5Y' | '10Y' | 'MAX'
@@ -100,7 +101,7 @@ function computeDomain(data: WeissChartPoint[]): [number, number] {
   return [Math.max(0, min - pad), max + pad]
 }
 
-export function WeissChart({ data, currentPrice }: WeissChartProps) {
+export function WeissChart({ data, currentPrice, label }: WeissChartProps) {
   const [range, setRange] = useState<Range>('5Y')
 
   const filtered = useMemo(() => filterByRange(data, range), [data, range])
@@ -143,7 +144,7 @@ export function WeissChart({ data, currentPrice }: WeissChartProps) {
   }, [filtered])
 
   return (
-    <div className="w-full">
+    <div className="w-full" role="img" aria-label={label ?? 'Dividend yield history chart with Weiss valuation bands'}>
       {/* Range selector */}
       <div className="flex gap-1 mb-4 justify-end">
         {RANGES.map((r) => (

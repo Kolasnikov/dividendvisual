@@ -14,6 +14,34 @@ import { TrackPageView } from '@/components/analytics/TrackPageView'
 import { WatchlistButton } from '@/components/ui/WatchlistButton'
 // import { BrokerCTA } from '@/components/cards/BrokerCTA'  // re-enable when affiliate links are ready
 
+const TICKERS = [
+  'KO', 'PEP', 'JNJ', 'PG', 'MMM', 'MCD', 'WMT', 'HD', 'LOW',
+  'ABT', 'MDT', 'ABBV', 'XOM', 'CVX', 'T', 'VZ', 'SO', 'DUK',
+  'NEE', 'O', 'FRT', 'GPC', 'CLX', 'SYY', 'TGT', 'MO', 'PM',
+  'MAIN', 'BEN', 'VFC',
+  'KMB', 'CL', 'HRL', 'MKC', 'HSY', 'CPB',
+  'BMY', 'PFE', 'AMGN', 'BDX', 'SYK',
+  'EMR', 'ITW', 'CTAS', 'GD', 'CAT', 'PH',
+  'USB', 'AFL', 'TROW', 'CB', 'AMP',
+  'NNN', 'AMT', 'ADC',
+  'AWK', 'WEC', 'AEP', 'D',
+  'TXN', 'MSFT', 'ECL', 'ATO',
+  'AWR', 'DOV', 'CINF', 'NDSN', 'LANC', 'GWW', 'PPG', 'RPM', 'MSA', 'NUE', 'CBSH',
+  'SHW', 'ED', 'ADP', 'SPGI', 'CHD', 'ROP', 'AOS', 'EXPD', 'PAYX', 'BRO',
+  'GIS', 'SJM', 'DEO', 'TJX', 'SBUX', 'FAST',
+  'UNH', 'CVS', 'DGX', 'MCK',
+  'BLK', 'ICE', 'CME', 'MMC', 'PNC', 'JPM', 'MTB', 'FITB', 'ALL', 'TRV', 'HBAN',
+  'HON', 'ETN', 'LMT', 'NOC', 'UPS', 'UNP', 'NSC', 'CSX', 'ROK', 'AME',
+  'CSCO', 'QCOM', 'AVGO', 'IBM', 'AAPL', 'ACN', 'AMAT',
+  'V', 'MA', 'AXP', 'SCHW', 'MCO',
+  'COST', 'NKE', 'DE',
+  'MRK',
+  'OKE', 'PSX', 'VLO', 'EPD',
+  'ETR', 'CMS', 'XEL', 'LNT', 'SRE', 'PNW', 'OGE',
+  'PSA', 'DLR', 'PLD', 'STAG', 'EXR', 'MAA', 'OHI', 'IRM', 'ESS',
+  'WM', 'RSG',
+]
+
 interface PageProps {
   params: Promise<{ symbol: string }>
 }
@@ -29,6 +57,10 @@ async function getTickerData(symbol: string): Promise<TickerResponse | null> {
   } catch {
     return null
   }
+}
+
+export async function generateStaticParams() {
+  return TICKERS.map((symbol) => ({ symbol: symbol.toLowerCase() }))
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -47,7 +79,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: `${company.symbol} Dividend Analysis | DividendVisual`,
       description,
-      url: `https://dividendvisual.com/ticker/${company.symbol}`,
+      url: `https://dividendvisual.com/analysis/${company.symbol.toLowerCase()}`,
     },
   }
 }
@@ -82,7 +114,7 @@ function buildJsonLd(company: Company, metrics: ComputedMetrics) {
     '@type': 'Article',
     headline: `${company.symbol} Dividend Analysis — ${company.name}`,
     description: buildSummary(company, metrics),
-    url: `https://dividendvisual.com/ticker/${company.symbol}`,
+    url: `https://dividendvisual.com/analysis/${company.symbol.toLowerCase()}`,
     dateModified: metrics.updatedAt ?? new Date().toISOString(),
     publisher: {
       '@type': 'Organization',
@@ -249,7 +281,7 @@ export default async function TickerPage({ params }: PageProps) {
                 </span>
               </div>
             </div>
-            <WeissChart data={chartData} currentPrice={metrics.currentPrice} />
+            <WeissChart data={chartData} currentPrice={metrics.currentPrice} label={`${company.symbol} dividend yield history — Weiss valuation bands (undervalued threshold $${metrics.undervaluedPrice.toFixed(2)}, overvalued threshold $${metrics.overvaluedPrice.toFixed(2)})`} />
           </div>
 
           {/* Why Now */}

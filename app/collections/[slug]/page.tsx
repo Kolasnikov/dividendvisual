@@ -335,8 +335,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params
   const meta = COLLECTION_META[slug]
   if (!meta) return { title: slug }
+  const year = new Date().getFullYear()
   return {
-    title: meta.title,
+    title: `${meta.title} List ${year} — Dividend Yield Analysis`,
     description: meta.metaDescription,
     alternates: {
       canonical: `https://dividendvisual.com/collections/${slug}`,
@@ -426,9 +427,27 @@ export default async function CollectionPage({ params }: PageProps) {
     publisher: { '@type': 'Organization', name: 'DividendVisual', url: 'https://dividendvisual.com' },
   }
 
+  const itemListLd = rows.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `${meta.title} — Dividend Stocks`,
+    description: meta.metaDescription,
+    url: `https://dividendvisual.com/collections/${slug}`,
+    numberOfItems: rows.length,
+    itemListElement: rows.map((row, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `https://dividendvisual.com/analysis/${row.symbol.toLowerCase()}`,
+      name: `${row.name} (${row.symbol})`,
+    })),
+  } : null
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {itemListLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} />
+      )}
       <TrackPageView event="collection_viewed" properties={{ slug }} />
 
       <Breadcrumbs items={[

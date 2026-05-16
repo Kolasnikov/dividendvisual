@@ -89,7 +89,7 @@ export function DRIPChart({ metrics }: DRIPChartProps) {
   const totalIncome = data.reduce((s, d) => s + d.income, 0)
 
   return (
-    <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5">
+    <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5" role="region" aria-label="Dividend reinvestment calculator (DRIP)">
       <h3 className="text-sm font-medium text-[#71717a] mb-5">Dividend Compounder (DRIP)</h3>
 
       {/* Inputs */}

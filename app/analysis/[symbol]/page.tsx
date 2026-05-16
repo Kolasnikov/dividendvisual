@@ -327,7 +327,7 @@ export default async function AnalysisPage({ params }: PageProps) {
         </div>
 
         <h1 className="text-3xl font-bold text-[#f4f4f5] leading-tight mb-4">
-          {sym} Dividend Analysis — Is {company.name} Undervalued?
+          {sym} Dividend Analysis — Is {company.name} Undervalued in {new Date().getFullYear()}?
         </h1>
 
         {/* Key stats bar */}
