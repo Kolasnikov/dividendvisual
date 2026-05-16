@@ -53,6 +53,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description,
+    alternates: {
+      canonical: `https://dividendvisual.com/analysis/${symbol.toLowerCase()}`,
+    },
     openGraph: {
       title: `${title} | DividendVisual`,
       description,
