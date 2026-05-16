@@ -1,0 +1,41 @@
+name: Daily data pipeline
+
+on:
+  schedule:
+    - cron: '0 6 * * *'   # 06:00 UTC = 08:00 CET / 02:00 ET (before US market open)
+  workflow_dispatch:        # allow manual trigger from GitHub UI
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360    # 6h max — ingest can be slow for 143 tickers
+
+    env:
+      TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+      TURSO_AUTH_TOKEN:   ${{ secrets.TURSO_AUTH_TOKEN }}
+      RESEND_API_KEY:     ${{ secrets.RESEND_API_KEY }}
+      RESEND_AUDIENCE_ID: ${{ secrets.RESEND_AUDIENCE_ID }}
+      ALERT_FROM_EMAIL:   ${{ secrets.ALERT_FROM_EMAIL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: 1 — Ingest prices & dividends
+        run: python scripts/ingest.py
+
+      - name: 2 — Compute Weiss bands & quality scores
+        run: python scripts/compute_bands.py
+
+      - name: 3 — Send signal alerts to subscribers
+        run: python scripts/send_alerts.py
