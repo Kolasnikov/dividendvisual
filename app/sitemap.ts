@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { getAllPosts } from '@/lib/blog'
+import { COMPARE_PAIRS } from '@/app/compare/[pair]/page'
 
 const BASE = 'https://dividendvisual.com'
 
@@ -60,6 +61,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: BASE, lastModified: now, changeFrequency: 'daily', priority: 1 },
     { url: `${BASE}/watchlist`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${BASE}/opportunities`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${BASE}/drip-calculator`, lastModified: now, changeFrequency: 'monthly', priority: 0.85 },
     { url: `${BASE}/methodology`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
@@ -95,5 +97,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }))
 
-  return [...statics, ...tickers, ...analysis, ...collections, ...blogPosts]
+  const comparePairs: MetadataRoute.Sitemap = COMPARE_PAIRS.map(pair => ({
+    url: `${BASE}/compare/${pair}`,
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.75,
+  }))
+
+  return [...statics, ...tickers, ...analysis, ...collections, ...blogPosts, ...comparePairs]
 }

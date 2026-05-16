@@ -366,12 +366,13 @@ export default async function HomePage() {
               <p className="text-xs font-semibold text-[#f4f4f5] uppercase tracking-wider mb-4">Tool</p>
               <div className="flex flex-col gap-2.5">
                 {[
-                  { href: '/watchlist',     label: 'Screener' },
-                  { href: '/opportunities', label: 'Opportunities' },
+                  { href: '/watchlist',       label: 'Screener' },
+                  { href: '/opportunities',   label: 'Opportunities' },
+                  { href: '/drip-calculator', label: 'DRIP Calculator' },
                   { href: '/collections/dividend-kings', label: 'Collections' },
-                  { href: '/methodology',   label: 'Methodology' },
-                  { href: '/about',         label: 'About' },
-                  { href: '/blog',          label: 'Blog' },
+                  { href: '/methodology',     label: 'Methodology' },
+                  { href: '/about',           label: 'About' },
+                  { href: '/blog',            label: 'Blog' },
                 ].map(({ href, label }) => (
                   <Link key={href} href={href} className="text-sm text-[#71717a] hover:text-[#f4f4f5] transition-colors">
                     {label}

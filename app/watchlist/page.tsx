@@ -26,12 +26,20 @@ async function getWatchlist(): Promise<WatchlistRow[]> {
 export default async function WatchlistPage() {
   const rows = await getWatchlist()
 
+  const undervaluedCount = rows.filter(r => r.weissSignal === 'undervalued').length
+  const sectors = [...new Set(rows.map(r => r.sector).filter(Boolean))].length
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#f4f4f5] mb-1">Dividend Stocks Screener</h1>
-        <p className="text-[#71717a] text-sm">
-          {rows.length} curated dividend stocks — filter by signal, badge, or sector. Click column headers to sort.
+      <div className="mb-6 max-w-2xl">
+        <h1 className="text-2xl font-bold text-[#f4f4f5] mb-2">Dividend Stocks Screener — Weiss Yield Valuation</h1>
+        <p className="text-[#71717a] text-sm leading-relaxed">
+          Screen {rows.length} curated dividend stocks — Dividend Kings, Aristocrats, REITs, and utilities — by Weiss
+          valuation signal, quality score, sector, and dividend growth rate. All data updated daily.{' '}
+          {undervaluedCount > 0 && (
+            <span className="text-[#22c55e] font-medium">{undervaluedCount} stocks currently in historically undervalued territory</span>
+          )}
+          {undervaluedCount === 0 && <span>across {sectors} sectors.</span>}
         </p>
       </div>
 

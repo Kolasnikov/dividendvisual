@@ -353,10 +353,13 @@ export function CompareClient({ symbolA, symbolB, dataA, dataB }: CompareClientP
   const router = useRouter()
 
   function navigate(a: string, b: string) {
-    const params = new URLSearchParams()
-    if (a) params.set('a', a)
-    if (b) params.set('b', b)
-    router.push(`/compare?${params.toString()}`)
+    if (a && b) {
+      router.push(`/compare/${a.toLowerCase()}-vs-${b.toLowerCase()}`)
+    } else if (a) {
+      router.push(`/compare?a=${a}`)
+    } else if (b) {
+      router.push(`/compare?b=${b}`)
+    }
   }
 
   const comparisonSlug = symbolA && symbolB
