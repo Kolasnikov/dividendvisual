@@ -111,6 +111,24 @@ TICKERS = [
     "AAPL",  # Apple — 11 years
     "ACN",   # Accenture — 14 years
 
+    # ── Payments / Fintech ────────────────────────────────────────────────────
+    "V",     # Visa — 15 years, ~20% CAGR
+    "MA",    # Mastercard — 13 years, ~20% CAGR
+    "AXP",   # American Express — 32 years (Aristocrat)
+    "SCHW",  # Charles Schwab — 15 years
+    "MCO",   # Moody's — 15 years
+
+    # ── Consumer Discretionary ────────────────────────────────────────────────
+    "COST",  # Costco — 21 years, special dividends
+    "NKE",   # Nike — 22 years
+    "DE",    # Deere & Company — 3 years post-reset
+
+    # ── Healthcare / Pharma ───────────────────────────────────────────────────
+    "MRK",   # Merck — 14 years
+
+    # ── Technology / Semiconductors ───────────────────────────────────────────
+    "AMAT",  # Applied Materials — 10 years
+
     # ── Energy / Midstream ────────────────────────────────────────────────────
     "OKE",   # ONEOK — 25 years
     "PSX",   # Phillips 66 — 12 years

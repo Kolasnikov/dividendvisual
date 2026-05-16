@@ -29,7 +29,13 @@ const TICKERS = [
   // Industrials
   'HON', 'ETN', 'LMT', 'NOC', 'UPS', 'UNP', 'NSC', 'CSX', 'ROK', 'AME',
   // Technology
-  'CSCO', 'QCOM', 'AVGO', 'IBM', 'AAPL', 'ACN',
+  'CSCO', 'QCOM', 'AVGO', 'IBM', 'AAPL', 'ACN', 'AMAT',
+  // Payments / Fintech
+  'V', 'MA', 'AXP', 'SCHW', 'MCO',
+  // Consumer Discretionary
+  'COST', 'NKE', 'DE',
+  // Healthcare / Pharma
+  'MRK',
   // Energy
   'OKE', 'PSX', 'VLO', 'EPD',
   // Utilities (new)
