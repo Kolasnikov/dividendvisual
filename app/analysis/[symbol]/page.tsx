@@ -179,6 +179,82 @@ function buildJsonLd(company: Company, metrics: ComputedMetrics, symbol: string)
   }
 }
 
+function buildFaqJsonLd(company: Company, metrics: ComputedMetrics) {
+  const sym = company.symbol
+  const name = company.name
+  const yieldPct = (metrics.currentYield * 100).toFixed(2)
+  const maxYield = metrics.historicalMaxYield ? (metrics.historicalMaxYield * 100).toFixed(2) : null
+  const minYield = metrics.historicalMinYield ? (metrics.historicalMinYield * 100).toFixed(2) : null
+  const cagr5y = metrics.dividendCagr5y ? (metrics.dividendCagr5y * 100).toFixed(1) : null
+  const streak = company.yearsIncreasingDividends
+
+  const signalAnswer =
+    metrics.weissSignal === 'undervalued'
+      ? `Yes. By the Geraldine Weiss method, ${name} (${sym}) is currently undervalued. Its dividend yield of ${yieldPct}% is near the top of its 10-year historical range (${minYield}%–${maxYield}%), which historically signals an attractive entry point for income investors.`
+      : metrics.weissSignal === 'overvalued'
+      ? `No. By the Geraldine Weiss method, ${name} (${sym}) is currently overvalued. Its dividend yield of ${yieldPct}% is near the bottom of its 10-year historical range (${minYield}%–${maxYield}%), suggesting the stock is priced for optimism relative to its income output.`
+      : `${name} (${sym}) is currently trading at fair value by the Geraldine Weiss method. Its dividend yield of ${yieldPct}% sits near the midpoint of its 10-year historical range (${minYield}%–${maxYield}%).`
+
+  const streakAnswer =
+    streak >= 50
+      ? `${name} has raised its dividend for ${streak} consecutive years, qualifying it as a Dividend King — a stock that has increased its payout every year for at least 50 years.`
+      : streak >= 25
+      ? `${name} has raised its dividend for ${streak} consecutive years, qualifying it as a Dividend Aristocrat — an S&P 500 company with at least 25 consecutive years of dividend growth.`
+      : streak >= 10
+      ? `${name} has raised its dividend for ${streak} consecutive years, demonstrating a strong decade-long track record of income growth.`
+      : streak > 0
+      ? `${name} has raised its dividend for ${streak} consecutive years.`
+      : `${name} has an established dividend payment history. Investors should monitor recent payout trends before relying on future growth.`
+
+  const kingAnswer = company.isDividendKing
+    ? `Yes. ${name} (${sym}) is a Dividend King, having raised its dividend every year for ${streak} or more consecutive years. Fewer than 60 US companies hold this distinction.`
+    : company.isDividendAristocrat
+    ? `No. ${name} (${sym}) is a Dividend Aristocrat (${streak}+ consecutive years of growth) but not yet a Dividend King, which requires 50+ years of consecutive increases.`
+    : `No. ${name} (${sym}) does not currently qualify as a Dividend King or Dividend Aristocrat.`
+
+  const questions = [
+    {
+      '@type': 'Question',
+      name: `Is ${name} (${sym}) undervalued right now?`,
+      acceptedAnswer: { '@type': 'Answer', text: signalAnswer },
+    },
+    {
+      '@type': 'Question',
+      name: `What is ${sym}'s current dividend yield?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `${name} (${sym}) currently yields ${yieldPct}%. Its 10-year historical yield has ranged from ${minYield ?? '—'}% to ${maxYield ?? '—'}%. The current yield is updated daily based on the latest price and annual dividend.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: `Is ${name} a Dividend King?`,
+      acceptedAnswer: { '@type': 'Answer', text: kingAnswer },
+    },
+    {
+      '@type': 'Question',
+      name: `How long has ${name} been growing its dividend?`,
+      acceptedAnswer: { '@type': 'Answer', text: streakAnswer },
+    },
+    ...(cagr5y
+      ? [{
+          '@type': 'Question',
+          name: `What is ${sym}'s dividend growth rate?`,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: `${name} (${sym}) has grown its dividend at a compound annual rate of ${cagr5y}% over the past 5 years. Dividend growth rate is a key factor in DividendVisual's quality score, which currently rates ${sym} at ${metrics.qualityScore}/100.`,
+          },
+        }]
+      : []),
+  ]
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: questions,
+  }
+}
+
 // ─── Page ────────────────────────────────────────────────────────────────────
 
 export default async function AnalysisPage({ params }: PageProps) {
@@ -190,6 +266,7 @@ export default async function AnalysisPage({ params }: PageProps) {
   const sym = company.symbol
   const drip = dripSentence(metrics)
   const jsonLd = buildJsonLd(company, metrics, symbol)
+  const faqJsonLd = buildFaqJsonLd(company, metrics)
 
   const signalColor = metrics.weissSignal === 'undervalued' ? '#22c55e'
     : metrics.weissSignal === 'overvalued' ? '#ef4444' : '#f59e0b'
@@ -199,6 +276,7 @@ export default async function AnalysisPage({ params }: PageProps) {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
 
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },
