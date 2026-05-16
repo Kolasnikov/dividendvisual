@@ -402,6 +402,7 @@ export default async function HomePage() {
                   { href: '/watchlist',     label: 'Screener' },
                   { href: '/opportunities', label: 'Opportunities' },
                   { href: '/collections/dividend-kings', label: 'Collections' },
+                  { href: '/methodology',   label: 'Methodology' },
                   { href: '/blog',          label: 'Blog' },
                 ].map(({ href, label }) => (
                   <Link key={href} href={href} className="text-sm text-[#71717a] hover:text-[#f4f4f5] transition-colors">
@@ -434,6 +435,7 @@ export default async function HomePage() {
               <p className="text-xs font-semibold text-[#f4f4f5] uppercase tracking-wider mb-4">Learn</p>
               <div className="flex flex-col gap-2.5">
                 {[
+                  { href: '/methodology',                                    label: 'How It Works' },
                   { href: '/blog/geraldine-weiss-dividend-valuation-method', label: 'Weiss Method' },
                   { href: '/blog/how-to-find-undervalued-dividend-stocks',   label: 'Find Undervalued Stocks' },
                   { href: '/blog/dividend-yield-trap',                       label: 'The Yield Trap' },
