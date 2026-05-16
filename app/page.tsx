@@ -403,6 +403,7 @@ export default async function HomePage() {
                   { href: '/opportunities', label: 'Opportunities' },
                   { href: '/collections/dividend-kings', label: 'Collections' },
                   { href: '/methodology',   label: 'Methodology' },
+                  { href: '/about',         label: 'About' },
                   { href: '/blog',          label: 'Blog' },
                 ].map(({ href, label }) => (
                   <Link key={href} href={href} className="text-sm text-[#71717a] hover:text-[#f4f4f5] transition-colors">
@@ -453,7 +454,11 @@ export default async function HomePage() {
 
           <div className="border-t border-[#1e1e2e] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-[#52525b]">© 2026 DividendVisual. All rights reserved.</p>
-            <p className="text-xs text-[#3e3e4e]">Built for income investors.</p>
+            <div className="flex items-center gap-4">
+              <Link href="/about" className="text-xs text-[#3e3e4e] hover:text-[#71717a] transition-colors">About</Link>
+              <Link href="/privacy" className="text-xs text-[#3e3e4e] hover:text-[#71717a] transition-colors">Privacy</Link>
+              <Link href="/terms" className="text-xs text-[#3e3e4e] hover:text-[#71717a] transition-colors">Terms</Link>
+            </div>
           </div>
         </div>
       </footer>
