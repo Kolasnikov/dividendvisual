@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import type { Company, ComputedMetrics, WeissChartPoint, TickerResponse } from '@/lib/types'
+import { checkRateLimit, getIp, tooManyRequests } from '@/lib/rateLimit'
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ symbol: string }> }
 ) {
+  if (!checkRateLimit('ticker', getIp(req), 30, 60_000).ok) return tooManyRequests()
   const { symbol } = await params
   const sym = symbol.toUpperCase()
 

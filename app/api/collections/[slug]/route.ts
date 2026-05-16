@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import type { Company, ComputedMetrics } from '@/lib/types'
+import { checkRateLimit, getIp, tooManyRequests } from '@/lib/rateLimit'
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  if (!checkRateLimit('collections', getIp(req), 30, 60_000).ok) return tooManyRequests()
   const { slug } = await params
 
   const result = await db.execute({

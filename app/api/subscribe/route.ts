@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { checkRateLimit, getIp, tooManyRequests } from '@/lib/rateLimit'
 
 export async function POST(req: NextRequest) {
+  if (!checkRateLimit('subscribe', getIp(req), 5, 60_000).ok) return tooManyRequests()
   const { email } = await req.json()
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {

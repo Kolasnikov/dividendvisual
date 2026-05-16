@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import type { SearchResult } from '@/lib/types'
+import { checkRateLimit, getIp, tooManyRequests } from '@/lib/rateLimit'
 
 export async function GET(req: NextRequest) {
+  if (!checkRateLimit('search', getIp(req), 60, 60_000).ok) return tooManyRequests()
   const { searchParams } = new URL(req.url)
   const q = (searchParams.get('q') ?? '').trim().toUpperCase()
 

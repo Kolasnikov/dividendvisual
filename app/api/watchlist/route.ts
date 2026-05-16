@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import type { Company, ComputedMetrics } from '@/lib/types'
+import { checkRateLimit, getIp, tooManyRequests } from '@/lib/rateLimit'
 
 type WatchlistRow = Company & ComputedMetrics
 
@@ -13,6 +14,7 @@ const SORT_COLUMNS: Record<string, string> = {
 }
 
 export async function GET(req: NextRequest) {
+  if (!checkRateLimit('watchlist', getIp(req), 30, 60_000).ok) return tooManyRequests()
   const { searchParams } = new URL(req.url)
   const sort = searchParams.get('sort') ?? 'quality'
   const order = searchParams.get('order') === 'asc' ? 'ASC' : 'DESC'
