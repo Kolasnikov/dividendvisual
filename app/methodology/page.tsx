@@ -66,7 +66,7 @@ const faqJsonLd = {
       name: 'Which stocks does the Weiss method work for?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'The method works best for established dividend payers with 15+ years of uninterrupted payment history, stable free cash flow (consumer staples, utilities, healthcare, financials), and a payout ratio below 75%. It does not work for growth stocks with no or minimal dividends, companies with recent dividend cuts, or cyclical businesses where dividends fluctuate with earnings. All 62 stocks on DividendVisual were selected to meet these criteria.',
+        text: 'The method works best for established dividend payers with 15+ years of uninterrupted payment history, stable free cash flow (consumer staples, utilities, healthcare, financials), and a payout ratio below 75%. It does not work for growth stocks with no or minimal dividends, companies with recent dividend cuts, or cyclical businesses where dividends fluctuate with earnings. All 150+ stocks on DividendVisual were selected to meet these criteria.',
       },
     },
   ],
@@ -97,7 +97,7 @@ export default function MethodologyPage() {
           The Geraldine Weiss Dividend Yield Method
         </h1>
         <p className="text-[#71717a] text-base leading-relaxed">
-          DividendVisual applies a formalized version of the Weiss method to 62 blue-chip dividend stocks.
+          DividendVisual applies a formalized version of the Weiss method to 150+ blue-chip dividend stocks.
           This page explains exactly what we calculate, how we calculate it, and what the signals mean.
         </p>
       </header>
@@ -243,7 +243,7 @@ export default function MethodologyPage() {
           <li><strong>No recent dividend cuts or freezes</strong> — a cut resets the historical range and makes prior signals meaningless.</li>
         </ul>
         <p>
-          The current universe covers <strong>62 stocks</strong> including all{' '}
+          The current universe covers <strong>150+ stocks</strong> including all{' '}
           <Link href="/collections/dividend-kings" className="text-[#6366f1] hover:text-[#818cf8]">Dividend Kings</Link>,
           most{' '}
           <Link href="/collections/dividend-aristocrats" className="text-[#6366f1] hover:text-[#818cf8]">Dividend Aristocrats</Link>,
@@ -296,7 +296,7 @@ export default function MethodologyPage() {
         >
           <span className="text-xs text-[#71717a] font-semibold uppercase tracking-wide mb-2">Full universe</span>
           <span className="text-sm font-medium text-[#f4f4f5] group-hover:text-white">
-            Browse All 62 Stocks →
+            Browse All 150+ Stocks →
           </span>
           <span className="text-xs text-[#71717a] mt-1">
             Filter by signal, sector, badge, and quality score.

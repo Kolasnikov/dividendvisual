@@ -9,10 +9,10 @@ import { SignalBadge } from '@/components/ui/SignalBadge'
 
 export const metadata: Metadata = {
   title: 'DividendVisual — Find Undervalued Dividend Stocks | Geraldine Weiss Method',
-  description: 'Geraldine Weiss dividend yield valuation for 60+ stocks. See if KO, JNJ, PG and other dividend kings are historically cheap or expensive. Free dividend analysis tool for income investors.',
+  description: 'Geraldine Weiss dividend yield valuation for 150+ stocks. See if KO, JNJ, PG and other dividend kings are historically cheap or expensive. Free dividend analysis tool for income investors.',
   openGraph: {
     title: 'DividendVisual — Find Undervalued Dividend Stocks',
-    description: 'Geraldine Weiss dividend yield valuation for 60+ stocks. See if dividend kings and aristocrats are historically cheap or expensive based on 10 years of yield data.',
+    description: 'Geraldine Weiss dividend yield valuation for 150+ stocks. See if dividend kings and aristocrats are historically cheap or expensive based on 10 years of yield data.',
     url: 'https://dividendvisual.com',
   },
 }
@@ -59,7 +59,7 @@ const ORG_SCHEMA = {
   '@type': 'WebApplication',
   name: 'DividendVisual',
   url: 'https://dividendvisual.com',
-  description: 'Visual dividend valuation tool using the Geraldine Weiss yield method. Tracks 62 dividend stocks with Weiss valuation bands, quality scores, and income projections.',
+  description: 'Visual dividend valuation tool using the Geraldine Weiss yield method. Tracks 150+ dividend stocks with Weiss valuation bands, quality scores, and income projections.',
   applicationCategory: 'FinanceApplication',
   operatingSystem: 'Web',
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
@@ -191,12 +191,12 @@ export default async function HomePage() {
 
           <p className="text-lg text-[#71717a] max-w-xl mx-auto mb-4">
             The <strong className="text-[#a1a1aa] font-medium">Geraldine Weiss dividend yield method</strong> — modernized.
-            See if KO, JNJ, PG and 60+ dividend stocks are trading at historically cheap or expensive prices.
+            See if KO, JNJ, PG and 150+ dividend stocks are trading at historically cheap or expensive prices.
           </p>
 
           {/* Stats bar */}
           <div className="flex items-center justify-center gap-6 text-xs text-[#52525b] mb-10">
-            <span><span className="text-[#f4f4f5] font-semibold">62</span> stocks tracked</span>
+            <span><span className="text-[#f4f4f5] font-semibold">150+</span> stocks tracked</span>
             <span className="w-px h-3 bg-[#2e2e3e]" />
             <span><span className="text-[#f4f4f5] font-semibold">10</span> years of yield data</span>
             <span className="w-px h-3 bg-[#2e2e3e]" />
@@ -258,7 +258,7 @@ export default async function HomePage() {
               step: '01',
               Icon: Search,
               title: 'Search a dividend stock',
-              body: 'Find any of 62 tracked blue-chip dividend payers. From Coca-Cola to Johnson & Johnson — Kings, Aristocrats, REITs, and more.',
+              body: 'Find any of 150+ tracked blue-chip dividend payers. From Coca-Cola to Johnson & Johnson — Kings, Aristocrats, REITs, and more.',
             },
             {
               step: '02',

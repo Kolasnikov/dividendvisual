@@ -4,11 +4,11 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 export const metadata: Metadata = {
   title: 'About DividendVisual',
-  description: 'DividendVisual applies the Geraldine Weiss dividend yield method to 60+ blue-chip stocks. Built for serious income investors who want to buy great companies at historically attractive prices.',
+  description: 'DividendVisual applies the Geraldine Weiss dividend yield method to 150+ blue-chip stocks. Built for serious income investors who want to buy great companies at historically attractive prices.',
   alternates: { canonical: 'https://dividendvisual.com/about' },
   openGraph: {
     title: 'About DividendVisual',
-    description: 'DividendVisual applies the Geraldine Weiss dividend yield method to 60+ blue-chip stocks.',
+    description: 'DividendVisual applies the Geraldine Weiss dividend yield method to 150+ blue-chip stocks.',
     url: 'https://dividendvisual.com/about',
   },
 }
@@ -39,7 +39,7 @@ export default function AboutPage() {
           Built for investors who buy great companies at the right price
         </h1>
         <p className="text-[#71717a] text-base leading-relaxed">
-          DividendVisual applies the Geraldine Weiss dividend yield method to 60+ blue-chip dividend
+          DividendVisual applies the Geraldine Weiss dividend yield method to 150+ blue-chip dividend
           stocks — giving income investors a clear, data-driven view of when each stock is historically
           cheap, fairly valued, or expensive.
         </p>
@@ -61,7 +61,7 @@ export default function AboutPage() {
           investors should be looking for.
         </p>
         <p>
-          DividendVisual automates this analysis for 62 established dividend payers, updated daily, and
+          DividendVisual automates this analysis for 150+ established dividend payers, updated daily, and
           adds a quality layer — the 0–100 quality score — to filter out the cases where a high yield is
           a warning rather than an opportunity.
         </p>
@@ -106,7 +106,7 @@ export default function AboutPage() {
 
         <h2>The Stock Universe</h2>
         <p>
-          We cover 62 stocks selected for Weiss method compatibility: 15+ years of dividend history,
+          We cover 150+ stocks selected for Weiss method compatibility: 15+ years of dividend history,
           stable free cash flow generation, and no recent dividend cuts or freezes. The universe
           includes all major <Link href="/collections/dividend-kings" className="text-[#6366f1] hover:text-[#818cf8]">Dividend Kings</Link>,
           the most widely-held{' '}
@@ -114,7 +114,7 @@ export default function AboutPage() {
           and selected{' '}
           <Link href="/collections/reits" className="text-[#6366f1] hover:text-[#818cf8]">REITs</Link> and{' '}
           <Link href="/collections/utilities" className="text-[#6366f1] hover:text-[#818cf8]">utilities</Link>{' '}
-          that meet the eligibility criteria. We are expanding coverage toward 150+ tickers.
+          that meet the eligibility criteria. We are now covering 150+ tickers.
         </p>
         <p>
           Data is refreshed daily via a Python pipeline using public market data sources. Prices,

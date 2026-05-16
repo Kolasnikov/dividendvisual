@@ -17,21 +17,21 @@ export const metadata: Metadata = {
     template: '%s | DividendVisual',
   },
   description:
-    'Geraldine Weiss dividend yield valuation for 60+ stocks. Visual tools for income investors — Weiss valuation bands, quality scores, and dividend projections.',
+    'Geraldine Weiss dividend yield valuation for 150+ stocks. Visual tools for income investors — Weiss valuation bands, quality scores, and dividend projections.',
   metadataBase: new URL('https://dividendvisual.com'),
   openGraph: {
     type: 'website',
     siteName: 'DividendVisual',
     title: 'DividendVisual — Find Undervalued Dividend Stocks',
     description:
-      'Geraldine Weiss dividend yield valuation for 60+ stocks. Visual tools for income investors — Weiss valuation bands, quality scores, and dividend projections.',
+      'Geraldine Weiss dividend yield valuation for 150+ stocks. Visual tools for income investors — Weiss valuation bands, quality scores, and dividend projections.',
     url: 'https://dividendvisual.com',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'DividendVisual — Understand dividend valuation visually',
     description:
-      'Visual tools for dividend investors. Weiss valuation bands, quality scores, and income projections for 30+ dividend stocks.',
+      'Visual tools for dividend investors. Weiss valuation bands, quality scores, and income projections for 150+ dividend stocks.',
   },
 }
 

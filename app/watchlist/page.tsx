@@ -4,10 +4,10 @@ import { WatchlistClient } from '@/components/watchlist/WatchlistClient'
 
 export const metadata: Metadata = {
   title: 'Dividend Stocks Watchlist — Weiss Valuation Screener',
-  description: 'Screener for 60+ curated dividend stocks. Filter by Weiss signal, Dividend Kings, Aristocrats, or sector. Sort by yield, quality score, or dividend CAGR.',
+  description: 'Screener for 150+ curated dividend stocks. Filter by Weiss signal, Dividend Kings, Aristocrats, or sector. Sort by yield, quality score, or dividend CAGR.',
   openGraph: {
     title: 'Dividend Stocks Watchlist | DividendVisual',
-    description: 'Screener for 60+ curated dividend stocks. Filter by signal, Kings, Aristocrats, or sector.',
+    description: 'Screener for 150+ curated dividend stocks. Filter by signal, Kings, Aristocrats, or sector.',
     url: 'https://dividendvisual.com/watchlist',
   },
 }
