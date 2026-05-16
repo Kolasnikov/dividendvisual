@@ -11,6 +11,7 @@ import { SignalBadge } from '@/components/ui/SignalBadge'
 import { DividendBadge } from '@/components/ui/DividendBadge'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
+import { BrokerCTA } from '@/components/cards/BrokerCTA'
 
 interface PageProps {
   params: Promise<{ symbol: string }>
@@ -225,6 +226,13 @@ export default async function TickerPage({ params }: PageProps) {
             <h2 className="sr-only">{company.symbol} Dividend Income Projection — DRIP Compounder</h2>
             <DRIPChart metrics={metrics} />
           </div>
+
+          {/* Broker CTA */}
+          <BrokerCTA
+            signal={metrics.weissSignal ?? ''}
+            symbol={company.symbol}
+            companyName={company.name}
+          />
         </div>
 
         {/* Right sidebar */}
