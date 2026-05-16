@@ -114,9 +114,32 @@ const BLOG_ARTICLES = {
   pg:         { slug: 'procter-gamble-pg-dividend-analysis',        title: 'Procter & Gamble (PG) Dividend Analysis' },
   hd:         { slug: 'home-depot-hd-dividend-analysis',            title: 'Home Depot (HD): The Low-Yield Income Machine' },
   trap:       { slug: 'dividend-yield-trap',                        title: 'The Dividend Yield Trap Explained' },
+  aaplVsMsft: { slug: 'aapl-vs-msft-dividend-comparison',          title: 'AAPL vs MSFT: Which Tech Giant Pays the Better Dividend?' },
+  avgoVsQcom: { slug: 'avgo-vs-qcom-dividend-comparison',          title: 'AVGO vs QCOM: The Semiconductor Dividend Battle' },
+  unhVsCvs:   { slug: 'unh-vs-cvs-dividend-comparison',            title: 'UNH vs CVS: Healthcare Dividends — Compounder or Value Trap?' },
+  lmtVsNoc:   { slug: 'lmt-vs-noc-dividend-comparison',            title: 'LMT vs NOC: Which Defense Dividend Is Built to Last?' },
+  xomVsCvx:   { slug: 'xom-vs-cvx-dividend-comparison',            title: 'XOM vs CVX: Which Energy Dividend Survives the Oil Price Cycle?' },
+  koVsPep:    { slug: 'ko-vs-pep-dividend-comparison',             title: 'KO vs PEP: The Beverage Kings — Which Dividend Compounds Better?' },
+  jnjVsAbbv:  { slug: 'jnj-vs-abbv-dividend-comparison',           title: 'JNJ vs ABBV: Healthcare Dividends — Stability vs High Yield' },
+  oVsNnn:     { slug: 'o-vs-nnn-reit-dividend-comparison',         title: 'O vs NNN: Monthly Dividend REITs — Scale vs. Purity' },
+  tVsVz:      { slug: 't-vs-vz-dividend-comparison',               title: 'T vs VZ: High-Yield Telecom — Recovery Play or Reliable Income?' },
+  catVsMmm:   { slug: 'cat-vs-mmm-dividend-comparison',            title: 'CAT vs MMM: Industrial Dividend Giants — Growth vs. Recovery' },
 } as const
 
 const HIGH_YIELD_WATCH = new Set(['MO', 'T', 'VZ', 'PFE', 'BMY', 'MAIN', 'CPB', 'HRL', 'KMB', 'CLX', 'NNN', 'D'])
+
+const COMPARISON_MAP: Record<string, keyof typeof BLOG_ARTICLES> = {
+  AAPL: 'aaplVsMsft', MSFT: 'aaplVsMsft',
+  AVGO: 'avgoVsQcom', QCOM: 'avgoVsQcom',
+  UNH:  'unhVsCvs',   CVS:  'unhVsCvs',
+  LMT:  'lmtVsNoc',   NOC:  'lmtVsNoc',
+  XOM:  'xomVsCvx',   CVX:  'xomVsCvx',
+  KO:   'koVsPep',    PEP:  'koVsPep',
+  JNJ:  'jnjVsAbbv',  ABBV: 'jnjVsAbbv',
+  O:    'oVsNnn',     NNN:  'oVsNnn',
+  T:    'tVsVz',      VZ:   'tVsVz',
+  CAT:  'catVsMmm',   MMM:  'catVsMmm',
+}
 
 function getRelatedArticles(symbol: string, isDividendKing: boolean, isDividendAristocrat: boolean) {
   const keys: (keyof typeof BLOG_ARTICLES)[] = []
@@ -124,6 +147,7 @@ function getRelatedArticles(symbol: string, isDividendKing: boolean, isDividendA
   if (symbol === 'JNJ') keys.push('jnj')
   if (symbol === 'PG') keys.push('pg')
   if (symbol === 'HD') keys.push('hd')
+  if (COMPARISON_MAP[symbol]) keys.push(COMPARISON_MAP[symbol])
   if (isDividendKing) keys.push('kings')
   if (isDividendKing || isDividendAristocrat) keys.push('comparison')
   if (HIGH_YIELD_WATCH.has(symbol)) keys.push('trap')
@@ -188,7 +212,13 @@ export default async function TickerPage({ params }: PageProps) {
               </span>
               <SignalBadge signal={metrics.weissSignal} />
             </div>
-            <div className="mt-2 flex justify-end">
+            <div className="mt-2 flex items-center gap-2 justify-end">
+              <Link
+                href={`/compare?a=${company.symbol}`}
+                className="px-2.5 py-1 rounded-lg text-xs text-[#71717a] hover:text-[#f4f4f5] bg-[#1e1e2e] hover:bg-[#2e2e3e] transition-colors"
+              >
+                Compare
+              </Link>
               <WatchlistButton symbol={company.symbol} />
             </div>
           </div>

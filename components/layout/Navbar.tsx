@@ -10,6 +10,7 @@ import type { SearchResult } from '@/lib/types'
 const NAV_LINKS = [
   { href: '/opportunities', label: 'Opportunities' },
   { href: '/watchlist', label: 'Watchlist' },
+  { href: '/compare', label: 'Compare' },
   { href: '/collections/dividend-kings', label: 'Collections' },
   { href: '/blog', label: 'Blog' },
 ]
