@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { track } from '@vercel/analytics'
 import Link from 'next/link'
-import { Search, X, Bookmark } from 'lucide-react'
+import { Search, X, Bookmark, Download } from 'lucide-react'
 import type { Company, ComputedMetrics } from '@/lib/types'
 import { SignalBadge } from '@/components/ui/SignalBadge'
 import { useWatchlist } from '@/hooks/useWatchlist'
@@ -27,6 +27,69 @@ const BADGE_FILTERS = [
 function pct(v: number | null, d = 2) {
   if (v == null) return '—'
   return `${(v * 100).toFixed(d)}%`
+}
+
+function exportCsv(rows: Row[]) {
+  const esc = (v: string | number | null | undefined) => {
+    if (v == null) return ''
+    const s = String(v)
+    return /[,"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+  }
+  const fmt = (v: number | null, mult = 100, d = 2) =>
+    v == null ? '' : (v * mult).toFixed(d)
+
+  const headers = [
+    'Symbol', 'Name', 'Sector', 'Industry', 'Signal',
+    'Price', 'Yield %', 'Annual Dividend',
+    'Quality Score', 'Quality Category',
+    'Payout Ratio %', 'FCF Payout %',
+    'CAGR 5Y %', 'CAGR 10Y %',
+    'Years Increasing Dividends', 'Years No Cut',
+    'Undervalued Price', 'Overvalued Price',
+    'Min Yield %', 'Median Yield %', 'Max Yield %',
+    'Dividend King', 'Dividend Aristocrat',
+  ]
+
+  const csvRows = [
+    headers.join(','),
+    ...rows.map((r) =>
+      [
+        r.symbol,
+        esc(r.name),
+        esc(r.sector),
+        esc(r.industry),
+        r.weissSignal,
+        r.currentPrice.toFixed(2),
+        fmt(r.currentYield),
+        r.annualDividend.toFixed(4),
+        r.qualityScore,
+        esc(r.qualityCategory),
+        fmt(r.payoutRatio, 100, 1),
+        fmt(r.fcfPayout, 100, 1),
+        fmt(r.dividendCagr5y, 100, 1),
+        fmt(r.dividendCagr10y, 100, 1),
+        r.yearsIncreasingDividends,
+        r.yearsNoCut,
+        r.undervaluedPrice.toFixed(2),
+        r.overvaluedPrice.toFixed(2),
+        fmt(r.historicalMinYield),
+        fmt(r.medianYield),
+        fmt(r.historicalMaxYield),
+        r.isDividendKing ? 'Yes' : 'No',
+        r.isDividendAristocrat ? 'Yes' : 'No',
+      ].join(',')
+    ),
+  ].join('\n')
+
+  const blob = new Blob([csvRows], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `dividendvisual-${new Date().toISOString().slice(0, 10)}.csv`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
 }
 
 function SortTh({
@@ -207,7 +270,7 @@ export function WatchlistClient({ rows }: { rows: Row[] }) {
           />
         </div>
 
-        {/* Count + reset */}
+        {/* Count + actions */}
         <div className="flex items-center gap-2 ml-auto">
           <span className="text-xs text-[#52525b]">
             {sorted.length === rows.length
@@ -222,6 +285,17 @@ export function WatchlistClient({ rows }: { rows: Row[] }) {
               <X className="w-3 h-3" /> Clear
             </button>
           )}
+          <button
+            onClick={() => {
+              track('csv_exported', { count: sorted.length, filtered: !!hasFilters })
+              exportCsv(sorted)
+            }}
+            title={`Export ${sorted.length} rows as CSV`}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#1e1e2e] text-[#71717a] hover:text-[#f4f4f5] transition-colors border border-[#2e2e3e] hover:border-[#6366f1]/40"
+          >
+            <Download className="w-3 h-3" />
+            CSV
+          </button>
         </div>
       </div>
 
