@@ -331,11 +331,22 @@ def get_ticker_info(ticker: yf.Ticker) -> dict:
         info = ticker.info
     except Exception:
         info = {}
+    payout_ratio = info.get("payoutRatio")
+    fcf = info.get("freeCashflow")
+    shares = info.get("sharesOutstanding")
+    div_rate = info.get("dividendRate")
+    fcf_payout = None
+    if fcf and shares and div_rate and shares > 0 and fcf > 0:
+        fcf_per_share = fcf / shares
+        ratio = div_rate / fcf_per_share
+        if 0 < ratio < 2.0:
+            fcf_payout = ratio
     return {
         "name": info.get("longName") or info.get("shortName") or "",
         "sector": info.get("sector"),
         "industry": info.get("industry"),
-        "payout_ratio": info.get("payoutRatio"),
+        "payout_ratio": payout_ratio,
+        "fcf_payout": fcf_payout,
         "trailing_eps": info.get("trailingEps"),
         "free_cashflow": info.get("freeCashflow"),
         "dividends_per_share": info.get("dividendRate"),
@@ -397,10 +408,11 @@ def ingest_ticker(symbol: str) -> bool:
             """INSERT OR REPLACE INTO companies
                (symbol, name, sector, industry,
                 is_dividend_king, is_dividend_aristocrat, is_blue_chip,
-                years_increasing_dividends, updated_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))""",
+                years_increasing_dividends, payout_ratio, fcf_payout, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))""",
             [symbol, name, info["sector"], info["industry"],
-             is_king, is_aristocrat, is_blue_chip, years_increasing],
+             is_king, is_aristocrat, is_blue_chip, years_increasing,
+             info.get("payout_ratio"), info.get("fcf_payout")],
         )])
 
         # Price history — flush in real batches of 40

@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 from dotenv import load_dotenv
 
+
 load_dotenv(".env.local")
 
 TURSO_URL = os.environ["TURSO_DATABASE_URL"]
@@ -535,25 +536,18 @@ def save_computed_metrics(symbol: str, metrics: dict, score: int, category: str,
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
-def get_fundamentals_from_yf(symbol: str) -> dict:
-    """Fetch payout_ratio and FCF payout from yfinance .info."""
+def get_fundamentals_from_db(symbol: str) -> dict:
+    """Read payout_ratio and fcf_payout from companies table (saved during ingest)."""
     try:
-        import yfinance as yf
-        info = yf.Ticker(symbol).info
-        payout = info.get("payoutRatio")
-        # FCF payout: annualDividend / (freeCashflow / sharesOutstanding)
-        fcf = info.get("freeCashflow")
-        shares = info.get("sharesOutstanding")
-        div_rate = info.get("dividendRate")
-        fcf_payout = None
-        if fcf and shares and div_rate and shares > 0 and fcf > 0:
-            fcf_per_share = fcf / shares
-            ratio = div_rate / fcf_per_share
-            if 0 < ratio < 2.0:  # sanity check — ignore implausible values
-                fcf_payout = ratio
-        return {"payout_ratio": payout, "fcf_payout": fcf_payout}
+        rows = turso_query(
+            "SELECT payout_ratio, fcf_payout FROM companies WHERE symbol = ?",
+            [symbol],
+        )
+        if rows:
+            return {"payout_ratio": rows[0].get("payout_ratio"), "fcf_payout": rows[0].get("fcf_payout")}
     except Exception:
-        return {"payout_ratio": None, "fcf_payout": None}
+        pass
+    return {"payout_ratio": None, "fcf_payout": None}
 
 
 def process_ticker(symbol: str, company_name: str) -> bool:
@@ -574,8 +568,8 @@ def process_ticker(symbol: str, company_name: str) -> bool:
             print(f"  [{symbol}] Could not compute metrics.")
             return False
 
-        # Add fundamentals from yfinance .info
-        fundamentals = get_fundamentals_from_yf(symbol)
+        # Add fundamentals from DB (saved during ingest — no yfinance call needed)
+        fundamentals = get_fundamentals_from_db(symbol)
         metrics.update(fundamentals)
 
         # Quality score
