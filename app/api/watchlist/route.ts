@@ -20,6 +20,8 @@ export async function GET(req: NextRequest) {
   const order = searchParams.get('order') === 'asc' ? 'ASC' : 'DESC'
   const sortCol = SORT_COLUMNS[sort] ?? 'cm.quality_score'
 
+  const sector = searchParams.get('sector')
+
   const result = await db.execute({
     sql: `SELECT
             c.symbol, c.name, c.sector, c.industry,
@@ -34,8 +36,9 @@ export async function GET(req: NextRequest) {
             cm.years_no_cut, cm.why_now_text, cm.updated_at
           FROM companies c
           LEFT JOIN computed_metrics cm ON c.symbol = cm.symbol
+          ${sector ? 'WHERE c.sector = ?' : ''}
           ORDER BY ${sortCol} ${order} NULLS LAST`,
-    args: [],
+    args: sector ? [sector] : [],
   })
 
   const rows: WatchlistRow[] = result.rows.map((r) => ({

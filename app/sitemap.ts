@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { getAllPosts } from '@/lib/blog'
 import { COMPARE_PAIRS } from '@/app/compare/[pair]/page'
+import { SECTOR_SLUGS } from '@/app/sector/[sector]/page'
 
 const BASE = 'https://dividendvisual.com'
 
@@ -104,5 +105,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.75,
   }))
 
-  return [...statics, ...tickers, ...analysis, ...collections, ...blogPosts, ...comparePairs]
+  const sectors: MetadataRoute.Sitemap = SECTOR_SLUGS.map((slug) => ({
+    url: `${BASE}/sector/${slug}`,
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }))
+
+  return [...statics, ...tickers, ...analysis, ...collections, ...blogPosts, ...comparePairs, ...sectors]
 }
