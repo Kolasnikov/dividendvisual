@@ -2,15 +2,15 @@ import type { Metadata } from 'next'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 export const metadata: Metadata = {
-  title: 'Dividend Investing Books — Recommended Reading | DividendVisual',
+  title: 'Resources — Books & Tools for Dividend Investors | DividendVisual',
   description:
-    'A curated reading list for serious dividend investors — from Graham\'s foundational value framework to Kelley Wright\'s modern update of the Weiss method.',
+    'Curated books and research tools for serious dividend investors — from Graham\'s foundational framework to FinViz and TradingView for deeper due diligence.',
   alternates: {
     canonical: 'https://dividendvisual.com/resources',
   },
   openGraph: {
-    title: 'Dividend Investing Books | DividendVisual',
-    description: 'Five books that shaped the philosophy behind DividendVisual — curated, not sponsored.',
+    title: 'Resources for Dividend Investors | DividendVisual',
+    description: 'Books and tools that complement the DividendVisual approach — curated, not generic.',
     url: 'https://dividendvisual.com/resources',
   },
 }
@@ -41,7 +41,7 @@ const BOOKS = [
     tag: 'Philosophy',
   },
   {
-    title: 'Dividends Still Don\'t Lie',
+    title: "Dividends Still Don't Lie",
     author: 'Kelley Wright',
     href: 'https://amzn.to/4frK0UO',
     description:
@@ -59,6 +59,25 @@ const BOOKS = [
   },
 ]
 
+const TOOLS = [
+  {
+    name: 'TradingView',
+    url: 'tradingview.com',
+    href: 'https://www.tradingview.com/?aff_id=166728',
+    tag: 'Charts',
+    description:
+      'The go-to platform for price charts, technical analysis, and historical data. Once the Weiss signal identifies a candidate, TradingView is where you look at the price structure, support levels, and longer-term context before sizing a position.',
+  },
+  {
+    name: 'FinViz',
+    url: 'finviz.com',
+    href: 'https://finviz.com/?affilId=757578555',
+    tag: 'Screener',
+    description:
+      'A comprehensive stock screener and research platform. Where DividendVisual focuses on yield-based valuation and dividend quality, FinViz provides fundamental data, analyst ratings, earnings calendars, and sector maps. Useful for cross-referencing once a Weiss signal has identified a candidate.',
+  },
+]
+
 export default function ResourcesPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
@@ -68,103 +87,99 @@ export default function ResourcesPage() {
       ]} />
 
       {/* Header */}
-      <header className="mb-10">
-        <h1 className="text-3xl font-bold text-[#f4f4f5] mb-4">Recommended Reading</h1>
+      <header className="mb-12">
+        <h1 className="text-3xl font-bold text-[#f4f4f5] mb-4">Resources</h1>
         <p className="text-[#71717a] text-sm leading-relaxed max-w-xl">
-          Five books that shaped the philosophy behind DividendVisual. Not a generic affiliate list —
-          these are the texts I return to when thinking about dividend valuation, quality, and
-          long-term income compounding. Start with <em>Dividends Still Don&apos;t Lie</em> if you
-          want to go deeper into the Weiss method specifically.
+          Books and tools that complement the DividendVisual approach. Not a generic list —
+          these are the references I actually use when thinking about dividend valuation,
+          quality, and long-term income compounding.
         </p>
-
-        {/* Affiliate disclaimer */}
         <p className="mt-5 text-xs text-[#3e3e4e] leading-relaxed border border-[#1e1e2e] rounded-lg px-4 py-3">
-          This page contains affiliate links. If you purchase through these links, DividendVisual
-          may earn a small commission at no extra cost to you.
+          This page contains affiliate links. If you purchase or sign up through these links,
+          DividendVisual may earn a small commission at no extra cost to you.
         </p>
       </header>
 
-      {/* Book list */}
-      <div className="flex flex-col gap-5">
-        {BOOKS.map((book) => (
-          <div
-            key={book.href}
-            className={`bg-[#111118] border rounded-xl p-6 ${
-              book.highlight ? 'border-[#6366f1]/40' : 'border-[#1e1e2e]'
-            }`}
-          >
-            <div className="flex items-start justify-between gap-4 mb-3">
-              <div>
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span
-                    className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${
-                      book.highlight
-                        ? 'text-[#6366f1] border-[#6366f1]/30 bg-[#6366f1]/10'
-                        : 'text-[#52525b] border-[#2e2e3e] bg-[#1e1e2e]'
-                    }`}
-                  >
-                    {book.tag}
-                  </span>
-                  {book.highlight && (
-                    <span className="text-[10px] text-[#6366f1]">Directly related to the Weiss method</span>
-                  )}
-                </div>
-                <h2 className="text-base font-semibold text-[#f4f4f5] leading-snug">{book.title}</h2>
-                <p className="text-xs text-[#52525b] mt-0.5">{book.author}</p>
-              </div>
-            </div>
-
-            <p className="text-sm text-[#71717a] leading-relaxed mb-4">{book.description}</p>
-
-            <a
-              href={book.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2e2e3e] text-sm text-[#a1a1aa] hover:text-[#f4f4f5] hover:border-[#6366f1]/40 transition-colors"
-            >
-              View on Amazon ↗
-            </a>
-          </div>
-        ))}
-      </div>
-
-      {/* Tools section */}
-      <div className="mt-12 pt-8 border-t border-[#1e1e2e]">
-        <h2 className="text-lg font-semibold text-[#f4f4f5] mb-2">Research Tools</h2>
-        <p className="text-sm text-[#71717a] mb-5 leading-relaxed">
-          Tools that complement DividendVisual for deeper fundamental and technical research.
+      {/* ── Books ─────────────────────────────────────────────────────────── */}
+      <section>
+        <h2 className="text-lg font-semibold text-[#f4f4f5] mb-1">Books</h2>
+        <p className="text-xs text-[#52525b] mb-6">
+          Start with <em>Dividends Still Don&apos;t Lie</em> if you want to go deeper into the Weiss method specifically.
         </p>
-        <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-6">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded border text-[#52525b] border-[#2e2e3e] bg-[#1e1e2e]">
-              Screener
-            </span>
-          </div>
-          <h3 className="text-base font-semibold text-[#f4f4f5] mb-0.5">FinViz</h3>
-          <p className="text-xs text-[#52525b] mb-3">finviz.com</p>
-          <p className="text-sm text-[#71717a] leading-relaxed mb-4">
-            A comprehensive stock screener and research platform. Where DividendVisual focuses on
-            yield-based valuation and dividend quality, FinViz provides fundamental data, analyst
-            ratings, earnings calendars, and technical filters. Useful for cross-referencing once
-            a Weiss signal has identified a candidate.
-          </p>
-          <a
-            href="https://finviz.com/?affilId=757578555"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2e2e3e] text-sm text-[#a1a1aa] hover:text-[#f4f4f5] hover:border-[#6366f1]/40 transition-colors"
-          >
-            Visit FinViz ↗
-          </a>
+        <div className="flex flex-col gap-5">
+          {BOOKS.map((book) => (
+            <div
+              key={book.href}
+              className={`bg-[#111118] border rounded-xl p-6 ${
+                book.highlight ? 'border-[#6366f1]/40' : 'border-[#1e1e2e]'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <span
+                  className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${
+                    book.highlight
+                      ? 'text-[#6366f1] border-[#6366f1]/30 bg-[#6366f1]/10'
+                      : 'text-[#52525b] border-[#2e2e3e] bg-[#1e1e2e]'
+                  }`}
+                >
+                  {book.tag}
+                </span>
+                {book.highlight && (
+                  <span className="text-[10px] text-[#6366f1]">Directly related to the Weiss method</span>
+                )}
+              </div>
+              <h3 className="text-base font-semibold text-[#f4f4f5] leading-snug">{book.title}</h3>
+              <p className="text-xs text-[#52525b] mt-0.5 mb-3">{book.author}</p>
+              <p className="text-sm text-[#71717a] leading-relaxed mb-4">{book.description}</p>
+              <a
+                href={book.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-4 py-2 rounded-lg border border-[#2e2e3e] text-sm text-[#a1a1aa] hover:text-[#f4f4f5] hover:border-[#6366f1]/40 transition-colors"
+              >
+                View on Amazon ↗
+              </a>
+            </div>
+          ))}
         </div>
-      </div>
+      </section>
+
+      {/* ── Tools ─────────────────────────────────────────────────────────── */}
+      <section className="mt-16 pt-10 border-t border-[#1e1e2e]">
+        <h2 className="text-lg font-semibold text-[#f4f4f5] mb-1">Research Tools</h2>
+        <p className="text-xs text-[#52525b] mb-6">
+          For technical charts and fundamental due diligence after the Weiss signal fires.
+        </p>
+        <div className="flex flex-col gap-5">
+          {TOOLS.map((tool) => (
+            <div key={tool.href} className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-6">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded border text-[#52525b] border-[#2e2e3e] bg-[#1e1e2e]">
+                  {tool.tag}
+                </span>
+              </div>
+              <h3 className="text-base font-semibold text-[#f4f4f5]">{tool.name}</h3>
+              <p className="text-xs text-[#52525b] mt-0.5 mb-3">{tool.url}</p>
+              <p className="text-sm text-[#71717a] leading-relaxed mb-4">{tool.description}</p>
+              <a
+                href={tool.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-4 py-2 rounded-lg border border-[#2e2e3e] text-sm text-[#a1a1aa] hover:text-[#f4f4f5] hover:border-[#6366f1]/40 transition-colors"
+              >
+                Visit {tool.name} ↗
+              </a>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Footer note */}
       <div className="mt-12 pt-8 border-t border-[#1e1e2e]">
         <p className="text-xs text-[#3e3e4e] leading-relaxed">
-          All books link to Amazon via affiliate links. DividendVisual may earn a commission on
-          qualifying purchases. Recommendations reflect genuine editorial judgment — no publisher
-          relationships or paid placements.
+          Book links go to Amazon. Tool links may be affiliate links. DividendVisual may earn a
+          commission on qualifying purchases or sign-ups. All recommendations reflect genuine
+          editorial judgment — no paid placements.
         </p>
       </div>
     </div>
