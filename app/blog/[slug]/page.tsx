@@ -41,10 +41,25 @@ function formatDate(dateStr: string): string {
   })
 }
 
+function getRelatedPosts(currentSlug: string, currentTags: string[], count = 3) {
+  const normalize = (t: string) => t.toLowerCase().trim()
+  const currentNorm = new Set(currentTags.map(normalize))
+  return getAllPosts()
+    .filter((p) => p.slug !== currentSlug)
+    .map((p) => ({
+      ...p,
+      overlap: p.tags.filter((t) => currentNorm.has(normalize(t))).length,
+    }))
+    .sort((a, b) => b.overlap - a.overlap || new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, count)
+}
+
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params
   const post = getPost(slug)
   if (!post) notFound()
+
+  const related = getRelatedPosts(slug, post.tags)
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -110,6 +125,30 @@ export default async function BlogPostPage({ params }: PageProps) {
           </Link>
         </div>
       </div>
+
+      {/* Related posts */}
+      {related.length > 0 && (
+        <div className="mt-12 pt-8 border-t border-[#1e1e2e]">
+          <p className="text-xs text-[#71717a] uppercase tracking-wide mb-5">Related articles</p>
+          <div className="grid sm:grid-cols-3 gap-4">
+            {related.map((p) => (
+              <Link
+                key={p.slug}
+                href={`/blog/${p.slug}`}
+                className="block bg-[#111118] border border-[#1e1e2e] rounded-xl p-4 hover:border-[#6366f1]/40 transition-colors group"
+              >
+                <p className="text-xs text-[#71717a] mb-2">{p.readingTime} min read</p>
+                <p className="text-sm font-semibold text-[#f4f4f5] group-hover:text-[#6366f1] transition-colors leading-snug">
+                  {p.title}
+                </p>
+              </Link>
+            ))}
+          </div>
+          <Link href="/blog" className="inline-block mt-5 text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors">
+            ← All articles
+          </Link>
+        </div>
+      )}
     </div>
   )
 }
