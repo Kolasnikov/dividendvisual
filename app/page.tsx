@@ -375,6 +375,7 @@ export default async function HomePage() {
                 {[
                   { href: '/watchlist',       label: 'Screener' },
                   { href: '/opportunities',   label: 'Opportunities' },
+                  { href: '/portfolio',       label: 'Portfolio Tracker' },
                   { href: '/drip-calculator', label: 'DRIP Calculator' },
                   { href: '/collections/dividend-kings', label: 'Collections' },
                   { href: '/glossary',        label: 'Glossary' },
