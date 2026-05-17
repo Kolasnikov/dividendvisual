@@ -197,6 +197,9 @@ COLLECTIONS = {
         "HD", "LOW", "TGT", "ABT", "TXN", "MSFT", "CTAS",
         "CSCO", "QCOM", "ACN", "FAST", "ROP", "AAPL", "UNH",
     ],
+    "monthly-dividend-payers": [
+        "O", "MAIN", "STAG", "ADC",
+    ],
 }
 
 

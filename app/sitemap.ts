@@ -51,6 +51,7 @@ const TICKERS = [
 const COLLECTIONS = [
   'dividend-kings', 'dividend-aristocrats', 'buffett-style',
   'utilities', 'reits', 'high-yield', 'low-payout-compounders',
+  'monthly-dividend-payers',
 ]
 
 export default function sitemap(): MetadataRoute.Sitemap {

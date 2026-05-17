@@ -131,6 +131,13 @@ const COLLECTIONS = [
     count: 7,
     accent: '#8b5cf6',
   },
+  {
+    slug: 'monthly-dividend-payers',
+    title: 'Monthly Dividend Payers',
+    description: 'Stocks that pay dividends every month — 12 income events per year.',
+    count: 4,
+    accent: '#10b981',
+  },
 ]
 
 const FEATURES = [
@@ -387,11 +394,12 @@ export default async function HomePage() {
               <p className="text-xs font-semibold text-[#f4f4f5] uppercase tracking-wider mb-4">Collections</p>
               <div className="flex flex-col gap-2.5">
                 {[
-                  { href: '/collections/dividend-kings',       label: 'Dividend Kings' },
-                  { href: '/collections/dividend-aristocrats', label: 'Aristocrats' },
-                  { href: '/collections/utilities',            label: 'Utilities' },
-                  { href: '/collections/reits',                label: 'REITs' },
-                  { href: '/collections/high-yield',           label: 'High Yield' },
+                  { href: '/collections/dividend-kings',         label: 'Dividend Kings' },
+                  { href: '/collections/dividend-aristocrats',  label: 'Aristocrats' },
+                  { href: '/collections/utilities',             label: 'Utilities' },
+                  { href: '/collections/reits',                 label: 'REITs' },
+                  { href: '/collections/high-yield',            label: 'High Yield' },
+                  { href: '/collections/monthly-dividend-payers', label: 'Monthly Payers' },
                 ].map(({ href, label }) => (
                   <Link key={href} href={href} className="text-sm text-[#71717a] hover:text-[#f4f4f5] transition-colors">
                     {label}

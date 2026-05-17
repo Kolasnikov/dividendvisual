@@ -275,6 +275,48 @@ const COLLECTION_META: Record<string, CollectionMeta> = {
     ],
   },
 
+  'monthly-dividend-payers': {
+    title: 'Monthly Dividend Payers',
+    description: 'Stocks that pay dividends every month — 12 income events per year with built-in monthly compounding.',
+    metaDescription: 'Best monthly dividend stocks 2026 ranked by Weiss valuation, quality score, and yield history. O, MAIN, STAG, ADC — monthly income screened for payout safety and dividend growth.',
+    editorial: [
+      'Most dividend stocks pay quarterly — four income events per year. Monthly dividend payers give income investors twelve. The difference is not just psychological: monthly distributions allow faster DRIP compounding, more consistent cash flow for income-dependent investors, and a tighter feedback loop on payout health. If a company misses or reduces a monthly dividend, investors learn in 30 days rather than 90.',
+      'The stocks in this collection are not high-yield vehicles that have chosen monthly payments to attract income-hungry buyers. They are established businesses — a net lease REIT with 54+ years of consecutive distributions, a business development company with both regular and special monthly dividends, a warehouse REIT built on e-commerce tailwinds, and one of the fastest-growing net lease operators in the US — that pay monthly because their cash flows support it.',
+      'For investors who reinvest dividends (DRIP), the monthly cadence accelerates compounding meaningfully. A 4% yield paid quarterly reinvests four times per year. The same 4% yield paid monthly reinvests twelve times — buying shares at twelve price points instead of four, and putting cash to work six weeks sooner on average. Over a decade, that difference compounds to a measurably higher share count and income level.',
+    ],
+    pillar: [
+      {
+        heading: 'Why Monthly Dividends Compound Faster',
+        paragraphs: [
+          'The math of DRIP compounding favors more frequent payment schedules. When you reinvest a dividend, you buy additional shares that immediately begin earning future dividends. The sooner you reinvest, the longer the new shares have to compound. Monthly reinvestment means your capital is never sitting idle for 90 days waiting for the next quarterly payment — it starts working immediately.',
+          'Consider a $100,000 portfolio yielding 4% annually. Paid quarterly, each payment of roughly $1,000 is reinvested every 90 days. Paid monthly, each payment of roughly $333 is reinvested every 30 days. The difference in share count after 20 years — assuming a flat price and constant yield — is approximately 2–3% more shares from the monthly cadence alone. On a $100,000 investment, that\'s $2,000–$3,000 in additional capital value from the payment schedule, before any growth in the underlying dividend.',
+          'For investors who spend rather than reinvest their income — retirees, for example — monthly payments align better with monthly expenses: mortgage or rent, utilities, insurance. Budgeting a monthly income stream is simpler than smoothing quarterly lumps. This is one reason Realty Income has made "The Monthly Dividend Company" a core part of its investor identity for 30+ years.',
+        ],
+      },
+      {
+        heading: 'The Four Monthly Payers: What Makes Each Different',
+        paragraphs: [
+          'Realty Income (O) is the anchor of any monthly dividend portfolio — 54+ years of consecutive monthly distributions, a 30-year track record of consecutive raises, and a portfolio of 15,400+ properties leased to Walmart, Walgreens, Dollar General, and similar investment-grade tenants. The net lease structure passes operating costs to tenants, producing near-bond-like income predictability. O has never cut its dividend since going public in 1994.',
+          'Main Street Capital (MAIN) is a business development company (BDC) — it lends to and invests in middle-market businesses, earning interest and equity returns on its portfolio. MAIN pays a regular monthly dividend plus semi-annual special dividends, making its total income higher than the regular rate suggests. The company has grown its regular monthly dividend consistently since its 2007 IPO and has not cut the regular dividend even during the 2008–09 financial crisis. Its internal management structure (rare for BDCs) keeps costs low and aligns management with shareholders.',
+          'STAG Industrial and AGREE Realty (ADC) round out the collection with different real estate exposures. STAG owns single-tenant industrial warehouses — distribution centers, light manufacturing, last-mile logistics — benefiting from e-commerce\'s persistent demand for fulfillment space. ADC owns grocery-anchored and necessity retail properties under long-term net leases, with over 65% of rent from investment-grade tenants including Walmart, Home Depot, and Kroger. Both converted to monthly payments in recent years, partly to attract income-oriented investors who value the payment schedule.',
+        ],
+      },
+      {
+        heading: 'Reading Weiss Signals for Monthly Payers',
+        paragraphs: [
+          'The Weiss yield method applies to monthly dividend stocks the same way it applies to quarterly payers — compare the current yield to the 10-year historical yield range. When O\'s yield approaches its 10-year maximum, it signals a historically attractive entry. When STAG\'s yield approaches its historical high, it signals the same.',
+          'For REIT-structure monthly payers (O, STAG, ADC), the dominant driver of yield movements is interest rates, not business quality. When the Federal Reserve raises rates, REIT prices fall mechanically, pushing yields toward historical highs. This creates Weiss undervalue signals that are almost always rate-driven rather than business-driven — which is why REIT Weiss signals during rate-hike cycles have historically been among the most reliable entry points in the dividend universe.',
+          'MAIN requires different analysis. As a BDC, its income depends on portfolio yields (which rise when rates rise — benefiting MAIN, unlike REITs) and credit quality of its borrowers (which deteriorates in recessions). MAIN\'s historical yield range reflects both of these dynamics. A Weiss undervalue signal on MAIN during a period of rising rates — when its interest income is actually growing — is particularly worth examining.',
+        ],
+      },
+    ],
+    relatedBlog: [
+      { href: '/blog/o-vs-nnn-reit-dividend-comparison', label: 'Realty Income vs NNN: Which Net Lease REIT Wins?' },
+      { href: '/blog/best-reit-dividend-stocks-2026', label: 'Best REIT Dividend Stocks 2026' },
+      { href: '/blog/geraldine-weiss-dividend-valuation-method', label: 'The Geraldine Weiss Method Explained' },
+    ],
+  },
+
   'low-payout-compounders': {
     title: 'Low Payout Compounders',
     description: 'Conservative payout ratios with maximum room for future dividend growth — compounding at its best.',
