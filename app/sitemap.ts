@@ -69,6 +69,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/methodology`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/resources`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${BASE}/resources/books`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${BASE}/resources/tools`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${BASE}/privacy`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${BASE}/terms`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
