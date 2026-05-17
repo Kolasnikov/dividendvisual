@@ -12,7 +12,6 @@ import { DividendBadge } from '@/components/ui/DividendBadge'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
 import { WatchlistButton } from '@/components/ui/WatchlistButton'
-// import { BrokerCTA } from '@/components/cards/BrokerCTA'  // re-enable when affiliate links are ready
 
 const TICKERS = [
   'KO', 'PEP', 'JNJ', 'PG', 'MMM', 'MCD', 'WMT', 'HD', 'LOW',
@@ -293,13 +292,18 @@ export default async function TickerPage({ params }: PageProps) {
             <DRIPChart metrics={metrics} />
           </div>
 
-          {/* Broker CTA — disabled until affiliate links are ready
-          <BrokerCTA
-            signal={metrics.weissSignal ?? ''}
-            symbol={company.symbol}
-            companyName={company.name}
-          />
-          */}
+          {/* TradingView chart link */}
+          <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-4 flex items-center justify-between gap-4">
+            <p className="text-xs text-[#71717a]">Full price history &amp; technical analysis</p>
+            <a
+              href={`https://www.tradingview.com/symbols/${company.symbol}/?aff_id=166728&aff_sub=ticker`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors whitespace-nowrap"
+            >
+              View chart on TradingView ↗
+            </a>
+          </div>
         </div>
 
         {/* Right sidebar */}

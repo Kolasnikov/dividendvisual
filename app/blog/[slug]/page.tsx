@@ -124,6 +124,16 @@ export default async function BlogPostPage({ params }: PageProps) {
             View all stocks →
           </Link>
         </div>
+        <p className="mt-4">
+          <a
+            href="https://www.tradingview.com/?aff_id=166728&aff_sub=blog"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-[#52525b] hover:text-[#71717a] transition-colors"
+          >
+            Full charts &amp; technical analysis on TradingView ↗
+          </a>
+        </p>
       </div>
 
       {/* Related posts */}

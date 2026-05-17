@@ -445,12 +445,22 @@ export default async function AnalysisPage({ params }: PageProps) {
       <div className="mt-10 p-5 bg-[#111118] border border-[#1e1e2e] rounded-xl">
         <p className="text-sm font-medium text-[#f4f4f5] mb-1">See the interactive Weiss chart for {sym}</p>
         <p className="text-xs text-[#71717a] mb-4">10-year price history with valuation bands, DRIP calculator, and full metrics breakdown.</p>
-        <Link
-          href={`/ticker/${sym}`}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#6366f1] text-white text-sm font-medium hover:bg-[#818cf8] transition-colors"
-        >
-          Open {sym} Chart →
-        </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            href={`/ticker/${sym}`}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#6366f1] text-white text-sm font-medium hover:bg-[#818cf8] transition-colors"
+          >
+            Open {sym} Chart →
+          </Link>
+          <a
+            href={`https://www.tradingview.com/symbols/${sym}/?aff_id=166728&aff_sub=analysis`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-4 py-2 rounded-lg border border-[#2e2e3e] text-[#71717a] text-sm hover:text-[#f4f4f5] hover:border-[#6366f1]/40 transition-colors"
+          >
+            View full chart on TradingView ↗
+          </a>
+        </div>
       </div>
 
       {/* Related */}

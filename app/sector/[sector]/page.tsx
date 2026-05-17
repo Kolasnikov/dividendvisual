@@ -560,6 +560,16 @@ export default async function SectorPage({ params }: PageProps) {
                 </div>
               )}
             </div>
+            <div className="mt-6">
+              <a
+                href="https://www.tradingview.com/markets/stocks-usa/?aff_id=166728&aff_sub=sector"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-[#52525b] hover:text-[#71717a] transition-colors"
+              >
+                View US dividend stock charts on TradingView ↗
+              </a>
+            </div>
           </div>
         </div>
       )}

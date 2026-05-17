@@ -276,6 +276,14 @@ export default function GlossaryPage() {
           <Link href="/watchlist" className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors">
             → Screener: Apply the Weiss Method to 150+ Dividend Stocks
           </Link>
+          <a
+            href="https://www.tradingview.com/?aff_id=166728&aff_sub=glossary"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors"
+          >
+            → View dividend stock charts on TradingView
+          </a>
         </div>
       </div>
     </div>
