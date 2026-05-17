@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 import { Navbar } from '@/components/layout/Navbar'
 import { TickerTape } from '@/components/layout/TickerTape'
@@ -50,6 +51,13 @@ export default function RootLayout({
         <TickerTape />
         <main className="flex-1">{children}</main>
         <Analytics />
+        <Script
+          id="impact-tracking"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(i,m,p,a,c,t){c.ire_o=p;c[p]=c[p]||function(){(c[p].a=c[p].a||[]).push(arguments)};t=a.createElement(m);var z=a.getElementsByTagName(m)[0];t.async=1;t.src=i;z.parentNode.insertBefore(t,z)})('https://utt.impactcdn.com/P-A7315834-642d-4f20-8880-679e251c2d381.js','script','impactStat',document,window);impactStat('transformLinks');impactStat('trackImpression');`,
+          }}
+        />
       </body>
     </html>
   )
