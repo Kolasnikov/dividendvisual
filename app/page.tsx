@@ -370,6 +370,7 @@ export default async function HomePage() {
                   { href: '/opportunities',   label: 'Opportunities' },
                   { href: '/drip-calculator', label: 'DRIP Calculator' },
                   { href: '/collections/dividend-kings', label: 'Collections' },
+                  { href: '/glossary',        label: 'Glossary' },
                   { href: '/methodology',     label: 'Methodology' },
                   { href: '/about',           label: 'About' },
                   { href: '/blog',            label: 'Blog' },

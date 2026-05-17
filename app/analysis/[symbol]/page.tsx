@@ -65,6 +65,24 @@ async function getTickerData(symbol: string): Promise<TickerResponse | null> {
   }
 }
 
+type PeerRow = { symbol: string; name: string; currentYield: number; weissSignal: string; qualityScore: number }
+
+async function getSectorPeers(sector: string | null, excludeSymbol: string): Promise<PeerRow[]> {
+  if (!sector) return []
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
+  try {
+    const res = await fetch(
+      `${baseUrl}/api/watchlist?sort=quality&order=desc&sector=${encodeURIComponent(sector)}`,
+      { next: { revalidate: 3600 } },
+    )
+    if (!res.ok) return []
+    const rows: PeerRow[] = await res.json()
+    return rows.filter((r) => r.symbol !== excludeSymbol).slice(0, 5)
+  } catch {
+    return []
+  }
+}
+
 export async function generateStaticParams() {
   return TICKERS.map((symbol) => ({ symbol: symbol.toLowerCase() }))
 }
@@ -292,6 +310,7 @@ export default async function AnalysisPage({ params }: PageProps) {
   if (!data) notFound()
 
   const { company, metrics } = data
+  const [sectorPeers] = await Promise.all([getSectorPeers(company.sector, company.symbol)])
   const sym = company.symbol
   const drip = dripSentence(metrics)
   const jsonLd = buildJsonLd(company, metrics, symbol)
@@ -438,17 +457,40 @@ export default async function AnalysisPage({ params }: PageProps) {
       <div className="mt-8 pt-8 border-t border-[#1e1e2e]">
         <div className="grid sm:grid-cols-2 gap-8">
           <div>
-            <p className="text-xs text-[#71717a] uppercase tracking-wide mb-4">More stock analysis</p>
+            <p className="text-xs text-[#71717a] uppercase tracking-wide mb-4">
+              {sectorPeers.length > 0 ? `More ${company.sector ?? 'dividend'} stocks` : 'More stock analysis'}
+            </p>
             <div className="flex flex-wrap gap-2">
-              {['KO', 'JNJ', 'PG', 'MO', 'O', 'XOM', 'HD', 'LOW'].filter((s) => s !== sym).slice(0, 6).map((s) => (
-                <Link
-                  key={s}
-                  href={`/analysis/${s.toLowerCase()}`}
-                  className="px-3 py-1.5 rounded-md bg-[#1e1e2e] text-sm font-mono text-[#71717a] hover:text-[#f4f4f5] transition-colors"
-                >
-                  {s}
-                </Link>
-              ))}
+              {sectorPeers.length > 0
+                ? sectorPeers.map((peer) => {
+                    const peerSignalColor =
+                      peer.weissSignal === 'undervalued' ? '#22c55e'
+                      : peer.weissSignal === 'overvalued' ? '#ef4444' : '#f59e0b'
+                    return (
+                      <Link
+                        key={peer.symbol}
+                        href={`/analysis/${peer.symbol.toLowerCase()}`}
+                        title={`${peer.name} — ${(peer.currentYield * 100).toFixed(2)}% yield`}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#1e1e2e] text-sm font-mono text-[#71717a] hover:text-[#f4f4f5] transition-colors"
+                      >
+                        <span
+                          className="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: peerSignalColor }}
+                        />
+                        {peer.symbol}
+                      </Link>
+                    )
+                  })
+                : ['KO', 'JNJ', 'PG', 'MO', 'O', 'XOM'].filter((s) => s !== sym).slice(0, 5).map((s) => (
+                    <Link
+                      key={s}
+                      href={`/analysis/${s.toLowerCase()}`}
+                      className="px-3 py-1.5 rounded-md bg-[#1e1e2e] text-sm font-mono text-[#71717a] hover:text-[#f4f4f5] transition-colors"
+                    >
+                      {s}
+                    </Link>
+                  ))
+              }
               <Link href="/watchlist" className="px-3 py-1.5 rounded-md bg-[#6366f1]/10 text-sm text-[#6366f1] border border-[#6366f1]/20 hover:bg-[#6366f1]/20 transition-colors">
                 All stocks →
               </Link>
@@ -466,6 +508,14 @@ export default async function AnalysisPage({ params }: PageProps) {
               <Link href="/blog/dividend-yield-trap" className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors">
                 → The Dividend Yield Trap Explained
               </Link>
+              {company.sector && (
+                <Link
+                  href={`/sector/${company.sector.toLowerCase().replace(/ /g, '-').replace('information technology', 'technology').replace('health care', 'healthcare').replace('real estate', 'real-estate').replace('consumer staples', 'consumer-staples').replace('consumer discretionary', 'consumer-discretionary').replace('communication services', 'communication-services')}`}
+                  className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors"
+                >
+                  → Best {company.sector} Dividend Stocks
+                </Link>
+              )}
             </div>
           </div>
         </div>
