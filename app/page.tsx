@@ -420,6 +420,7 @@ export default async function HomePage() {
                   { href: '/blog/dividend-yield-trap',                       label: 'The Yield Trap' },
                   { href: '/blog/dividend-kings-list-analysis',              label: 'Dividend Kings' },
                   { href: '/blog/dividend-aristocrats-vs-kings',             label: 'Aristocrats vs Kings' },
+                  { href: '/resources',                                      label: 'Recommended Books' },
                 ].map(({ href, label }) => (
                   <Link key={href} href={href} className="text-sm text-[#71717a] hover:text-[#f4f4f5] transition-colors">
                     {label}
