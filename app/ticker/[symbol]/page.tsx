@@ -292,17 +292,31 @@ export default async function TickerPage({ params }: PageProps) {
             <DRIPChart metrics={metrics} />
           </div>
 
-          {/* TradingView chart link */}
-          <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-4 flex items-center justify-between gap-4">
-            <p className="text-xs text-[#71717a]">Full price history &amp; technical analysis</p>
-            <a
-              href={`https://www.tradingview.com/symbols/${company.symbol}/?aff_id=166728&aff_sub=ticker`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors whitespace-nowrap"
-            >
-              View chart on TradingView ↗
-            </a>
+          {/* External research tools */}
+          <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-4 flex flex-col gap-3">
+            <p className="text-[10px] text-[#52525b] uppercase tracking-wide font-medium">More research</p>
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-xs text-[#71717a]">Full price history &amp; technical analysis</p>
+              <a
+                href={`https://www.tradingview.com/symbols/${company.symbol}/?aff_id=166728&aff_sub=ticker`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors whitespace-nowrap"
+              >
+                TradingView ↗
+              </a>
+            </div>
+            <div className="flex items-center justify-between gap-4 border-t border-[#1e1e2e] pt-3">
+              <p className="text-xs text-[#71717a]">Fundamentals, valuation &amp; analyst ratings</p>
+              <a
+                href={`https://finviz.com/quote.ashx?t=${company.symbol}&affilId=757578555`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors whitespace-nowrap"
+              >
+                FinViz ↗
+              </a>
+            </div>
           </div>
         </div>
 

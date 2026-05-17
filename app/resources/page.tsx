@@ -128,6 +128,37 @@ export default function ResourcesPage() {
         ))}
       </div>
 
+      {/* Tools section */}
+      <div className="mt-12 pt-8 border-t border-[#1e1e2e]">
+        <h2 className="text-lg font-semibold text-[#f4f4f5] mb-2">Research Tools</h2>
+        <p className="text-sm text-[#71717a] mb-5 leading-relaxed">
+          Tools that complement DividendVisual for deeper fundamental and technical research.
+        </p>
+        <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-6">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded border text-[#52525b] border-[#2e2e3e] bg-[#1e1e2e]">
+              Screener
+            </span>
+          </div>
+          <h3 className="text-base font-semibold text-[#f4f4f5] mb-0.5">FinViz</h3>
+          <p className="text-xs text-[#52525b] mb-3">finviz.com</p>
+          <p className="text-sm text-[#71717a] leading-relaxed mb-4">
+            A comprehensive stock screener and research platform. Where DividendVisual focuses on
+            yield-based valuation and dividend quality, FinViz provides fundamental data, analyst
+            ratings, earnings calendars, and technical filters. Useful for cross-referencing once
+            a Weiss signal has identified a candidate.
+          </p>
+          <a
+            href="https://finviz.com/?affilId=757578555"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2e2e3e] text-sm text-[#a1a1aa] hover:text-[#f4f4f5] hover:border-[#6366f1]/40 transition-colors"
+          >
+            Visit FinViz ↗
+          </a>
+        </div>
+      </div>
+
       {/* Footer note */}
       <div className="mt-12 pt-8 border-t border-[#1e1e2e]">
         <p className="text-xs text-[#3e3e4e] leading-relaxed">
