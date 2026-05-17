@@ -33,6 +33,9 @@ export const metadata: Metadata = {
     description:
       'Visual tools for dividend investors. Weiss valuation bands, quality scores, and income projections for 150+ dividend stocks.',
   },
+  other: {
+    'impact-site-verification': '90a5328e-ebe8-4d09-9ef3-01dfb9d330f9',
+  },
 }
 
 export default function RootLayout({
