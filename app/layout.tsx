@@ -33,9 +33,6 @@ export const metadata: Metadata = {
     description:
       'Visual tools for dividend investors. Weiss valuation bands, quality scores, and income projections for 150+ dividend stocks.',
   },
-  other: {
-    'impact-site-verification': '90a5328e-ebe8-4d09-9ef3-01dfb9d330f9',
-  },
 }
 
 export default function RootLayout({
@@ -45,6 +42,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} h-full`}>
+      <head>
+        <meta name="impact-site-verification" {...{ value: '90a5328e-ebe8-4d09-9ef3-01dfb9d330f9' } as any} />
+      </head>
       <body className="min-h-full flex flex-col bg-[#09090b] text-[#f4f4f5] antialiased">
         <Navbar />
         <TickerTape />
