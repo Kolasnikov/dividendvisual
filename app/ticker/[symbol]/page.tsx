@@ -317,6 +317,17 @@ export default async function TickerPage({ params }: PageProps) {
                 FinViz ↗
               </a>
             </div>
+            <div className="flex items-center justify-between gap-4 border-t border-[#1e1e2e] pt-3">
+              <p className="text-xs text-[#71717a]">Moat rating &amp; analyst fair value</p>
+              <a
+                href="https://www.awin1.com/cread.php?awinmid=81639&awinaffid=2899577"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors whitespace-nowrap"
+              >
+                Morningstar ↗
+              </a>
+            </div>
           </div>
         </div>
 
