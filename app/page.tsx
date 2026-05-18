@@ -10,6 +10,9 @@ import { UndervaluedCarousel } from '@/components/home/UndervaluedCarousel'
 export const metadata: Metadata = {
   title: 'DividendVisual — Find Undervalued Dividend Stocks | Geraldine Weiss Method',
   description: 'Geraldine Weiss dividend yield valuation for 150+ stocks. See if KO, JNJ, PG and other dividend kings are historically cheap or expensive. Free dividend analysis tool for income investors.',
+  alternates: {
+    canonical: 'https://dividendvisual.com/',
+  },
   openGraph: {
     title: 'DividendVisual — Find Undervalued Dividend Stocks',
     description: 'Geraldine Weiss dividend yield valuation for 150+ stocks. See if dividend kings and aristocrats are historically cheap or expensive based on 10 years of yield data.',
