@@ -108,12 +108,12 @@ export default function AboutPage() {
         <p>
           We cover 150+ stocks selected for Weiss method compatibility: 15+ years of dividend history,
           stable free cash flow generation, and no recent dividend cuts or freezes. The universe
-          includes all major <Link href="/collections/dividend-kings" className="text-[#6366f1] hover:text-[#818cf8]">Dividend Kings</Link>,
+          includes all major <Link href="/dividend-kings" className="text-[#6366f1] hover:text-[#818cf8]">Dividend Kings</Link>,
           the most widely-held{' '}
-          <Link href="/collections/dividend-aristocrats" className="text-[#6366f1] hover:text-[#818cf8]">Dividend Aristocrats</Link>,
+          <Link href="/dividend-aristocrats" className="text-[#6366f1] hover:text-[#818cf8]">Dividend Aristocrats</Link>,
           and selected{' '}
-          <Link href="/collections/reits" className="text-[#6366f1] hover:text-[#818cf8]">REITs</Link> and{' '}
-          <Link href="/collections/utilities" className="text-[#6366f1] hover:text-[#818cf8]">utilities</Link>{' '}
+          <Link href="/best-reit-dividend-stocks" className="text-[#6366f1] hover:text-[#818cf8]">REITs</Link> and{' '}
+          <Link href="/best-utility-dividend-stocks" className="text-[#6366f1] hover:text-[#818cf8]">utilities</Link>{' '}
           that meet the eligibility criteria. We are now covering 150+ tickers.
         </p>
         <p>
@@ -159,7 +159,7 @@ export default function AboutPage() {
 
       <div className="mt-12 grid sm:grid-cols-2 gap-4">
         <Link
-          href="/opportunities"
+          href="/undervalued-dividend-stocks"
           className="flex flex-col p-5 bg-[#111118] border border-[#6366f1]/30 rounded-xl hover:border-[#6366f1]/60 transition-colors group"
         >
           <span className="text-xs text-[#6366f1] font-semibold uppercase tracking-wide mb-2">Start here</span>

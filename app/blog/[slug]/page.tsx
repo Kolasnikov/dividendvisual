@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { getAllPosts, getPost } from '@/lib/blog'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -20,6 +21,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: post.title,
     description: post.description,
+    alternates: {
+      canonical: `https://dividendvisual.com/blog/${slug}`,
+    },
     openGraph: {
       title: `${post.title} | DividendVisual`,
       description: post.description,
@@ -71,6 +75,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     author: { '@type': 'Organization', name: 'DividendVisual', url: 'https://dividendvisual.com' },
     publisher: { '@type': 'Organization', name: 'DividendVisual', url: 'https://dividendvisual.com' },
     url: `https://dividendvisual.com/blog/${slug}`,
+    isAccessibleForFree: true,
   }
 
   return (
@@ -88,6 +93,8 @@ export default async function BlogPostPage({ params }: PageProps) {
         <div className="flex items-center gap-3 mb-4">
           <span className="text-xs text-[#71717a]">{formatDate(post.date)}</span>
           <span className="text-[#1e1e2e]">·</span>
+          <span className="text-xs text-[#71717a]">DividendVisual Research</span>
+          <span className="text-[#1e1e2e]">·</span>
           <span className="text-xs text-[#71717a]">{post.readingTime} min read</span>
           {post.tags.map((tag) => (
             <span key={tag} className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-[#6366f1]/10 text-[#6366f1] border border-[#6366f1]/20">
@@ -97,7 +104,23 @@ export default async function BlogPostPage({ params }: PageProps) {
         </div>
         <h1 className="text-3xl font-bold text-[#f4f4f5] leading-tight mb-4">{post.title}</h1>
         <p className="text-[#71717a] text-lg leading-relaxed">{post.description}</p>
+        <div className="mt-5 rounded-lg border border-[#1e1e2e] bg-[#111118] px-4 py-3">
+          <p className="text-xs leading-relaxed text-[#71717a]">
+            Published by DividendVisual Research for educational purposes. We use historical dividend,
+            price, payout, and cash-flow data to explain dividend valuation concepts; nothing here is
+            investment, tax, or financial advice.
+          </p>
+        </div>
       </header>
+
+      <div className="mb-10">
+        <DividendAlertsCTA
+          source="blog"
+          title="Want the weekly undervalued dividend list?"
+          description="Get a concise email with dividend stocks moving into historically attractive yield territory, plus the methodology links behind each signal."
+          compact
+        />
+      </div>
 
       {/* Content */}
       <article className="prose-dv">

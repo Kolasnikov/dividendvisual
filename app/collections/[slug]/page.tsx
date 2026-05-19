@@ -378,16 +378,30 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const meta = COLLECTION_META[slug]
   if (!meta) return { title: slug }
   const year = new Date().getFullYear()
+  const canonicalOverrides: Record<string, string> = {
+    'monthly-dividend-payers': 'https://dividendvisual.com/best-monthly-dividend-stocks',
+    'dividend-kings': 'https://dividendvisual.com/dividend-kings',
+    'dividend-aristocrats': 'https://dividendvisual.com/dividend-aristocrats',
+    'high-yield': 'https://dividendvisual.com/high-yield-dividend-stocks',
+    'reits': 'https://dividendvisual.com/best-reit-dividend-stocks',
+    'utilities': 'https://dividendvisual.com/best-utility-dividend-stocks',
+  }
+  const canonical = canonicalOverrides[slug]
+    ? canonicalOverrides[slug]
+    : `https://dividendvisual.com/collections/${slug}`
+  const isCanonicalDuplicate = Boolean(canonicalOverrides[slug])
+
   return {
     title: `${meta.title} List ${year} — Dividend Yield Analysis`,
     description: meta.metaDescription,
+    robots: isCanonicalDuplicate ? { index: false, follow: true } : undefined,
     alternates: {
-      canonical: `https://dividendvisual.com/collections/${slug}`,
+      canonical,
     },
     openGraph: {
       title: `${meta.title} | DividendVisual`,
       description: meta.metaDescription,
-      url: `https://dividendvisual.com/collections/${slug}`,
+      url: canonical,
       type: 'article',
     },
   }
@@ -494,7 +508,7 @@ export default async function CollectionPage({ params }: PageProps) {
 
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },
-        { label: 'Collections', href: '/watchlist' },
+        { label: 'Collections', href: '/dividend-screener' },
         { label: meta.title },
       ]} />
 

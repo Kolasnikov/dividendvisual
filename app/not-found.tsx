@@ -23,7 +23,7 @@ export default function NotFound() {
           Browse all stocks
         </Link>
         <Link
-          href="/opportunities"
+          href="/undervalued-dividend-stocks"
           className="px-4 py-2 rounded-lg bg-[#1e1e2e] text-[#f4f4f5] text-sm font-medium hover:bg-[#27273a] transition-colors"
         >
           View opportunities

@@ -157,7 +157,7 @@ export default function DRIPCalculatorPage() {
         <p>
           Conservative income stocks — utilities, consumer staples, telecoms — typically grow
           dividends 3–5% annually.{' '}
-          <Link href="/collections/dividend-kings" className="text-[#6366f1] hover:text-[#818cf8]">Dividend Kings</Link>{' '}
+          <Link href="/dividend-kings" className="text-[#6366f1] hover:text-[#818cf8]">Dividend Kings</Link>{' '}
           as a group average 6–8%. High-quality compounders like Home Depot, Texas Instruments,
           and Microsoft have historically grown 8–15%, though sustaining that rate indefinitely is
           not guaranteed.
@@ -173,7 +173,7 @@ export default function DRIPCalculatorPage() {
         <p>
           The model also assumes a constant dividend CAGR throughout the projection horizon. No company
           guarantees this. Dividend cuts — while rare among{' '}
-          <Link href="/collections/dividend-aristocrats" className="text-[#6366f1] hover:text-[#818cf8]">Dividend Aristocrats</Link>{' '}
+          <Link href="/dividend-aristocrats" className="text-[#6366f1] hover:text-[#818cf8]">Dividend Aristocrats</Link>{' '}
           — do happen during severe recessions. Use the quality score on each stock&apos;s page to
           assess dividend sustainability before projecting long-term growth.
         </p>

@@ -358,6 +358,16 @@ const SECTOR_META: Record<string, SectorMeta> = {
   },
 }
 
+function collectionHref(slug: string) {
+  if (slug === 'dividend-kings') return '/dividend-kings'
+  if (slug === 'dividend-aristocrats') return '/dividend-aristocrats'
+  if (slug === 'high-yield') return '/high-yield-dividend-stocks'
+  if (slug === 'monthly-dividend-payers') return '/best-monthly-dividend-stocks'
+  if (slug === 'reits') return '/best-reit-dividend-stocks'
+  if (slug === 'utilities') return '/best-utility-dividend-stocks'
+  return `/collections/${slug}`
+}
+
 export const SECTOR_SLUGS = Object.keys(SECTOR_META)
 
 interface PageProps {
@@ -386,14 +396,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { sector } = await params
   const meta = SECTOR_META[sector]
   if (!meta) return { title: 'Dividend Stocks by Sector' }
+  const canonicalOverrides: Record<string, string> = {
+    utilities: 'https://dividendvisual.com/best-utility-dividend-stocks',
+    'real-estate': 'https://dividendvisual.com/best-reit-dividend-stocks',
+  }
+  const canonical = canonicalOverrides[sector] ?? `https://dividendvisual.com/sector/${sector}`
+  const isCanonicalDuplicate = Boolean(canonicalOverrides[sector])
   return {
     title: meta.title,
     description: meta.metaDescription,
-    alternates: { canonical: `https://dividendvisual.com/sector/${sector}` },
+    robots: isCanonicalDuplicate ? { index: false, follow: true } : undefined,
+    alternates: { canonical },
     openGraph: {
       title: `${meta.title} | DividendVisual`,
       description: meta.metaDescription,
-      url: `https://dividendvisual.com/sector/${sector}`,
+      url: canonical,
       type: 'article',
     },
   }
@@ -493,7 +510,7 @@ export default async function SectorPage({ params }: PageProps) {
 
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },
-        { label: 'Screener', href: '/watchlist' },
+        { label: 'Screener', href: '/dividend-screener' },
         { label: meta.title },
       ]} />
 
@@ -540,7 +557,7 @@ export default async function SectorPage({ params }: PageProps) {
                 <div>
                   <p className="text-xs text-[#71717a] uppercase tracking-wide font-medium mb-4">Related Collection</p>
                   <Link
-                    href={`/collections/${meta.relatedCollection}`}
+                    href={collectionHref(meta.relatedCollection)}
                     className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors"
                   >
                     → {meta.relatedCollectionLabel}

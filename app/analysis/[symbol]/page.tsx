@@ -4,6 +4,10 @@ import Link from 'next/link'
 import type { TickerResponse, Company, ComputedMetrics } from '@/lib/types'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
+import { ResearchDisclosure } from '@/components/seo/ResearchDisclosure'
+import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
+
+const CURRENT_YEAR = new Date().getFullYear()
 
 const TICKERS = [
   // Original universe
@@ -222,6 +226,8 @@ function buildJsonLd(company: Company, metrics: ComputedMetrics, symbol: string)
     url: `https://dividendvisual.com/analysis/${symbol.toLowerCase()}`,
     dateModified: metrics.updatedAt ?? new Date().toISOString(),
     publisher: { '@type': 'Organization', name: 'DividendVisual', url: 'https://dividendvisual.com' },
+    author: { '@type': 'Organization', name: 'DividendVisual Research', url: 'https://dividendvisual.com/about' },
+    isAccessibleForFree: true,
     about: { '@type': 'Corporation', name: company.name, tickerSymbol: company.symbol },
   }
 }
@@ -320,6 +326,9 @@ export default async function AnalysisPage({ params }: PageProps) {
     : metrics.weissSignal === 'overvalued' ? '#ef4444' : '#f59e0b'
   const signalLabel = metrics.weissSignal === 'undervalued' ? 'Undervalued'
     : metrics.weissSignal === 'overvalued' ? 'Overvalued' : 'Fair Value'
+  const updatedLabel = metrics.updatedAt
+    ? new Date(metrics.updatedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    : 'recently'
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
@@ -329,7 +338,7 @@ export default async function AnalysisPage({ params }: PageProps) {
 
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },
-        { label: 'Screener', href: '/watchlist' },
+        { label: 'Screener', href: '/dividend-screener' },
         { label: `${sym.toUpperCase()} Dividend Analysis` },
       ]} />
 
@@ -342,11 +351,11 @@ export default async function AnalysisPage({ params }: PageProps) {
           >
             {signalLabel}
           </span>
-          <span className="text-xs text-[#71717a]">Updated {new Date(metrics.updatedAt ?? Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+          <span className="text-xs text-[#71717a]">Updated {updatedLabel}</span>
         </div>
 
         <h1 className="text-3xl font-bold text-[#f4f4f5] leading-tight mb-4">
-          {sym} Dividend Analysis — Is {company.name} Undervalued in {new Date().getFullYear()}?
+          {sym} Dividend Analysis — Is {company.name} Undervalued in {CURRENT_YEAR}?
         </h1>
 
         {/* Key stats bar */}
@@ -363,6 +372,8 @@ export default async function AnalysisPage({ params }: PageProps) {
             </div>
           ))}
         </div>
+
+        <ResearchDisclosure updatedLabel={updatedLabel} compact />
       </header>
 
       {/* Article body */}
@@ -380,6 +391,15 @@ export default async function AnalysisPage({ params }: PageProps) {
             ? 'above the overvalued band — a signal to review position sizing.'
             : 'between the two bands, in the fair value zone.'}
         </p>
+
+        <div className="not-prose my-8">
+          <DividendAlertsCTA
+            source="analysis"
+            symbol={sym}
+            compact
+            description={`Get a short weekly email when high-quality dividend stocks like ${sym} move into historically attractive yield territory.`}
+          />
+        </div>
 
         <h2>Dividend Quality Assessment</h2>
         <p>{qualitySentence(metrics, company)}</p>
@@ -501,7 +521,7 @@ export default async function AnalysisPage({ params }: PageProps) {
                     </Link>
                   ))
               }
-              <Link href="/watchlist" className="px-3 py-1.5 rounded-md bg-[#6366f1]/10 text-sm text-[#6366f1] border border-[#6366f1]/20 hover:bg-[#6366f1]/20 transition-colors">
+              <Link href="/dividend-screener" className="px-3 py-1.5 rounded-md bg-[#6366f1]/10 text-sm text-[#6366f1] border border-[#6366f1]/20 hover:bg-[#6366f1]/20 transition-colors">
                 All stocks →
               </Link>
             </div>

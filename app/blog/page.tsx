@@ -6,6 +6,9 @@ import { BlogIndexClient } from '@/components/blog/BlogIndexClient'
 export const metadata: Metadata = {
   title: 'Dividend Investing Blog — Guides, Analysis & Strategy',
   description: 'In-depth guides on dividend investing, the Geraldine Weiss method, dividend valuation, and income stock analysis. Learn how to find undervalued dividend stocks.',
+  alternates: {
+    canonical: 'https://dividendvisual.com/blog',
+  },
   openGraph: {
     title: 'Dividend Investing Blog | DividendVisual',
     description: 'In-depth guides on dividend investing, the Geraldine Weiss method, and income stock analysis.',

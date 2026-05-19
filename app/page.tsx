@@ -306,7 +306,7 @@ export default async function HomePage() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-[#f4f4f5]">Curated Collections</h2>
           <Link
-            href="/watchlist"
+            href="/dividend-screener"
             className="flex items-center gap-1 text-sm text-[#71717a] hover:text-[#f4f4f5] transition-colors"
           >
             View all <ArrowRight className="w-3.5 h-3.5" />
@@ -376,11 +376,12 @@ export default async function HomePage() {
               <p className="text-xs font-semibold text-[#f4f4f5] uppercase tracking-wider mb-4">Tool</p>
               <div className="flex flex-col gap-2.5">
                 {[
-                  { href: '/watchlist',       label: 'Screener' },
-                  { href: '/opportunities',   label: 'Opportunities' },
+                  { href: '/dividend-screener', label: 'Screener' },
+                  { href: '/best-dividend-stocks', label: 'Best Dividend Stocks' },
+                  { href: '/undervalued-dividend-stocks', label: 'Opportunities' },
                   { href: '/portfolio',       label: 'Portfolio Tracker' },
                   { href: '/drip-calculator', label: 'DRIP Calculator' },
-                  { href: '/collections/dividend-kings', label: 'Collections' },
+                  { href: '/dividend-kings', label: 'Collections' },
                   { href: '/glossary',        label: 'Glossary' },
                   { href: '/methodology',     label: 'Methodology' },
                   { href: '/about',           label: 'About' },
@@ -398,12 +399,12 @@ export default async function HomePage() {
               <p className="text-xs font-semibold text-[#f4f4f5] uppercase tracking-wider mb-4">Collections</p>
               <div className="flex flex-col gap-2.5">
                 {[
-                  { href: '/collections/dividend-kings',         label: 'Dividend Kings' },
-                  { href: '/collections/dividend-aristocrats',  label: 'Aristocrats' },
-                  { href: '/collections/utilities',             label: 'Utilities' },
-                  { href: '/collections/reits',                 label: 'REITs' },
-                  { href: '/collections/high-yield',            label: 'High Yield' },
-                  { href: '/collections/monthly-dividend-payers', label: 'Monthly Payers' },
+                  { href: '/dividend-kings',         label: 'Dividend Kings' },
+                  { href: '/dividend-aristocrats',  label: 'Aristocrats' },
+                  { href: '/best-utility-dividend-stocks',             label: 'Utilities' },
+                  { href: '/best-reit-dividend-stocks',                 label: 'REITs' },
+                  { href: '/high-yield-dividend-stocks',            label: 'High Yield' },
+                  { href: '/best-monthly-dividend-stocks', label: 'Monthly Payers' },
                 ].map(({ href, label }) => (
                   <Link key={href} href={href} className="text-sm text-[#71717a] hover:text-[#f4f4f5] transition-colors">
                     {label}

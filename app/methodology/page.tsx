@@ -22,7 +22,10 @@ const articleJsonLd = {
   headline: 'How DividendVisual Uses the Geraldine Weiss Method',
   description: 'Full methodology reference: Weiss band calculation, quality score formula, DRIP calculator assumptions, and stock eligibility criteria.',
   url: 'https://dividendvisual.com/methodology',
+  dateModified: '2026-05-18',
+  author: { '@type': 'Organization', name: 'DividendVisual Research', url: 'https://dividendvisual.com/about' },
   publisher: { '@type': 'Organization', name: 'DividendVisual', url: 'https://dividendvisual.com' },
+  isAccessibleForFree: true,
 }
 
 const faqJsonLd = {
@@ -100,6 +103,12 @@ export default function MethodologyPage() {
           DividendVisual applies a formalized version of the Weiss method to 150+ blue-chip dividend stocks.
           This page explains exactly what we calculate, how we calculate it, and what the signals mean.
         </p>
+        <div className="mt-5 rounded-lg border border-[#1e1e2e] bg-[#111118] px-4 py-3">
+          <p className="text-xs leading-relaxed text-[#71717a]">
+            Maintained by DividendVisual Research. Last methodology review: May 18, 2026. This framework is
+            designed for educational dividend research and does not provide investment, tax, or financial advice.
+          </p>
+        </div>
       </header>
 
       <article className="prose-dv">
@@ -206,7 +215,7 @@ export default function MethodologyPage() {
         <p>
           Stocks scoring 65+ with an Undervalued Weiss signal represent the strongest combination:
           historically cheap price <em>and</em> a well-supported, growing dividend. The{' '}
-          <Link href="/opportunities" className="text-[#6366f1] hover:text-[#818cf8]">
+          <Link href="/undervalued-dividend-stocks" className="text-[#6366f1] hover:text-[#818cf8]">
             Opportunities page
           </Link>{' '}
           surfaces exactly this set.
@@ -221,7 +230,7 @@ export default function MethodologyPage() {
         <ul>
           <li><strong>Share price is held constant</strong> at the current price. The model isolates dividend compounding, not capital appreciation.</li>
           <li><strong>Dividends are reinvested annually</strong> at the same fixed share price.</li>
-          <li><strong>Dividend CAGR is the user-adjustable input</strong>, defaulting to the stock's actual 5-year CAGR.</li>
+          <li><strong>Dividend CAGR is the user-adjustable input</strong>, defaulting to the stock&apos;s actual 5-year CAGR.</li>
           <li>No taxes, fees, or fractional share restrictions are modeled.</li>
         </ul>
         <p>
@@ -244,17 +253,44 @@ export default function MethodologyPage() {
         </ul>
         <p>
           The current universe covers <strong>150+ stocks</strong> including all{' '}
-          <Link href="/collections/dividend-kings" className="text-[#6366f1] hover:text-[#818cf8]">Dividend Kings</Link>,
+          <Link href="/dividend-kings" className="text-[#6366f1] hover:text-[#818cf8]">Dividend Kings</Link>,
           most{' '}
-          <Link href="/collections/dividend-aristocrats" className="text-[#6366f1] hover:text-[#818cf8]">Dividend Aristocrats</Link>,
+          <Link href="/dividend-aristocrats" className="text-[#6366f1] hover:text-[#818cf8]">Dividend Aristocrats</Link>,
           and selected{' '}
-          <Link href="/collections/reits" className="text-[#6366f1] hover:text-[#818cf8]">REITs</Link>{' '}
+          <Link href="/best-reit-dividend-stocks" className="text-[#6366f1] hover:text-[#818cf8]">REITs</Link>{' '}
           and{' '}
-          <Link href="/collections/utilities" className="text-[#6366f1] hover:text-[#818cf8]">utilities</Link>{' '}
+          <Link href="/best-utility-dividend-stocks" className="text-[#6366f1] hover:text-[#818cf8]">utilities</Link>{' '}
           that meet the eligibility bar.
         </p>
 
-        {/* ── 6. Limitations ───────────────────────────────────────────────── */}
+        {/* ── 6. Data and editorial policy ─────────────────────────────────── */}
+        <h2>Data Sources and Update Policy</h2>
+        <p>
+          DividendVisual uses publicly available market and fundamental data to calculate price, dividend,
+          payout, cash-flow coverage, dividend CAGR, and yield-history metrics. The ingestion pipeline refreshes
+          the stock universe regularly, then recalculates Weiss signals and quality scores from the latest
+          available data.
+        </p>
+        <p>
+          Pages are cached for performance, so a freshly reported dividend change, split, restatement, or market
+          close may not appear instantly. When a data point appears inconsistent with company filings or exchange
+          data, treat the company filing as authoritative and use DividendVisual as a screening layer rather than
+          a source of record.
+        </p>
+
+        <h2>Editorial Standards</h2>
+        <p>
+          DividendVisual separates signal from recommendation. A stock marked Undervalued means its current yield
+          is historically high relative to its own past. It does not mean the stock should be bought immediately,
+          that the dividend is guaranteed, or that future returns will be positive.
+        </p>
+        <p>
+          Every analysis page links back to this methodology, displays its latest data timestamp when available,
+          and includes a research disclaimer. The goal is to make the calculation transparent enough that an
+          investor can challenge the signal instead of accepting it blindly.
+        </p>
+
+        {/* ── 7. Limitations ───────────────────────────────────────────────── */}
         <h2>What the Method Cannot Do</h2>
         <p>
           The Weiss method is not a short-term timing tool. A stock can sit in undervalued territory
@@ -279,7 +315,7 @@ export default function MethodologyPage() {
       {/* ── CTA ─────────────────────────────────────────────────────────────── */}
       <div className="mt-12 grid sm:grid-cols-2 gap-4">
         <Link
-          href="/opportunities"
+          href="/undervalued-dividend-stocks"
           className="flex flex-col p-5 bg-[#111118] border border-[#6366f1]/30 rounded-xl hover:border-[#6366f1]/60 transition-colors group"
         >
           <span className="text-xs text-[#6366f1] font-semibold uppercase tracking-wide mb-2">See it in action</span>
@@ -291,7 +327,7 @@ export default function MethodologyPage() {
           </span>
         </Link>
         <Link
-          href="/watchlist"
+          href="/dividend-screener"
           className="flex flex-col p-5 bg-[#111118] border border-[#1e1e2e] rounded-xl hover:border-[#6366f1]/30 transition-colors group"
         >
           <span className="text-xs text-[#71717a] font-semibold uppercase tracking-wide mb-2">Full universe</span>

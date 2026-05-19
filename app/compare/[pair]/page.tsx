@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import type { TickerResponse } from '@/lib/types'
 import { CompareClient } from '@/components/compare/CompareClient'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 
 export const COMPARE_PAIRS = [
   // Pairs with dedicated blog articles
@@ -13,6 +14,29 @@ export const COMPARE_PAIRS = [
   'jpm-vs-usb', 'nee-vs-so', 'o-vs-stag', 'msft-vs-txn', 'ko-vs-pg',
 ]
 
+export const COMPARE_PAIR_META: Record<string, { category: string; angle: string }> = {
+  'ko-vs-pep': { category: 'Consumer staples', angle: 'cola and snack dividend compounders' },
+  'xom-vs-cvx': { category: 'Energy', angle: 'integrated oil dividend stocks' },
+  'jnj-vs-abbv': { category: 'Healthcare', angle: 'pharma dividend stocks' },
+  'o-vs-nnn': { category: 'REITs', angle: 'net lease monthly and quarterly REIT income' },
+  'aapl-vs-msft': { category: 'Technology', angle: 'mega-cap dividend growth compounders' },
+  'unh-vs-cvs': { category: 'Healthcare', angle: 'managed care and healthcare income' },
+  'lmt-vs-noc': { category: 'Industrials', angle: 'defense dividend stocks' },
+  'avgo-vs-qcom': { category: 'Technology', angle: 'semiconductor dividend growers' },
+  't-vs-vz': { category: 'Telecom', angle: 'high-yield telecom income stocks' },
+  'cat-vs-mmm': { category: 'Industrials', angle: 'cyclical industrial dividend stocks' },
+  'v-vs-ma': { category: 'Financials', angle: 'payment network dividend compounders' },
+  'hd-vs-low': { category: 'Consumer discretionary', angle: 'home improvement dividend stocks' },
+  'pg-vs-ko': { category: 'Consumer staples', angle: 'defensive Dividend Kings' },
+  'mo-vs-pm': { category: 'Consumer staples', angle: 'tobacco income stocks' },
+  'so-vs-duk': { category: 'Utilities', angle: 'regulated utility dividend stocks' },
+  'jpm-vs-usb': { category: 'Financials', angle: 'bank dividend stocks' },
+  'nee-vs-so': { category: 'Utilities', angle: 'utility growth vs income' },
+  'o-vs-stag': { category: 'REITs', angle: 'monthly REIT dividend stocks' },
+  'msft-vs-txn': { category: 'Technology', angle: 'technology dividend growth stocks' },
+  'ko-vs-pg': { category: 'Consumer staples', angle: 'Dividend King core holdings' },
+}
+
 interface PageProps {
   params: Promise<{ pair: string }>
 }
@@ -21,6 +45,11 @@ function parsePair(pair: string): [string, string] | null {
   const parts = pair.split('-vs-')
   if (parts.length !== 2 || !parts[0] || !parts[1]) return null
   return [parts[0].toUpperCase(), parts[1].toUpperCase()]
+}
+
+function pct(v: number | null, d = 2) {
+  if (v == null) return 'n/a'
+  return `${(v * 100).toFixed(d)}%`
 }
 
 async function getTickerData(symbol: string): Promise<TickerResponse | null> {
@@ -45,8 +74,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const parsed = parsePair(pair)
   if (!parsed) return { title: 'Compare Dividend Stocks' }
   const [symA, symB] = parsed
-  const title = `${symA} vs ${symB} Dividend Comparison — Which Is More Undervalued?`
-  const description = `Compare ${symA} and ${symB} side by side — dividend yield, Weiss signal, quality score, dividend streak, payout ratio, and 5-year CAGR. Find which dividend stock offers better income value today.`
+  const title = `${symA} vs ${symB} Dividend Stock Comparison 2026`
+  const description = `Compare ${symA} vs ${symB} for dividend yield, Weiss valuation signal, quality score, payout ratio, dividend growth, and income safety. See which dividend stock looks better today.`
   return {
     title,
     description,
@@ -58,6 +87,49 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'article',
     },
   }
+}
+
+function buildArticleJsonLd(pair: string, dataA: TickerResponse, dataB: TickerResponse) {
+  const { company: cA } = dataA
+  const { company: cB } = dataB
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: `${cA.symbol} vs ${cB.symbol} Dividend Stock Comparison 2026`,
+    description: `Dividend comparison of ${cA.name} (${cA.symbol}) and ${cB.name} (${cB.symbol}) by yield, quality score, payout safety, dividend growth, and Weiss valuation signal.`,
+    url: `https://dividendvisual.com/compare/${pair}`,
+    author: { '@type': 'Organization', name: 'DividendVisual' },
+    publisher: { '@type': 'Organization', name: 'DividendVisual', url: 'https://dividendvisual.com' },
+    isAccessibleForFree: true,
+  }
+}
+
+function buildBreadcrumbJsonLd(pair: string, dataA: TickerResponse, dataB: TickerResponse) {
+  const { company: cA } = dataA
+  const { company: cB } = dataB
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://dividendvisual.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Dividend Stock Comparisons', item: 'https://dividendvisual.com/dividend-stock-comparisons' },
+      { '@type': 'ListItem', position: 3, name: `${cA.symbol} vs ${cB.symbol}`, item: `https://dividendvisual.com/compare/${pair}` },
+    ],
+  }
+}
+
+function verdict(dataA: TickerResponse, dataB: TickerResponse) {
+  const { company: cA, metrics: mA } = dataA
+  const { company: cB, metrics: mB } = dataB
+  const yieldWinner = mA.currentYield >= mB.currentYield ? cA : cB
+  const qualityWinner = mA.qualityScore >= mB.qualityScore ? cA : cB
+  const growthWinner = (mA.dividendCagr5y ?? -Infinity) >= (mB.dividendCagr5y ?? -Infinity) ? cA : cB
+  const signalWinner =
+    mA.weissSignal === 'undervalued' && mB.weissSignal !== 'undervalued' ? cA :
+    mB.weissSignal === 'undervalued' && mA.weissSignal !== 'undervalued' ? cB :
+    null
+
+  return { yieldWinner, qualityWinner, growthWinner, signalWinner }
 }
 
 function buildFaqJsonLd(dataA: TickerResponse, dataB: TickerResponse) {
@@ -125,17 +197,91 @@ export default async function ComparePairPage({ params }: PageProps) {
   if (!dataA || !dataB) notFound()
 
   const faqJsonLd = buildFaqJsonLd(dataA, dataB)
+  const articleJsonLd = buildArticleJsonLd(pair, dataA, dataB)
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd(pair, dataA, dataB)
+  const meta = COMPARE_PAIR_META[pair]
+  const winners = verdict(dataA, dataB)
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },
+        { label: 'Comparisons', href: '/dividend-stock-comparisons' },
         { label: `${symA} vs ${symB}` },
       ]} />
 
+      <section className="mb-8">
+        {meta ? (
+          <div className="mb-3 inline-flex items-center rounded-full border border-[#6366f1]/25 bg-[#6366f1]/10 px-3 py-1 text-xs font-medium text-[#818cf8]">
+            {meta.category} comparison
+          </div>
+        ) : null}
+        <h1 className="text-3xl sm:text-4xl font-bold text-[#f4f4f5] leading-tight mb-3">
+          {symA} vs {symB} Dividend Stock Comparison 2026
+        </h1>
+        <p className="text-[#a1a1aa] text-base leading-relaxed max-w-3xl">
+          Compare {dataA.company.name} and {dataB.company.name} by dividend yield, payout safety, dividend growth,
+          quality score, and Geraldine Weiss valuation signal{meta ? ` across ${meta.angle}.` : '.'}
+        </p>
+      </section>
+
+      <section className="mb-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: 'Higher yield', value: `${winners.yieldWinner.symbol} (${pct(winners.yieldWinner.symbol === symA ? dataA.metrics.currentYield : dataB.metrics.currentYield)})` },
+          { label: 'Better quality', value: `${winners.qualityWinner.symbol} (${winners.qualityWinner.symbol === symA ? dataA.metrics.qualityScore : dataB.metrics.qualityScore}/100)` },
+          { label: 'Faster 5Y growth', value: `${winners.growthWinner.symbol} (${pct(winners.growthWinner.symbol === symA ? dataA.metrics.dividendCagr5y : dataB.metrics.dividendCagr5y, 1)})` },
+          { label: 'Weiss signal edge', value: winners.signalWinner ? winners.signalWinner.symbol : 'Tie / neutral' },
+        ].map(({ label, value }) => (
+          <div key={label} className="rounded-lg border border-[#1e1e2e] bg-[#111118] px-4 py-3">
+            <p className="text-sm font-semibold text-[#f4f4f5]">{value}</p>
+            <p className="mt-1 text-xs text-[#71717a]">{label}</p>
+          </div>
+        ))}
+      </section>
+
       <CompareClient symbolA={symA} symbolB={symB} dataA={dataA} dataB={dataB} />
+
+      <section className="mt-10">
+        <DividendAlertsCTA
+          source="compare-page"
+          title={`Get alerts when ${symA} or ${symB} becomes undervalued`}
+          description="A weekly digest of quality dividend stocks entering historically attractive Weiss yield territory."
+        />
+      </section>
+
+      <section className="mt-10 grid gap-8 lg:grid-cols-[1fr_300px]">
+        <article className="prose-dv max-w-3xl">
+          <h2>How to read this comparison</h2>
+          <p>
+            Start with the Weiss signal to see whether either stock is historically cheap relative to its own dividend
+            yield history. Then compare quality score, payout ratio, and dividend growth to avoid choosing a stock only
+            because the current yield is higher.
+          </p>
+          <p>
+            A higher yield can mean better income value, but it can also signal slower growth or higher dividend risk.
+            The strongest dividend comparison winner usually combines an attractive Weiss signal, a manageable payout
+            ratio, positive dividend growth, and a quality score that is stronger than the peer.
+          </p>
+        </article>
+
+        <aside className="rounded-lg border border-[#1e1e2e] bg-[#111118] p-5 h-fit">
+          <p className="text-sm font-semibold text-[#f4f4f5] mb-3">Related comparison pages</p>
+          <div className="flex flex-col gap-2">
+            {COMPARE_PAIRS.filter((slug) => slug !== pair).slice(0, 6).map((slug) => {
+              const [a, b] = slug.split('-vs-').map((part) => part.toUpperCase())
+              return (
+                <a key={slug} href={`/compare/${slug}`} className="text-sm text-[#6366f1] hover:text-[#818cf8]">
+                  {a} vs {b} -&gt;
+                </a>
+              )
+            })}
+          </div>
+        </aside>
+      </section>
 
       {/* TradingView deep links */}
       <div className="mt-8 pt-6 border-t border-[#1e1e2e] flex flex-wrap items-center gap-4">

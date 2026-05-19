@@ -96,7 +96,7 @@ const TERMS: Term[] = [
     definition:
       'A US company that has increased its dividend for 50 or more consecutive years. This is the most exclusive dividend distinction — fewer than 60 companies in the US qualify. Dividend Kings have maintained uninterrupted dividend growth through recessions, market crashes, inflation spikes, and sector disruptions. Examples include Coca-Cola (KO), Johnson & Johnson (JNJ), Procter & Gamble (PG), and Abbott Laboratories (ABT).',
     related: [
-      { label: 'Dividend Kings collection', href: '/collections/dividend-kings' },
+      { label: 'Dividend Kings collection', href: '/dividend-kings' },
       { label: 'Dividend Aristocrat', href: '/glossary#dividend-aristocrat' },
     ],
   },
@@ -106,7 +106,7 @@ const TERMS: Term[] = [
     definition:
       'An S&P 500 company that has increased its dividend for 25 or more consecutive years. There are approximately 65–70 Dividend Aristocrats at any given time. The distinction requires both a long dividend growth streak and S&P 500 membership — a smaller company with a 30-year streak does not qualify unless it\'s in the index. Dividend Aristocrats are the second-most-exclusive dividend category after Dividend Kings.',
     related: [
-      { label: 'Dividend Aristocrats collection', href: '/collections/dividend-aristocrats' },
+      { label: 'Dividend Aristocrats list', href: '/dividend-aristocrats' },
       { label: 'Dividend King', href: '/glossary#dividend-king' },
     ],
   },
@@ -146,7 +146,7 @@ const TERMS: Term[] = [
     definition:
       'A commercial real estate lease structure where the tenant pays not only rent but also some or all of property taxes, insurance, and maintenance costs. Net leases (particularly "triple net" or NNN leases, where the tenant covers all three) create highly predictable income for the landlord because operating costs are passed through. Net lease REITs — like Realty Income (O) and National Retail Properties (NNN) — are popular with dividend investors because of this income predictability.',
     related: [
-      { label: 'REIT dividend stocks', href: '/sector/real-estate' },
+      { label: 'REIT dividend stocks', href: '/best-reit-dividend-stocks' },
     ],
   },
   {
@@ -156,7 +156,7 @@ const TERMS: Term[] = [
       'A non-GAAP earnings measure used primarily for REITs. FFO adds depreciation back to GAAP net income because real estate depreciation — a non-cash accounting charge — significantly understates REIT earnings. Real estate assets often appreciate in value over time, but GAAP requires depreciating them, making REIT earnings appear artificially low. FFO (and its more conservative variant AFFO, which also subtracts recurring capital expenditures) is the standard measure for evaluating REIT dividend coverage and valuation.',
     related: [
       { label: 'Payout Ratio', href: '/glossary#payout-ratio' },
-      { label: 'REIT dividend stocks', href: '/sector/real-estate' },
+      { label: 'REIT dividend stocks', href: '/best-reit-dividend-stocks' },
     ],
   },
   {

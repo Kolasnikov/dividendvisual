@@ -5,17 +5,18 @@ import { SignalBadge } from '@/components/ui/SignalBadge'
 import { DividendBadge } from '@/components/ui/DividendBadge'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
+import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 
 export const metadata: Metadata = {
-  title: 'Undervalued Dividend Stocks Today — Weiss Signal Opportunities',
-  description: 'Dividend stocks currently trading in historically undervalued territory, ranked by quality score. Based on the Geraldine Weiss dividend yield valuation method — updated daily.',
+  title: 'Undervalued Dividend Stocks Today - Weiss Signal Opportunities',
+  description: 'Undervalued dividend stocks trading near 10-year high dividend yields, ranked by quality score, payout safety, and Geraldine Weiss valuation signal. Updated daily.',
   alternates: {
-    canonical: 'https://dividendvisual.com/opportunities',
+    canonical: 'https://dividendvisual.com/undervalued-dividend-stocks',
   },
   openGraph: {
     title: 'Undervalued Dividend Stocks Today | DividendVisual',
     description: 'Dividend stocks in historically undervalued territory right now, ranked by quality score and dividend safety.',
-    url: 'https://dividendvisual.com/opportunities',
+    url: 'https://dividendvisual.com/undervalued-dividend-stocks',
   },
 }
 
@@ -191,7 +192,7 @@ export default async function OpportunitiesPage() {
     '@type': 'ItemList',
     name: 'Undervalued Dividend Stocks — Weiss Signal',
     description: 'Dividend stocks currently trading in historically undervalued territory by the Geraldine Weiss yield method.',
-    url: 'https://dividendvisual.com/opportunities',
+    url: 'https://dividendvisual.com/undervalued-dividend-stocks',
     numberOfItems: strong.length,
     itemListElement: strong.map((s, i) => ({
       '@type': 'ListItem',
@@ -221,7 +222,7 @@ export default async function OpportunitiesPage() {
 
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },
-        { label: 'Opportunities' },
+        { label: 'Undervalued Dividend Stocks' },
       ]} />
 
       {/* Header */}
@@ -238,6 +239,14 @@ export default async function OpportunitiesPage() {
           Dividend stocks with yields near their 10-year historical highs — the Geraldine Weiss undervalue signal.
           Sorted by quality score: higher scores mean safer, more reliable dividends. Updated daily.
         </p>
+      </div>
+
+      <div className="mb-10">
+        <DividendAlertsCTA
+          source="opportunities"
+          title="Get notified when new dividend opportunities appear"
+          description="We track the Weiss signal daily and send a short weekly digest when quality dividend stocks enter undervalued territory."
+        />
       </div>
 
       {/* Strong opportunities */}
@@ -375,7 +384,7 @@ export default async function OpportunitiesPage() {
             <Link href="/methodology" className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors">
               → How DividendVisual calculates Weiss signals
             </Link>
-            <Link href="/watchlist" className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors">
+            <Link href="/dividend-screener" className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors">
               → Full screener — filter by sector, signal, and badge
             </Link>
             <Link href="/blog/geraldine-weiss-dividend-valuation-method" className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors">

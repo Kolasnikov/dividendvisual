@@ -49,9 +49,8 @@ const TICKERS = [
 ]
 
 const COLLECTIONS = [
-  'dividend-kings', 'dividend-aristocrats', 'buffett-style',
-  'utilities', 'reits', 'high-yield', 'low-payout-compounders',
-  'monthly-dividend-payers',
+  'buffett-style',
+  'low-payout-compounders',
 ]
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -62,7 +61,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const statics: MetadataRoute.Sitemap = [
     { url: BASE, lastModified: now, changeFrequency: 'daily', priority: 1 },
     { url: `${BASE}/watchlist`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
-    { url: `${BASE}/opportunities`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${BASE}/dividend-screener`, lastModified: now, changeFrequency: 'daily', priority: 0.95 },
+    { url: `${BASE}/best-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.92 },
+    { url: `${BASE}/undervalued-dividend-stocks`, lastModified: now, changeFrequency: 'daily', priority: 0.92 },
+    { url: `${BASE}/dividend-stock-comparisons`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE}/dividend-kings`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE}/dividend-aristocrats`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE}/high-yield-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE}/best-monthly-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE}/best-reit-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE}/best-utility-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE}/drip-calculator`, lastModified: now, changeFrequency: 'monthly', priority: 0.85 },
     { url: `${BASE}/portfolio`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE}/glossary`, lastModified: now, changeFrequency: 'monthly', priority: 0.75 },
@@ -81,13 +89,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(post.date),
     changeFrequency: 'monthly' as const,
     priority: 0.7,
-  }))
-
-  const tickers: MetadataRoute.Sitemap = TICKERS.map((symbol) => ({
-    url: `${BASE}/ticker/${symbol}`,
-    lastModified: now,
-    changeFrequency: 'daily',
-    priority: 0.8,
   }))
 
   const analysis: MetadataRoute.Sitemap = TICKERS.map((symbol) => ({
@@ -111,12 +112,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.75,
   }))
 
-  const sectors: MetadataRoute.Sitemap = SECTOR_SLUGS.map((slug) => ({
-    url: `${BASE}/sector/${slug}`,
-    lastModified: now,
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }))
+  const sectors: MetadataRoute.Sitemap = SECTOR_SLUGS
+    .filter((slug) => !['utilities', 'real-estate'].includes(slug))
+    .map((slug) => ({
+      url: `${BASE}/sector/${slug}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }))
 
-  return [...statics, ...tickers, ...analysis, ...collections, ...blogPosts, ...comparePairs, ...sectors]
+  return [...statics, ...analysis, ...collections, ...blogPosts, ...comparePairs, ...sectors]
 }

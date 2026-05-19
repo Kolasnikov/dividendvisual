@@ -75,6 +75,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: `https://dividendvisual.com/analysis/${company.symbol.toLowerCase()}`,
     },
+    robots: {
+      index: false,
+      follow: true,
+    },
     openGraph: {
       title: `${company.symbol} Dividend Analysis | DividendVisual`,
       description,
@@ -134,6 +138,16 @@ const COLLECTION_LINKS: { slug: string; title: string; check: (c: Company) => bo
   { slug: 'utilities',            title: 'Utilities',            check: (c) => c.sector === 'Utilities' },
   { slug: 'reits',                title: 'REITs',                check: (c) => c.sector === 'Real Estate' },
 ]
+
+function collectionHref(slug: string) {
+  if (slug === 'dividend-kings') return '/dividend-kings'
+  if (slug === 'dividend-aristocrats') return '/dividend-aristocrats'
+  if (slug === 'high-yield') return '/high-yield-dividend-stocks'
+  if (slug === 'monthly-dividend-payers') return '/best-monthly-dividend-stocks'
+  if (slug === 'reits') return '/best-reit-dividend-stocks'
+  if (slug === 'utilities') return '/best-utility-dividend-stocks'
+  return `/collections/${slug}`
+}
 
 const BLOG_ARTICLES = {
   weiss:      { slug: 'geraldine-weiss-dividend-valuation-method',  title: 'The Geraldine Weiss Method Explained' },
@@ -384,7 +398,7 @@ export default async function TickerPage({ params }: PageProps) {
                 {relatedCollections.map(({ slug, title }) => (
                   <Link
                     key={slug}
-                    href={`/collections/${slug}`}
+                    href={collectionHref(slug)}
                     className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors"
                   >
                     → {title}

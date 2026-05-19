@@ -52,6 +52,20 @@ function signalWinner(sa: WeissSignal, sb: WeissSignal): 'a' | 'b' | null {
   return ra > rb ? 'a' : 'b'
 }
 
+function ComparisonRow({ label, vA, vB, w }: { label: string; vA: string; vB: string; w: 'a' | 'b' | null }) {
+  return (
+    <tr className="border-b border-[#1e1e2e] last:border-0 hover:bg-[#1e1e2e]/20 transition-colors">
+      <td className="px-4 py-3 text-sm text-[#71717a]">{label}</td>
+      <td className={`px-4 py-3 text-sm text-right font-medium ${w === 'a' ? 'text-[#22c55e]' : 'text-[#f4f4f5]'}`}>
+        {vA}{w === 'a' && <span className="ml-1 text-[10px]">▲</span>}
+      </td>
+      <td className={`px-4 py-3 text-sm text-right font-medium ${w === 'b' ? 'text-[#22c55e]' : 'text-[#f4f4f5]'}`}>
+        {vB}{w === 'b' && <span className="ml-1 text-[10px]">▲</span>}
+      </td>
+    </tr>
+  )
+}
+
 function TickerPicker({
   label,
   symbol,
@@ -72,29 +86,40 @@ function TickerPicker({
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const trimmedQuery = query.trim()
+  const isEditing = editing || !symbol
+  const effectiveOpen = trimmedQuery.length > 0 && open && results.length > 0
+  const effectiveLoading = trimmedQuery.length > 0 && loading
 
   useEffect(() => {
-    if (!symbol) setEditing(true)
-  }, [symbol])
+    if (isEditing) inputRef.current?.focus()
+  }, [isEditing])
 
   useEffect(() => {
-    if (editing) inputRef.current?.focus()
-  }, [editing])
+    if (trimmedQuery.length < 1) return
 
-  useEffect(() => {
-    if (query.trim().length < 1) { setResults([]); setOpen(false); return }
-    setLoading(true)
+    let ignore = false
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(async () => {
+      setLoading(true)
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`)
+        const res = await fetch(`/api/search?q=${encodeURIComponent(trimmedQuery)}`)
         const data: SearchResult[] = await res.json()
-        setResults(data); setOpen(data.length > 0); setActiveIndex(-1)
-      } catch { setResults([]) }
-      finally { setLoading(false) }
+        if (!ignore) {
+          setResults(data); setOpen(data.length > 0); setActiveIndex(-1)
+        }
+      } catch {
+        if (!ignore) setResults([])
+      }
+      finally {
+        if (!ignore) setLoading(false)
+      }
     }, 200)
-    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
-  }, [query])
+    return () => {
+      ignore = true
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [trimmedQuery])
 
   useEffect(() => {
     function onOut(e: MouseEvent) {
@@ -113,7 +138,7 @@ function TickerPicker({
 
   function onKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Escape') { setOpen(false); if (symbol) setEditing(false); return }
-    if (!open) return
+    if (!effectiveOpen) return
     if (e.key === 'ArrowDown') { e.preventDefault(); setActiveIndex(i => Math.min(i + 1, results.length - 1)) }
     else if (e.key === 'ArrowUp') { e.preventDefault(); setActiveIndex(i => Math.max(i - 1, 0)) }
     else if (e.key === 'Enter') {
@@ -125,7 +150,7 @@ function TickerPicker({
 
   return (
     <div ref={containerRef} className="relative flex-1">
-      {symbol && !editing ? (
+      {symbol && !isEditing ? (
         <button
           onClick={() => setEditing(true)}
           className="w-full text-left bg-[#1e1e2e] border border-[#2e2e3e] rounded-xl px-4 py-3.5 hover:border-[#6366f1]/50 transition-colors group"
@@ -155,7 +180,7 @@ function TickerPicker({
             autoComplete="off"
             spellCheck={false}
           />
-          {loading && (
+          {effectiveLoading && (
             <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
               <div className="w-3.5 h-3.5 border-2 border-[#6366f1] border-t-transparent rounded-full animate-spin" />
             </div>
@@ -163,7 +188,7 @@ function TickerPicker({
         </div>
       )}
 
-      {open && results.length > 0 && (
+      {effectiveOpen && (
         <div className="absolute top-full mt-2 w-full min-w-[260px] bg-[#111118] border border-[#1e1e2e] rounded-xl shadow-2xl z-50 overflow-hidden">
           {results.map((r, i) => (
             <button
@@ -211,20 +236,6 @@ function ComparisonTable({
     ? winner(mA.fcfPayout, mB.fcfPayout, false)
     : null
 
-  function Row({ label, vA, vB, w }: { label: string; vA: string; vB: string; w: 'a' | 'b' | null }) {
-    return (
-      <tr className="border-b border-[#1e1e2e] last:border-0 hover:bg-[#1e1e2e]/20 transition-colors">
-        <td className="px-4 py-3 text-sm text-[#71717a]">{label}</td>
-        <td className={`px-4 py-3 text-sm text-right font-medium ${w === 'a' ? 'text-[#22c55e]' : 'text-[#f4f4f5]'}`}>
-          {vA}{w === 'a' && <span className="ml-1 text-[10px]">▲</span>}
-        </td>
-        <td className={`px-4 py-3 text-sm text-right font-medium ${w === 'b' ? 'text-[#22c55e]' : 'text-[#f4f4f5]'}`}>
-          {vB}{w === 'b' && <span className="ml-1 text-[10px]">▲</span>}
-        </td>
-      </tr>
-    )
-  }
-
   return (
     <div className="space-y-4">
       {/* Ticker headers */}
@@ -264,9 +275,9 @@ function ComparisonTable({
               </tr>
             </thead>
             <tbody>
-              <Row label="Price" vA={`$${mA.currentPrice.toFixed(2)}`} vB={`$${mB.currentPrice.toFixed(2)}`} w={null} />
-              <Row label="Annual Dividend" vA={`$${mA.annualDividend.toFixed(2)}`} vB={`$${mB.annualDividend.toFixed(2)}`} w={null} />
-              <Row label="Current Yield" vA={pct(mA.currentYield)} vB={pct(mB.currentYield)} w={wYield} />
+              <ComparisonRow label="Price" vA={`$${mA.currentPrice.toFixed(2)}`} vB={`$${mB.currentPrice.toFixed(2)}`} w={null} />
+              <ComparisonRow label="Annual Dividend" vA={`$${mA.annualDividend.toFixed(2)}`} vB={`$${mB.annualDividend.toFixed(2)}`} w={null} />
+              <ComparisonRow label="Current Yield" vA={pct(mA.currentYield)} vB={pct(mB.currentYield)} w={wYield} />
               {/* Signal row — custom because it renders a badge */}
               <tr className="border-b border-[#1e1e2e] hover:bg-[#1e1e2e]/20 transition-colors">
                 <td className="px-4 py-3 text-sm text-[#71717a]">Weiss Signal</td>
@@ -283,30 +294,30 @@ function ComparisonTable({
                   </div>
                 </td>
               </tr>
-              <Row label="Quality Score" vA={`${mA.qualityScore}/100`} vB={`${mB.qualityScore}/100`} w={wQuality} />
-              <Row
+              <ComparisonRow label="Quality Score" vA={`${mA.qualityScore}/100`} vB={`${mB.qualityScore}/100`} w={wQuality} />
+              <ComparisonRow
                 label="Dividend Streak"
                 vA={cA.yearsIncreasingDividends > 0 ? `${cA.yearsIncreasingDividends} yrs` : '—'}
                 vB={cB.yearsIncreasingDividends > 0 ? `${cB.yearsIncreasingDividends} yrs` : '—'}
                 w={wStreak}
               />
-              <Row label="CAGR 5Y" vA={pct(mA.dividendCagr5y, 1)} vB={pct(mB.dividendCagr5y, 1)} w={wCagr5} />
-              <Row label="CAGR 10Y" vA={pct(mA.dividendCagr10y, 1)} vB={pct(mB.dividendCagr10y, 1)} w={wCagr10} />
-              <Row
+              <ComparisonRow label="CAGR 5Y" vA={pct(mA.dividendCagr5y, 1)} vB={pct(mB.dividendCagr5y, 1)} w={wCagr5} />
+              <ComparisonRow label="CAGR 10Y" vA={pct(mA.dividendCagr10y, 1)} vB={pct(mB.dividendCagr10y, 1)} w={wCagr10} />
+              <ComparisonRow
                 label="Payout Ratio"
                 vA={mA.payoutRatio != null && mA.payoutRatio <= 2.0 ? pct(mA.payoutRatio, 0) : '—'}
                 vB={mB.payoutRatio != null && mB.payoutRatio <= 2.0 ? pct(mB.payoutRatio, 0) : '—'}
                 w={wPayout}
               />
-              <Row
+              <ComparisonRow
                 label="FCF Payout"
                 vA={mA.fcfPayout != null && mA.fcfPayout <= 2.0 ? pct(mA.fcfPayout, 0) : '—'}
                 vB={mB.fcfPayout != null && mB.fcfPayout <= 2.0 ? pct(mB.fcfPayout, 0) : '—'}
                 w={wFcf}
               />
-              <Row label="Undervalued Price" vA={`$${mA.undervaluedPrice.toFixed(2)}`} vB={`$${mB.undervaluedPrice.toFixed(2)}`} w={null} />
-              <Row label="Overvalued Price" vA={`$${mA.overvaluedPrice.toFixed(2)}`} vB={`$${mB.overvaluedPrice.toFixed(2)}`} w={null} />
-              <Row label="Median Yield (hist.)" vA={pct(mA.medianYield)} vB={pct(mB.medianYield)} w={null} />
+              <ComparisonRow label="Undervalued Price" vA={`$${mA.undervaluedPrice.toFixed(2)}`} vB={`$${mB.undervaluedPrice.toFixed(2)}`} w={null} />
+              <ComparisonRow label="Overvalued Price" vA={`$${mA.overvaluedPrice.toFixed(2)}`} vB={`$${mB.overvaluedPrice.toFixed(2)}`} w={null} />
+              <ComparisonRow label="Median Yield (hist.)" vA={pct(mA.medianYield)} vB={pct(mB.medianYield)} w={null} />
             </tbody>
           </table>
         </div>
@@ -369,7 +380,7 @@ export function CompareClient({ symbolA, symbolB, dataA, dataB }: CompareClientP
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#f4f4f5] mb-1">Compare Dividend Stocks</h1>
+        <h2 className="text-2xl font-bold text-[#f4f4f5] mb-1">Compare Dividend Stocks</h2>
         <p className="text-sm text-[#71717a]">
           Compare yield, Weiss signal, quality score, and dividend growth side by side.
         </p>

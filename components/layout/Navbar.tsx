@@ -8,10 +8,10 @@ import { useRouter } from 'next/navigation'
 import type { SearchResult } from '@/lib/types'
 
 const NAV_LINKS = [
-  { href: '/opportunities', label: 'Opportunities' },
-  { href: '/watchlist', label: 'Watchlist' },
-  { href: '/compare', label: 'Compare' },
-  { href: '/collections/dividend-kings', label: 'Collections' },
+  { href: '/undervalued-dividend-stocks', label: 'Opportunities' },
+  { href: '/dividend-screener', label: 'Screener' },
+  { href: '/dividend-stock-comparisons', label: 'Compare' },
+  { href: '/dividend-kings', label: 'Kings' },
   { href: '/blog', label: 'Blog' },
 ]
 
@@ -25,23 +25,36 @@ function NavSearch({ onClose }: { onClose: () => void }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const trimmedQuery = query.trim()
 
   useEffect(() => { inputRef.current?.focus() }, [])
 
   useEffect(() => {
-    if (query.trim().length < 1) { setResults([]); setOpen(false); return }
-    setLoading(true)
+    if (trimmedQuery.length < 1) return
+
+    let ignore = false
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(async () => {
+      setLoading(true)
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`)
+        const res = await fetch(`/api/search?q=${encodeURIComponent(trimmedQuery)}`)
         const data: SearchResult[] = await res.json()
-        setResults(data); setOpen(data.length > 0); setActiveIndex(-1)
-      } catch { setResults([]) }
-      finally { setLoading(false) }
+        if (!ignore) {
+          setResults(data)
+          setOpen(data.length > 0)
+          setActiveIndex(-1)
+        }
+      } catch {
+        if (!ignore) setResults([])
+      } finally {
+        if (!ignore) setLoading(false)
+      }
     }, 200)
-    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
-  }, [query])
+    return () => {
+      ignore = true
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [trimmedQuery])
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -59,11 +72,14 @@ function NavSearch({ onClose }: { onClose: () => void }) {
 
   function onKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Escape') { onClose(); return }
-    if (!open) return
+    if (!effectiveOpen) return
     if (e.key === 'ArrowDown') { e.preventDefault(); setActiveIndex((i) => Math.min(i + 1, results.length - 1)) }
     else if (e.key === 'ArrowUp') { e.preventDefault(); setActiveIndex((i) => Math.max(i - 1, 0)) }
     else if (e.key === 'Enter') { e.preventDefault(); const t = activeIndex >= 0 ? results[activeIndex] : results[0]; if (t) navigate(t.symbol) }
   }
+
+  const effectiveOpen = trimmedQuery.length > 0 && open && results.length > 0
+  const effectiveLoading = trimmedQuery.length > 0 && loading
 
   return (
     <div ref={containerRef} className="relative flex-1 max-w-sm">
@@ -80,14 +96,14 @@ function NavSearch({ onClose }: { onClose: () => void }) {
           autoComplete="off"
           spellCheck={false}
         />
-        {loading && (
+        {effectiveLoading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
             <div className="w-3.5 h-3.5 border-2 border-[#6366f1] border-t-transparent rounded-full animate-spin" />
           </div>
         )}
       </div>
 
-      {open && results.length > 0 && (
+      {effectiveOpen && (
         <div className="absolute top-full mt-2 w-full min-w-[280px] bg-[#111118] border border-[#1e1e2e] rounded-xl shadow-2xl z-50 overflow-hidden">
           {results.map((r, i) => (
             <button
@@ -112,8 +128,6 @@ export function Navbar() {
   const pathname = usePathname()
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-
-  useEffect(() => { setSearchOpen(false); setMenuOpen(false) }, [pathname])
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -195,6 +209,7 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
+              onClick={() => setMenuOpen(false)}
               className={`flex items-center px-4 py-3 text-sm border-b border-[#1e1e2e] transition-colors ${
                 pathname.startsWith(link.href)
                   ? 'text-[#f4f4f5] bg-[#1e1e2e]'

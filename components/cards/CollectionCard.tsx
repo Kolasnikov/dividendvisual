@@ -10,9 +10,19 @@ interface CollectionCardProps {
 }
 
 export function CollectionCard({ slug, title, description, count, accent = '#6366f1' }: CollectionCardProps) {
+  const hrefOverrides: Record<string, string> = {
+    'monthly-dividend-payers': '/best-monthly-dividend-stocks',
+    'dividend-kings': '/dividend-kings',
+    'dividend-aristocrats': '/dividend-aristocrats',
+    'high-yield': '/high-yield-dividend-stocks',
+    'reits': '/best-reit-dividend-stocks',
+    'utilities': '/best-utility-dividend-stocks',
+  }
+  const href = hrefOverrides[slug] ?? `/collections/${slug}`
+
   return (
     <Link
-      href={`/collections/${slug}`}
+      href={href}
       className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5 flex flex-col gap-3 hover:border-[#6366f1]/40 transition-colors group"
     >
       <div className="flex items-start justify-between">
