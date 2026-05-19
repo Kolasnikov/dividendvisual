@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
 import { SectorDividendLanding } from '@/components/seo/SectorDividendLanding'
+import { getSectorApiNameBySlug } from '@/lib/sector-mapping'
 
 const PAGE_URL = 'https://dividendvisual.com/best-utility-dividend-stocks'
 const YEAR = 2026
+const DB_SECTOR = getSectorApiNameBySlug('utilities') ?? 'Utilities'
 
 export const metadata: Metadata = {
   title: `Best Utility Dividend Stocks ${YEAR} - Ranked by Yield, Safety & Weiss Signal`,
@@ -31,7 +33,7 @@ export default function BestUtilityDividendStocksPage() {
       pageUrl={PAGE_URL}
       eventName="best_utility_dividend_stocks_viewed"
       source="best-utility-dividend-stocks"
-      dbSector="Utilities"
+      dbSector={DB_SECTOR}
       eyebrow="Regulated income stocks screened for payout reliability"
       title={`Best Utility Dividend Stocks ${YEAR}`}
       description="Compare utility dividend stocks by current yield, payout reliability, dividend growth, quality score, and Geraldine Weiss valuation signal. Built for income investors looking for regulated cash flows and rate-cycle entry points."

@@ -6,6 +6,12 @@ import { SignalBadge } from '@/components/ui/SignalBadge'
 import { DividendBadge } from '@/components/ui/DividendBadge'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
+import {
+  SECTOR_SLUGS,
+  getSectorApiNameBySlug,
+  getSectorCanonicalUrl,
+  isDuplicateSectorRoute,
+} from '@/lib/sector-mapping'
 
 type SectorRow = Company & ComputedMetrics
 
@@ -72,7 +78,7 @@ const SECTOR_META: Record<string, SectorMeta> = {
   },
 
   'consumer-staples': {
-    dbSector: 'Consumer Staples',
+    dbSector: 'Consumer Defensive',
     title: `Best Consumer Staples Dividend Stocks ${YEAR}`,
     metaDescription: `Best consumer staples dividend stocks ${YEAR} — KO, PG, PEP, KMB, CL ranked by Weiss signal, quality score, and dividend streak. Recession-resilient income stocks screened by 10-year yield history.`,
     editorial: [
@@ -116,7 +122,7 @@ const SECTOR_META: Record<string, SectorMeta> = {
   },
 
   healthcare: {
-    dbSector: 'Health Care',
+    dbSector: 'Healthcare',
     title: `Best Healthcare Dividend Stocks ${YEAR}`,
     metaDescription: `Best healthcare dividend stocks ${YEAR} — JNJ, ABBV, ABT, MDT, PFE and more ranked by Weiss signal and quality score. Dividend growth in pharma, medical devices, and managed care.`,
     editorial: [
@@ -150,7 +156,7 @@ const SECTOR_META: Record<string, SectorMeta> = {
   },
 
   financials: {
-    dbSector: 'Financials',
+    dbSector: 'Financial Services',
     title: `Best Financial Sector Dividend Stocks ${YEAR}`,
     metaDescription: `Best financial sector dividend stocks ${YEAR} — JPM, V, MA, AFL, CB, TROW ranked by Weiss signal and quality score. Banks, insurers, and payment processors screened for dividend reliability.`,
     editorial: [
@@ -200,7 +206,7 @@ const SECTOR_META: Record<string, SectorMeta> = {
   },
 
   technology: {
-    dbSector: 'Information Technology',
+    dbSector: 'Technology',
     title: `Best Technology Dividend Stocks ${YEAR}`,
     metaDescription: `Best technology dividend stocks ${YEAR} — MSFT, TXN, AAPL, CSCO, AVGO, IBM ranked by Weiss signal and dividend CAGR. High-growth dividend payers in software, semiconductors, and IT services.`,
     editorial: [
@@ -306,7 +312,7 @@ const SECTOR_META: Record<string, SectorMeta> = {
   },
 
   'consumer-discretionary': {
-    dbSector: 'Consumer Discretionary',
+    dbSector: 'Consumer Cyclical',
     title: `Best Consumer Discretionary Dividend Stocks ${YEAR}`,
     metaDescription: `Best consumer discretionary dividend stocks ${YEAR} — MCD, HD, LOW, SBUX, NKE ranked by Weiss signal, quality score, and dividend CAGR. Discretionary dividend compounders with quality growth records.`,
     editorial: [
@@ -333,7 +339,7 @@ const SECTOR_META: Record<string, SectorMeta> = {
   },
 
   materials: {
-    dbSector: 'Materials',
+    dbSector: 'Basic Materials',
     title: `Materials Sector Dividend Stocks ${YEAR}`,
     metaDescription: `Materials sector dividend stocks ${YEAR} — SHW, ECL, PPG, NUE, RPM ranked by Weiss signal and quality score. Specialty chemicals and materials companies screened for dividend reliability.`,
     editorial: [
@@ -368,8 +374,6 @@ function collectionHref(slug: string) {
   return `/collections/${slug}`
 }
 
-export const SECTOR_SLUGS = Object.keys(SECTOR_META)
-
 interface PageProps {
   params: Promise<{ sector: string }>
 }
@@ -396,12 +400,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { sector } = await params
   const meta = SECTOR_META[sector]
   if (!meta) return { title: 'Dividend Stocks by Sector' }
-  const canonicalOverrides: Record<string, string> = {
-    utilities: 'https://dividendvisual.com/best-utility-dividend-stocks',
-    'real-estate': 'https://dividendvisual.com/best-reit-dividend-stocks',
-  }
-  const canonical = canonicalOverrides[sector] ?? `https://dividendvisual.com/sector/${sector}`
-  const isCanonicalDuplicate = Boolean(canonicalOverrides[sector])
+  const canonical = getSectorCanonicalUrl(sector) ?? `https://dividendvisual.com/sector/${sector}`
+  const isCanonicalDuplicate = isDuplicateSectorRoute(sector)
   return {
     title: meta.title,
     description: meta.metaDescription,
@@ -483,7 +483,7 @@ export default async function SectorPage({ params }: PageProps) {
   const meta = SECTOR_META[sector]
   if (!meta) notFound()
 
-  const rows = await getSectorStocks(meta.dbSector)
+  const rows = await getSectorStocks(getSectorApiNameBySlug(sector) ?? meta.dbSector)
   const undervaluedCount = rows.filter(r => r.weissSignal === 'undervalued').length
 
   const itemListLd = rows.length > 0 ? {

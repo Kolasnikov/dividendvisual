@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
 import { SectorDividendLanding } from '@/components/seo/SectorDividendLanding'
+import { getSectorApiNameBySlug } from '@/lib/sector-mapping'
 
 const PAGE_URL = 'https://dividendvisual.com/best-reit-dividend-stocks'
 const YEAR = 2026
+const DB_SECTOR = getSectorApiNameBySlug('real-estate') ?? 'Real Estate'
 
 export const metadata: Metadata = {
   title: `Best REIT Dividend Stocks ${YEAR} - Ranked by Yield, Safety & Weiss Signal`,
@@ -31,7 +33,7 @@ export default function BestReitDividendStocksPage() {
       pageUrl={PAGE_URL}
       eventName="best_reit_dividend_stocks_viewed"
       source="best-reit-dividend-stocks"
-      dbSector="Real Estate"
+      dbSector={DB_SECTOR}
       eyebrow="REIT income stocks screened for rate-cycle value"
       title={`Best REIT Dividend Stocks ${YEAR}`}
       description="Compare REIT dividend stocks by current yield, payout safety, dividend growth, quality score, and Geraldine Weiss valuation signal. Built for income investors evaluating real estate dividends without blindly chasing high yield."

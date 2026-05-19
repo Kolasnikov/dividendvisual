@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "verify:sector-landings": "node scripts/verify-sector-landings.mjs",
+    "verify:dividend-classifications": "node scripts/verify-dividend-classifications.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

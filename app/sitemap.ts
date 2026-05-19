@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { getAllPosts } from '@/lib/blog'
 import { COMPARE_PAIRS } from '@/app/compare/[pair]/page'
-import { SECTOR_SLUGS } from '@/app/sector/[sector]/page'
+import { getIndexableSectorSlugs } from '@/lib/sector-mapping'
 
 const BASE = 'https://dividendvisual.com'
 
@@ -71,6 +71,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/best-monthly-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE}/best-reit-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE}/best-utility-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE}/best-healthcare-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE}/best-consumer-staples-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE}/best-financial-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE}/best-industrial-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE}/best-technology-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE}/best-energy-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE}/drip-calculator`, lastModified: now, changeFrequency: 'monthly', priority: 0.85 },
     { url: `${BASE}/portfolio`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE}/glossary`, lastModified: now, changeFrequency: 'monthly', priority: 0.75 },
@@ -112,8 +118,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.75,
   }))
 
-  const sectors: MetadataRoute.Sitemap = SECTOR_SLUGS
-    .filter((slug) => !['utilities', 'real-estate'].includes(slug))
+  const sectors: MetadataRoute.Sitemap = getIndexableSectorSlugs()
     .map((slug) => ({
       url: `${BASE}/sector/${slug}`,
       lastModified: now,

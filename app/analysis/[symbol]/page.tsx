@@ -6,6 +6,7 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
 import { ResearchDisclosure } from '@/components/seo/ResearchDisclosure'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
+import { getSectorLandingHref } from '@/lib/sector-mapping'
 
 const CURRENT_YEAR = new Date().getFullYear()
 
@@ -540,7 +541,7 @@ export default async function AnalysisPage({ params }: PageProps) {
               </Link>
               {company.sector && (
                 <Link
-                  href={`/sector/${company.sector.toLowerCase().replace(/ /g, '-').replace('information technology', 'technology').replace('health care', 'healthcare').replace('real estate', 'real-estate').replace('consumer staples', 'consumer-staples').replace('consumer discretionary', 'consumer-discretionary').replace('communication services', 'communication-services')}`}
+                  href={getSectorLandingHref(company.sector)}
                   className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors"
                 >
                   → Best {company.sector} Dividend Stocks

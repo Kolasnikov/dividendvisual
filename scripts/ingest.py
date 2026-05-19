@@ -15,6 +15,11 @@ import base64
 import pandas as pd
 import yfinance as yf
 from dotenv import load_dotenv
+from dividend_classifications import (
+    DIVIDEND_ARISTOCRATS,
+    DIVIDEND_KINGS,
+    DIVIDEND_STREAK_YEARS,
+)
 
 load_dotenv(".env.local")
 
@@ -161,22 +166,8 @@ TICKERS = [
 ]
 
 COLLECTIONS = {
-    "dividend-kings": [
-        # Original Kings
-        "KO", "PEP", "MMM", "GPC", "MO", "BEN", "FRT", "CLX",
-        "KMB", "CL", "HRL", "BDX", "EMR", "ITW", "AFL",
-        # New Kings
-        "AWR", "DOV", "CINF", "NDSN", "LANC", "GWW", "PPG", "RPM", "MSA", "NUE", "CBSH",
-    ],
-    "dividend-aristocrats": [
-        # Original Aristocrats
-        "JNJ", "PG", "MCD", "WMT", "HD", "ABT", "MDT", "XOM",
-        "CVX", "T", "SO", "DUK", "NEE", "ABBV", "PM", "SYY", "LOW",
-        "MKC", "CTAS", "GD", "CAT", "TROW", "NNN", "ECL", "ATO", "SYK", "CB",
-        # New Aristocrats (25+ years, not yet Kings)
-        "SHW", "ED", "ADP", "SPGI", "CHD", "ROP", "AOS", "EXPD",
-        "PAYX", "BRO", "MMC", "LMT", "NOC", "ESS", "TJX", "FAST",
-    ],
+    "dividend-kings": DIVIDEND_KINGS,
+    "dividend-aristocrats": DIVIDEND_ARISTOCRATS,
     "buffett-style": [
         "KO", "JNJ", "PG", "MCD", "WMT", "AMGN",
         "AAPL", "BLK", "UNH",
@@ -380,13 +371,15 @@ def ingest_ticker(symbol: str) -> bool:
         name = info["name"] or symbol
 
         # --- Determine badges ---
-        is_king = int(symbol in COLLECTIONS["dividend-kings"])
-        is_aristocrat = int(symbol in COLLECTIONS["dividend-aristocrats"])
+        is_king = int(symbol in DIVIDEND_KINGS)
+        is_aristocrat = int(symbol in DIVIDEND_ARISTOCRATS)
         is_blue_chip = int(is_king or is_aristocrat)
 
         # --- Years increasing dividends (consecutive annual increases, completed years only) ---
         years_increasing = 0
-        if not divs.empty:
+        if symbol in DIVIDEND_STREAK_YEARS:
+            years_increasing = DIVIDEND_STREAK_YEARS[symbol]
+        elif not divs.empty:
             annual = divs.resample("YE").sum()
             current_year = pd.Timestamp.now().year
             annual = annual[annual.index.year < current_year]  # exclude partial current year
