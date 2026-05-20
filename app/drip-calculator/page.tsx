@@ -101,7 +101,7 @@ export default function DRIPCalculatorPage() {
           {['KO', 'JNJ', 'PG', 'O', 'MO', 'XOM', 'HD', 'TXN'].map(sym => (
             <Link
               key={sym}
-              href={`/ticker/${sym}`}
+              href={`/analysis/${sym.toLowerCase()}`}
               className="px-3 py-1.5 rounded-md bg-[#1e1e2e] text-xs font-mono text-[#71717a] hover:text-[#f4f4f5] transition-colors"
             >
               {sym}

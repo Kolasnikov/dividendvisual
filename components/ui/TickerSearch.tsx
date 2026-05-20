@@ -62,7 +62,7 @@ export function TickerSearch({ placeholder = 'Search ticker or company...', size
     setOpen(false)
     track('search_performed', { query: query.trim(), symbol })
     setQuery('')
-    router.push(`/ticker/${symbol}`)
+    router.push(`/analysis/${symbol.toLowerCase()}`)
   }
 
   function onKeyDown(e: React.KeyboardEvent) {

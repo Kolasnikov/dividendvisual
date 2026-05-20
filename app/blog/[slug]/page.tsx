@@ -134,7 +134,7 @@ export default async function BlogPostPage({ params }: PageProps) {
           {['KO', 'JNJ', 'PG', 'MO', 'O'].map((sym) => (
             <Link
               key={sym}
-              href={`/ticker/${sym}`}
+              href={`/analysis/${sym.toLowerCase()}`}
               className="px-3 py-1.5 rounded-md bg-[#1e1e2e] text-sm font-mono text-[#f4f4f5] hover:bg-[#6366f1]/20 hover:text-[#6366f1] transition-colors"
             >
               {sym}

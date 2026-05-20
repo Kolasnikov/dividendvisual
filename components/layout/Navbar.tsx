@@ -66,7 +66,7 @@ function NavSearch({ onClose }: { onClose: () => void }) {
 
   function navigate(symbol: string) {
     setOpen(false); setQuery('')
-    router.push(`/ticker/${symbol}`)
+    router.push(`/analysis/${symbol.toLowerCase()}`)
     onClose()
   }
 

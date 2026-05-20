@@ -418,7 +418,7 @@ function CollectionCard({ row }: { row: CollectionRow }) {
       <div className="flex items-start justify-between mb-3">
         <div>
           <Link
-            href={`/ticker/${row.symbol}`}
+            href={`/analysis/${row.symbol.toLowerCase()}`}
             className="font-mono font-semibold text-[#f4f4f5] hover:text-[#6366f1] transition-colors"
           >
             {row.symbol}

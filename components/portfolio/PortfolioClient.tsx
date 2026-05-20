@@ -231,7 +231,7 @@ export function PortfolioClient({ universe }: Props) {
                     return (
                       <tr key={pos.symbol} className="border-b border-[#1e1e2e] last:border-0 hover:bg-[#1e1e2e]/30 transition-colors group">
                         <td className="px-4 py-3">
-                          <Link href={`/ticker/${pos.symbol}`} className="flex flex-col">
+                          <Link href={`/analysis/${pos.symbol.toLowerCase()}`} className="flex flex-col">
                             <span className="font-mono font-medium text-[#f4f4f5] hover:text-[#6366f1] transition-colors">
                               {pos.symbol}
                             </span>

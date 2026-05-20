@@ -49,7 +49,7 @@ function OpportunityCard({ item }: { item: WatchlistItem }) {
 
   return (
     <Link
-      href={`/ticker/${item.symbol}`}
+      href={`/analysis/${item.symbol.toLowerCase()}`}
       className="block bg-[#111118] border border-[#22c55e]/25 rounded-xl p-5 hover:border-[#22c55e]/50 transition-all group"
     >
       <div className="flex items-start justify-between mb-4">
@@ -122,7 +122,7 @@ function WatchCard({ item }: { item: WatchlistItem }) {
   const proximity = yieldProximity(item)
   return (
     <Link
-      href={`/ticker/${item.symbol}`}
+      href={`/analysis/${item.symbol.toLowerCase()}`}
       className="flex items-center gap-4 bg-[#111118] border border-[#1e1e2e] rounded-xl px-4 py-3 hover:border-[#6366f1]/30 transition-all group"
     >
       <div className="flex-1 min-w-0">
