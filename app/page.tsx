@@ -224,6 +224,16 @@ export default async function HomePage() {
               </Link>
             ))}
           </div>
+
+          <div className="mt-6">
+            <Link
+              href="/newsletter"
+              className="inline-flex items-center gap-2 rounded-lg border border-[#22c55e]/25 bg-[#22c55e]/10 px-4 py-2 text-sm font-medium text-[#22c55e] transition-colors hover:border-[#22c55e]/45 hover:bg-[#22c55e]/15"
+            >
+              Get the weekly undervalued dividend watchlist
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -381,7 +391,7 @@ export default async function HomePage() {
                   { href: '/undervalued-dividend-stocks', label: 'Opportunities' },
                   { href: '/portfolio',       label: 'Portfolio Tracker' },
                   { href: '/drip-calculator', label: 'DRIP Calculator' },
-                  { href: '/dividend-kings', label: 'Collections' },
+                  { href: '/newsletter',      label: 'Newsletter' },
                   { href: '/glossary',        label: 'Glossary' },
                   { href: '/methodology',     label: 'Methodology' },
                   { href: '/about',           label: 'About' },

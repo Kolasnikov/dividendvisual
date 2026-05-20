@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { href: '/dividend-screener', label: 'Screener' },
   { href: '/dividend-stock-comparisons', label: 'Compare' },
   { href: '/dividend-kings', label: 'Kings' },
+  { href: '/newsletter', label: 'Newsletter' },
   { href: '/blog', label: 'Blog' },
 ]
 

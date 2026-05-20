@@ -59,35 +59,35 @@ export function DividendAlertsCTA({
 
   return (
     <aside className={`rounded-lg border border-[#22c55e]/25 bg-[#111118] ${compact ? 'p-4' : 'p-5'}`}>
-      <div className="grid gap-4 md:grid-cols-[1fr_320px] md:items-center">
+      <div className="flex flex-col gap-5">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#22c55e]/20 bg-[#22c55e]/10 px-2.5 py-1">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#22c55e]/20 bg-[#22c55e]/10 px-2.5 py-1">
             <span className="h-1.5 w-1.5 rounded-full bg-[#22c55e]" />
             <span className="text-[10px] font-semibold uppercase tracking-wide text-[#22c55e]">Free weekly digest</span>
           </div>
-          <p className="text-sm font-semibold text-[#f4f4f5]">{heading}</p>
-          <p className="mt-1 text-xs leading-relaxed text-[#71717a]">{body}</p>
+          <p className="text-base font-semibold leading-snug text-[#f4f4f5]">{heading}</p>
+          <p className="mt-2 text-sm leading-relaxed text-[#71717a]">{body}</p>
         </div>
 
         {status === 'success' ? (
           <div className="rounded-md border border-[#22c55e]/25 bg-[#22c55e]/10 px-3 py-2 text-sm font-medium text-[#22c55e]">
-            You are on the list.
+            You are on the list. Check your inbox for the welcome email.
           </div>
         ) : (
           <form onSubmit={onSubmit} className="space-y-2">
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="your@email.com"
                 required
-                className="min-w-0 flex-1 rounded-md border border-[#2e2e3e] bg-[#09090b] px-3 py-2 text-sm text-[#f4f4f5] placeholder-[#52525b] outline-none transition-colors focus:border-[#6366f1]"
+                className="min-w-0 flex-1 rounded-md border border-[#2e2e3e] bg-[#09090b] px-3 py-2.5 text-sm text-[#f4f4f5] placeholder-[#52525b] outline-none transition-colors focus:border-[#6366f1]"
               />
               <button
                 type="submit"
                 disabled={status === 'loading'}
-                className="rounded-md bg-[#22c55e] px-3 py-2 text-sm font-medium text-[#07130b] transition-colors hover:bg-[#4ade80] disabled:opacity-60"
+                className="shrink-0 rounded-md bg-[#22c55e] px-4 py-2.5 text-sm font-medium text-[#07130b] transition-colors hover:bg-[#4ade80] disabled:opacity-60"
               >
                 {status === 'loading' ? '...' : 'Notify me'}
               </button>
