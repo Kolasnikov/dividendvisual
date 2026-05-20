@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { track } from '@vercel/analytics'
 
@@ -95,7 +96,13 @@ export function DividendAlertsCTA({
             {status === 'error' ? (
               <p className="text-xs text-[#ef4444]">{errorMsg}</p>
             ) : (
-              <p className="text-xs text-[#52525b]">No spam. Unsubscribe any time.</p>
+              <p className="text-xs text-[#52525b]">
+                No spam. Unsubscribe any time.{' '}
+                <Link href="/newsletter" className="text-[#22c55e] hover:text-[#4ade80]">
+                  See what you get
+                </Link>
+                .
+              </p>
             )}
           </form>
         )}

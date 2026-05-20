@@ -173,7 +173,13 @@ function Form({
         <p className="text-xs text-[#ef4444] mt-2 text-left">{errorMsg}</p>
       )}
       {!compact && (
-        <p className="text-xs text-[#52525b] mt-3">No spam. Unsubscribe any time.</p>
+        <p className="text-xs text-[#52525b] mt-3">
+          No spam. Unsubscribe any time.{' '}
+          <Link href="/newsletter" className="text-[#6366f1] hover:text-[#818cf8] transition-colors">
+            See what you get
+          </Link>
+          .
+        </p>
       )}
     </div>
   )
