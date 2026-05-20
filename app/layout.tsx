@@ -5,6 +5,7 @@ import './globals.css'
 import { Navbar } from '@/components/layout/Navbar'
 import { TickerTape } from '@/components/layout/TickerTape'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 const inter = Inter({
   variable: '--font-inter',
@@ -51,6 +52,7 @@ export default function RootLayout({
         <TickerTape />
         <main className="flex-1">{children}</main>
         <Analytics />
+        <SpeedInsights />
         <Script
           id="impact-tracking"
           strategy="afterInteractive"
