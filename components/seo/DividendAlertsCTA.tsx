@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { track } from '@vercel/analytics'
 
 interface DividendAlertsCTAProps {
@@ -19,6 +20,7 @@ export function DividendAlertsCTA({
   description,
   compact = false,
 }: DividendAlertsCTAProps) {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
@@ -47,6 +49,9 @@ export function DividendAlertsCTA({
         setEmail('')
         setStatus('success')
         track('email_subscribed', { source, symbol: symbol ?? 'none' })
+        const params = new URLSearchParams({ source })
+        if (symbol) params.set('symbol', symbol)
+        router.push(`/newsletter/confirmed?${params.toString()}`)
       } else {
         setStatus('error')
         setErrorMsg(data.error ?? 'Something went wrong.')

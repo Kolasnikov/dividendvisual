@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { track } from '@vercel/analytics'
 import type { WatchlistItem } from '@/lib/types'
 
@@ -11,6 +12,7 @@ interface EmailCaptureProps {
 }
 
 export function EmailCapture({ variant = 'hero', source = 'email-capture' }: EmailCaptureProps) {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
@@ -37,6 +39,7 @@ export function EmailCapture({ variant = 'hero', source = 'email-capture' }: Ema
         setStatus('success')
         setEmail('')
         track('email_subscribed', { source })
+        router.push(`/newsletter/confirmed?source=${encodeURIComponent(source)}`)
         fetch('/api/watchlist?sort=quality&order=desc')
           .then((r) => r.json())
           .then((all: WatchlistItem[]) => {
