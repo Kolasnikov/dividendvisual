@@ -8,6 +8,7 @@ Run AFTER ingest.py: python scripts/compute_bands.py
 import os
 import sys
 import time
+import argparse
 import requests
 import pandas as pd
 import numpy as np
@@ -23,6 +24,7 @@ HTTP_URL = TURSO_URL.replace("libsql://", "https://") + "/v2/pipeline"
 WINDOW_YEARS = 10
 PERCENTILE_HIGH = 90
 PERCENTILE_LOW = 10
+DEFAULT_CHART_LOOKBACK_DAYS = int(os.getenv("COMPUTE_CHART_LOOKBACK_DAYS", "120"))
 
 
 # ─── Turso helpers ────────────────────────────────────────────────────────────
@@ -469,13 +471,20 @@ def generate_why_now_text(name: str, metrics: dict) -> str:
 
 # ─── Persistence ──────────────────────────────────────────────────────────────
 
-def save_weiss_chart_data(symbol: str, band_df: pd.DataFrame):
+def save_weiss_chart_data(symbol: str, band_df: pd.DataFrame, chart_lookback_days: int | None = DEFAULT_CHART_LOOKBACK_DAYS):
     """Save band data to weiss_chart_data, keeping last 5 years for API."""
     if band_df.empty:
         return
-    # Store all data (ingest keeps 10y; API filters to 5y by default)
+    rows_to_save = band_df
+    if chart_lookback_days is not None:
+        cutoff = pd.Timestamp.now().normalize() - pd.Timedelta(days=chart_lookback_days)
+        rows_to_save = band_df[band_df["date"] >= cutoff]
+
+    if rows_to_save.empty:
+        rows_to_save = band_df.tail(1)
+
     statements = []
-    for _, row in band_df.iterrows():
+    for _, row in rows_to_save.iterrows():
         statements.append(_stmt(
             """INSERT OR REPLACE INTO weiss_chart_data
                (symbol, date, price, undervalued_band, overvalued_band, annual_dividend)
@@ -550,7 +559,7 @@ def get_fundamentals_from_db(symbol: str) -> dict:
     return {"payout_ratio": None, "fcf_payout": None}
 
 
-def process_ticker(symbol: str, company_name: str) -> bool:
+def process_ticker(symbol: str, company_name: str, chart_lookback_days: int | None = DEFAULT_CHART_LOOKBACK_DAYS) -> bool:
     try:
         price_df = load_prices(symbol)
         div_df = load_dividends(symbol)
@@ -579,7 +588,7 @@ def process_ticker(symbol: str, company_name: str) -> bool:
         why_now = generate_why_now_text(company_name, metrics)
 
         # Save
-        save_weiss_chart_data(symbol, band_df)
+        save_weiss_chart_data(symbol, band_df, chart_lookback_days)
         save_computed_metrics(symbol, metrics, score, category, why_now)
 
         print(
@@ -601,7 +610,27 @@ def ensure_previous_signal_column():
     )])
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--tickers", help="Comma-separated ticker list. Defaults to every company in the database.")
+    parser.add_argument("--limit", type=int, help="Limit the number of companies processed, useful for smoke tests.")
+    parser.add_argument("--chart-lookback-days", type=int, default=DEFAULT_CHART_LOOKBACK_DAYS)
+    parser.add_argument("--full-refresh", action="store_true", help="Rewrite every weiss_chart_data row instead of recent rows only.")
+    parser.add_argument("--fail-on-errors", action="store_true", help="Exit non-zero if any ticker fails.")
+    return parser.parse_args()
+
+
+def filter_companies(companies: list[dict], args) -> list[dict]:
+    if args.tickers:
+        wanted = {symbol.strip().upper() for symbol in args.tickers.split(",") if symbol.strip()}
+        companies = [row for row in companies if row["symbol"] in wanted]
+    if args.limit:
+        companies = companies[: args.limit]
+    return companies
+
+
 def main():
+    args = parse_args()
     # Ensure schema is up to date
     try:
         ensure_previous_signal_column()
@@ -612,22 +641,30 @@ def main():
     if not companies:
         print("No companies found. Run ingest.py first.")
         sys.exit(1)
+    companies = filter_companies(companies, args)
+    chart_lookback_days = None if args.full_refresh else args.chart_lookback_days
 
-    print(f"Computing bands for {len(companies)} tickers...\n")
+    print(f"Computing bands for {len(companies)} tickers...")
+    print(f"Chart persistence: {'full refresh' if chart_lookback_days is None else f'last {chart_lookback_days} days'}\n")
     ok, failed = 0, []
 
-    for row in companies:
+    started_at = time.monotonic()
+    for index, row in enumerate(companies, start=1):
         symbol = row["symbol"]
         name = row["name"]
-        success = process_ticker(symbol, name)
+        print(f"[{index}/{len(companies)}]")
+        success = process_ticker(symbol, name, chart_lookback_days)
         if success:
             ok += 1
         else:
             failed.append(symbol)
 
-    print(f"\nDone. {ok}/{len(companies)} tickers computed.")
+    elapsed = time.monotonic() - started_at
+    print(f"\nDone. {ok}/{len(companies)} tickers computed in {elapsed / 60:.1f} min.")
     if failed:
         print(f"Failed: {failed}")
+    if args.fail_on_errors and failed:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

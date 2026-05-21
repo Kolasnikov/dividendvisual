@@ -37,5 +37,5 @@ jobs:
         run: python -u scripts/ingest.py --ticker-timeout 90 --max-failures 25
 
       - name: Compute Weiss bands and quality scores
-        timeout-minutes: 10
-        run: python -u scripts/compute_bands.py
+        timeout-minutes: 20
+        run: python -u scripts/compute_bands.py --chart-lookback-days 120
