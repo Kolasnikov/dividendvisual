@@ -23,65 +23,121 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 })
   }
 
-  const apiKey = process.env.BEEHIIV_API_KEY
-  const publicationId = process.env.BEEHIIV_PUBLICATION_ID
-
-  if (!apiKey || !publicationId) {
-    return NextResponse.json({ error: 'Service unavailable.' }, { status: 503 })
-  }
-
-  const res = await fetch(
-    `https://api.beehiiv.com/v2/publications/${publicationId}/subscriptions`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        email,
-        reactivate_existing: true,
-        send_welcome_email: true,
-        utm_source: source,
-        utm_medium: 'website',
-        utm_campaign: 'newsletter_signup',
-        utm_content: symbol || path || 'generic',
-        referring_site: referer || undefined,
-        custom_fields: [
-          { name: 'Signup Source', value: source },
-          ...(symbol ? [{ name: 'Signup Symbol', value: symbol }] : []),
-          ...(path ? [{ name: 'Signup Path', value: path }] : []),
-        ],
-      }),
-    }
-  )
-
-  if (!res.ok && res.status !== 409) {
-    const body = await res.json().catch(() => ({}))
-    console.error('Beehiiv subscribe error', res.status, body)
-    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
-  }
-
   const resendApiKey = process.env.RESEND_API_KEY
   const resendAudienceId = process.env.RESEND_AUDIENCE_ID
 
-  if (resendApiKey && resendAudienceId) {
-    const resendRes = await fetch(`https://api.resend.com/audiences/${resendAudienceId}/contacts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${resendApiKey}`,
-      },
-      body: JSON.stringify({
-        email,
-        unsubscribed: false,
-      }),
-    })
+  if (!resendApiKey || !resendAudienceId) {
+    return NextResponse.json({ error: 'Service unavailable.' }, { status: 503 })
+  }
 
-    if (!resendRes.ok && resendRes.status !== 409) {
-      const body = await resendRes.json().catch(() => ({}))
-      console.error('Resend contact sync error', resendRes.status, body)
+  const resendRes = await fetch(`https://api.resend.com/audiences/${resendAudienceId}/contacts`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${resendApiKey}`,
+    },
+    body: JSON.stringify({
+      email,
+      unsubscribed: false,
+    }),
+  })
+
+  if (!resendRes.ok && resendRes.status !== 409) {
+    const body = await resendRes.json().catch(() => ({}))
+    console.error('Resend contact sync error', resendRes.status, body)
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
+  }
+
+  const beehiivApiKey = process.env.BEEHIIV_API_KEY
+  const beehiivPublicationId = process.env.BEEHIIV_PUBLICATION_ID
+
+  if (beehiivApiKey && beehiivPublicationId) {
+    const beehiivRes = await fetch(
+      `https://api.beehiiv.com/v2/publications/${beehiivPublicationId}/subscriptions`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${beehiivApiKey}`,
+        },
+        body: JSON.stringify({
+          email,
+          reactivate_existing: true,
+          send_welcome_email: false,
+          utm_source: source,
+          utm_medium: 'website',
+          utm_campaign: 'newsletter_signup',
+          utm_content: symbol || path || 'generic',
+          referring_site: referer || undefined,
+          custom_fields: [
+            { name: 'Signup Source', value: source },
+            ...(symbol ? [{ name: 'Signup Symbol', value: symbol }] : []),
+            ...(path ? [{ name: 'Signup Path', value: path }] : []),
+          ],
+        }),
+      }
+    )
+
+    if (!beehiivRes.ok && beehiivRes.status !== 409) {
+      const body = await beehiivRes.json().catch(() => ({}))
+      console.error('Beehiiv optional sync error', beehiivRes.status, body)
     }
+  }
+
+  try {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+        email TEXT PRIMARY KEY,
+        source TEXT NOT NULL,
+        symbol TEXT,
+        path TEXT,
+        referer TEXT,
+        status TEXT NOT NULL DEFAULT 'active',
+        welcome_step INTEGER NOT NULL DEFAULT 0,
+        last_welcome_sent_at TEXT,
+        subscribed_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    `)
+    await db.execute({
+      sql: `
+        INSERT INTO newsletter_subscribers (
+          email, source, symbol, path, referer, status, subscribed_at, updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, 'active', datetime('now'), datetime('now'))
+        ON CONFLICT(email) DO UPDATE SET
+          source = excluded.source,
+          symbol = excluded.symbol,
+          path = excluded.path,
+          referer = excluded.referer,
+          status = 'active',
+          updated_at = datetime('now')
+      `,
+      args: [email, source, symbol || null, path || null, referer || null],
+    })
+  } catch (error) {
+    console.error('Newsletter subscriber persistence error', error)
+  }
+
+  try {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS newsletter_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL,
+        event_type TEXT NOT NULL,
+        metadata TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `)
+    await db.execute({
+      sql: `
+        INSERT INTO newsletter_events (email, event_type, metadata)
+        VALUES (?, 'subscribed', ?)
+      `,
+      args: [email, JSON.stringify({ source, symbol: symbol || null, path: path || null, referer: referer || null })],
+    })
+  } catch (error) {
+    console.error('Newsletter event tracking error', error)
   }
 
   try {
