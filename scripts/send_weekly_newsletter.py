@@ -602,6 +602,9 @@ def build_email(current_issue: str, rows: list[dict], watchlist: dict, freshness
     preheader = "A data-driven dividend watchlist built from Weiss valuation, quality score, and payout safety."
     html_body = f"""<!DOCTYPE html>
 <html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
 <body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
   <div style="display:none;max-height:0;overflow:hidden;">{e(preheader)}</div>
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:28px 14px;">
