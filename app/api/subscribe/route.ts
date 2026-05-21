@@ -33,12 +33,32 @@ export async function POST(req: NextRequest) {
     }
   )
 
-  if (!res.ok) {
+  if (!res.ok && res.status !== 409) {
     const body = await res.json().catch(() => ({}))
-    // 409 = already subscribed — treat as success
-    if (res.status === 409) return NextResponse.json({ ok: true })
     console.error('Beehiiv subscribe error', res.status, body)
     return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
+  }
+
+  const resendApiKey = process.env.RESEND_API_KEY
+  const resendAudienceId = process.env.RESEND_AUDIENCE_ID
+
+  if (resendApiKey && resendAudienceId) {
+    const resendRes = await fetch(`https://api.resend.com/audiences/${resendAudienceId}/contacts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${resendApiKey}`,
+      },
+      body: JSON.stringify({
+        email,
+        unsubscribed: false,
+      }),
+    })
+
+    if (!resendRes.ok && resendRes.status !== 409) {
+      const body = await resendRes.json().catch(() => ({}))
+      console.error('Resend contact sync error', resendRes.status, body)
+    }
   }
 
   return NextResponse.json({ ok: true })
