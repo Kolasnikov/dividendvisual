@@ -34,7 +34,7 @@ jobs:
 
       - name: Refresh prices and dividends
         timeout-minutes: 25
-        run: python -u scripts/ingest.py
+        run: python -u scripts/ingest.py --ticker-timeout 90 --max-failures 25
 
       - name: Compute Weiss bands and quality scores
         timeout-minutes: 10

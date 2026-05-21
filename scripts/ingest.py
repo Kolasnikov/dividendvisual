@@ -10,10 +10,13 @@ import os
 import sys
 import time
 import json
+import signal
+import argparse
 import requests
 import base64
 import pandas as pd
 import yfinance as yf
+from contextlib import contextmanager
 from dotenv import load_dotenv
 from dividend_classifications import (
     DIVIDEND_ARISTOCRATS,
@@ -25,6 +28,14 @@ load_dotenv(".env.local")
 
 TURSO_URL = os.environ["TURSO_DATABASE_URL"]
 TURSO_TOKEN = os.environ["TURSO_AUTH_TOKEN"]
+DEFAULT_TICKER_TIMEOUT_SECONDS = int(os.getenv("INGEST_TICKER_TIMEOUT_SECONDS", "90"))
+YFINANCE_REQUEST_TIMEOUT_SECONDS = int(os.getenv("YFINANCE_REQUEST_TIMEOUT_SECONDS", "30"))
+TURSO_REQUEST_TIMEOUT_SECONDS = int(os.getenv("TURSO_REQUEST_TIMEOUT_SECONDS", "20"))
+TURSO_MAX_RETRIES = int(os.getenv("TURSO_MAX_RETRIES", "3"))
+REQUEST_PAUSE_SECONDS = float(os.getenv("INGEST_REQUEST_PAUSE_SECONDS", "1"))
+DEFAULT_MAX_FAILURES = int(os.getenv("INGEST_MAX_FAILURES", "25"))
+INCREMENTAL_PRICE_LOOKBACK_DAYS = int(os.getenv("INGEST_INCREMENTAL_PRICE_LOOKBACK_DAYS", "21"))
+INCREMENTAL_DIVIDEND_LOOKBACK_DAYS = int(os.getenv("INGEST_INCREMENTAL_DIVIDEND_LOOKBACK_DAYS", "120"))
 
 # Convert libsql:// to https://
 HTTP_URL = TURSO_URL.replace("libsql://", "https://") + "/v2/pipeline"
@@ -194,22 +205,92 @@ COLLECTIONS = {
 }
 
 
+class TickerTimeoutError(TimeoutError):
+    pass
+
+
+class TursoStatementError(RuntimeError):
+    pass
+
+
+def _timeout_handler(signum, frame):
+    raise TickerTimeoutError("Ticker ingest timed out")
+
+
+@contextmanager
+def ticker_time_limit(seconds: int):
+    previous_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, previous_handler)
+
+
+def ticker_history(ticker: yf.Ticker, **kwargs) -> pd.DataFrame:
+    """Call yfinance history with a request timeout when supported."""
+    try:
+        return ticker.history(timeout=YFINANCE_REQUEST_TIMEOUT_SECONDS, **kwargs)
+    except TypeError:
+        return ticker.history(**kwargs)
+
+
 def turso_execute(statements: list[dict]) -> dict:
     """Execute a batch of SQL statements against Turso HTTP API."""
     payload = {"requests": [{"type": "execute", "stmt": s} for s in statements]}
     payload["requests"].append({"type": "close"})
 
-    resp = requests.post(
-        HTTP_URL,
-        headers={
-            "Authorization": f"Bearer {TURSO_TOKEN}",
-            "Content-Type": "application/json",
-        },
-        json=payload,
-        timeout=30,
-    )
-    resp.raise_for_status()
-    return resp.json()
+    last_error = None
+    for attempt in range(1, TURSO_MAX_RETRIES + 1):
+        try:
+            resp = requests.post(
+                HTTP_URL,
+                headers={
+                    "Authorization": f"Bearer {TURSO_TOKEN}",
+                    "Content-Type": "application/json",
+                },
+                json=payload,
+                timeout=TURSO_REQUEST_TIMEOUT_SECONDS,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            for result in data.get("results", []):
+                if result.get("type") == "error":
+                    raise TursoStatementError(result.get("error", {}).get("message", "Unknown Turso error"))
+            return data
+        except TursoStatementError:
+            raise
+        except Exception as exc:
+            last_error = exc
+            if attempt == TURSO_MAX_RETRIES:
+                break
+            sleep_for = min(2 ** attempt, 8)
+            print(f"    Turso request failed ({exc}); retrying in {sleep_for}s...")
+            time.sleep(sleep_for)
+    raise last_error
+
+
+def _decode_turso_value(value: dict):
+    kind = value.get("type")
+    raw = value.get("value")
+    if kind == "null" or raw is None:
+        return None
+    if kind == "integer":
+        return int(raw)
+    if kind == "float":
+        return float(raw)
+    return raw
+
+
+def turso_query_one(sql: str, args: list | None = None) -> dict:
+    data = turso_execute([stmt(sql, args)])
+    result = data["results"][0]["response"].get("result")
+    if not result or not result.get("rows"):
+        return {}
+    cols = [col["name"] for col in result["cols"]]
+    values = [_decode_turso_value(value) for value in result["rows"][0]]
+    return dict(zip(cols, values))
 
 
 def stmt(sql: str, args: list | None = None) -> dict:
@@ -296,6 +377,14 @@ def init_schema():
         )"""),
     ]
     turso_execute(statements)
+    for sql in [
+        "ALTER TABLE companies ADD COLUMN payout_ratio REAL",
+        "ALTER TABLE companies ADD COLUMN fcf_payout REAL",
+    ]:
+        try:
+            turso_execute([stmt(sql)])
+        except Exception:
+            pass
     print("Schema ready.")
 
 
@@ -344,100 +433,129 @@ def get_ticker_info(ticker: yf.Ticker) -> dict:
     }
 
 
-def ingest_ticker(symbol: str) -> bool:
+def latest_ingested_dates(symbol: str) -> tuple[str | None, str | None]:
+    row = turso_query_one("""
+        SELECT
+          (SELECT MAX(date) FROM price_history WHERE symbol = ?) AS latest_price_date,
+          (SELECT MAX(date) FROM dividend_history WHERE symbol = ?) AS latest_dividend_date
+    """, [symbol, symbol])
+    return row.get("latest_price_date"), row.get("latest_dividend_date")
+
+
+def incremental_cutoff(latest_date: str | None, lookback_days: int):
+    if not latest_date:
+        return None
+    return pd.to_datetime(latest_date) - pd.Timedelta(days=lookback_days)
+
+
+def ingest_ticker(symbol: str, timeout_seconds: int = DEFAULT_TICKER_TIMEOUT_SECONDS, full_refresh: bool = False) -> bool:
     print(f"  [{symbol}] Downloading...")
+    started_at = time.monotonic()
     try:
-        tk = yf.Ticker(symbol)
+        with ticker_time_limit(timeout_seconds):
+            tk = yf.Ticker(symbol)
 
-        # --- Price history + dividends (10 years, weekly) ---
-        # Using history() for both so dividends are period-limited and split-adjusted consistently
-        hist = tk.history(period="15y", interval="1wk", auto_adjust=True)
-        if hist.empty:
-            print(f"  [{symbol}] No price data, skipping.")
-            return False
-        prices = hist[["Close"]].dropna()
-        prices.index = pd.to_datetime(prices.index).tz_localize(None)
+            # --- Price history + dividends (10 years, weekly) ---
+            # Using history() for both so dividends are period-limited and split-adjusted consistently
+            hist = ticker_history(tk, period="15y", interval="1wk", auto_adjust=True)
+            if hist.empty:
+                print(f"  [{symbol}] No price data, skipping.")
+                return False
+            prices = hist[["Close"]].dropna()
+            prices.index = pd.to_datetime(prices.index).tz_localize(None)
 
-        # Dividends: use daily history to get all dividend events in the 15Y window
-        hist_daily = tk.history(period="15y", interval="1d", auto_adjust=True)
-        divs_raw = hist_daily["Dividends"] if "Dividends" in hist_daily.columns else pd.Series(dtype=float)
-        divs = divs_raw[divs_raw > 0].copy()
-        if not divs.empty:
-            divs.index = pd.to_datetime(divs.index).tz_localize(None)
-            divs = divs.sort_index()
+            # Dividends: use daily history to get all dividend events in the 15Y window
+            hist_daily = ticker_history(tk, period="15y", interval="1d", auto_adjust=True)
+            divs_raw = hist_daily["Dividends"] if "Dividends" in hist_daily.columns else pd.Series(dtype=float)
+            divs = divs_raw[divs_raw > 0].copy()
+            if not divs.empty:
+                divs.index = pd.to_datetime(divs.index).tz_localize(None)
+                divs = divs.sort_index()
 
-        # --- Info ---
-        info = get_ticker_info(tk)
-        name = info["name"] or symbol
+            # --- Info ---
+            info = get_ticker_info(tk)
+            name = info["name"] or symbol
 
-        # --- Determine badges ---
-        is_king = int(symbol in DIVIDEND_KINGS)
-        is_aristocrat = int(symbol in DIVIDEND_ARISTOCRATS)
-        is_blue_chip = int(is_king or is_aristocrat)
+            # --- Determine badges ---
+            is_king = int(symbol in DIVIDEND_KINGS)
+            is_aristocrat = int(symbol in DIVIDEND_ARISTOCRATS)
+            is_blue_chip = int(is_king or is_aristocrat)
 
-        # --- Years increasing dividends (consecutive annual increases, completed years only) ---
-        years_increasing = 0
-        if symbol in DIVIDEND_STREAK_YEARS:
-            years_increasing = DIVIDEND_STREAK_YEARS[symbol]
-        elif not divs.empty:
-            annual = divs.resample("YE").sum()
-            current_year = pd.Timestamp.now().year
-            annual = annual[annual.index.year < current_year]  # exclude partial current year
-            annual = annual[annual > 0]
-            streak = 0
-            for i in range(len(annual) - 1, 0, -1):
-                if annual.iloc[i] >= annual.iloc[i - 1]:
-                    streak += 1
-                else:
-                    break
-            years_increasing = streak
+            # --- Years increasing dividends (consecutive annual increases, completed years only) ---
+            years_increasing = 0
+            if symbol in DIVIDEND_STREAK_YEARS:
+                years_increasing = DIVIDEND_STREAK_YEARS[symbol]
+            elif not divs.empty:
+                annual = divs.resample("YE").sum()
+                current_year = pd.Timestamp.now().year
+                annual = annual[annual.index.year < current_year]  # exclude partial current year
+                annual = annual[annual > 0]
+                streak = 0
+                for i in range(len(annual) - 1, 0, -1):
+                    if annual.iloc[i] >= annual.iloc[i - 1]:
+                        streak += 1
+                    else:
+                        break
+                years_increasing = streak
 
-        def flush_in_batches(stmts: list, batch_size: int = 40):
-            for i in range(0, len(stmts), batch_size):
-                turso_execute(stmts[i : i + batch_size])
+            latest_price_date, latest_dividend_date = (None, None) if full_refresh else latest_ingested_dates(symbol)
+            price_cutoff = incremental_cutoff(latest_price_date, INCREMENTAL_PRICE_LOOKBACK_DAYS)
+            dividend_cutoff = incremental_cutoff(latest_dividend_date, INCREMENTAL_DIVIDEND_LOOKBACK_DAYS)
 
-        # Upsert company (single statement, flush immediately)
-        turso_execute([stmt(
-            """INSERT OR REPLACE INTO companies
-               (symbol, name, sector, industry,
-                is_dividend_king, is_dividend_aristocrat, is_blue_chip,
-                years_increasing_dividends, payout_ratio, fcf_payout, updated_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))""",
-            [symbol, name, info["sector"], info["industry"],
-             is_king, is_aristocrat, is_blue_chip, years_increasing,
-             info.get("payout_ratio"), info.get("fcf_payout")],
-        )])
+            def flush_in_batches(stmts: list, batch_size: int = 40):
+                for i in range(0, len(stmts), batch_size):
+                    turso_execute(stmts[i : i + batch_size])
 
-        # Price history — flush in real batches of 40
-        price_rows = [
-            (symbol, str(d.date()), float(c))
-            for d, c in zip(prices.index, prices["Close"])
-        ]
-        price_stmts = [
-            stmt(
-                "INSERT OR REPLACE INTO price_history (symbol, date, close) VALUES (?, ?, ?)",
-                list(row),
-            )
-            for row in price_rows
-        ]
-        flush_in_batches(price_stmts)
+            # Upsert company (single statement, flush immediately)
+            turso_execute([stmt(
+                """INSERT OR REPLACE INTO companies
+                   (symbol, name, sector, industry,
+                    is_dividend_king, is_dividend_aristocrat, is_blue_chip,
+                    years_increasing_dividends, payout_ratio, fcf_payout, updated_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))""",
+                [symbol, name, info["sector"], info["industry"],
+                 is_king, is_aristocrat, is_blue_chip, years_increasing,
+                 info.get("payout_ratio"), info.get("fcf_payout")],
+            )])
 
-        # Dividend history — flush in real batches of 40
-        if not divs.empty:
-            special_mask = detect_special_dividends(divs)
-            div_stmts = []
-            for date_idx, amount in divs.items():
-                is_sp = bool(special_mask.loc[date_idx]) if date_idx in special_mask.index else False
-                div_stmts.append(stmt(
-                    """INSERT OR REPLACE INTO dividend_history
-                       (symbol, date, amount, is_special) VALUES (?, ?, ?, ?)""",
-                    [symbol, str(date_idx.date()), float(amount), int(is_sp)],
-                ))
-            flush_in_batches(div_stmts)
+            # Price history — flush in real batches of 40
+            price_rows = [
+                (symbol, str(d.date()), float(c))
+                for d, c in zip(prices.index, prices["Close"])
+                if price_cutoff is None or d >= price_cutoff
+            ]
+            price_stmts = [
+                stmt(
+                    "INSERT OR REPLACE INTO price_history (symbol, date, close) VALUES (?, ?, ?)",
+                    list(row),
+                )
+                for row in price_rows
+            ]
+            flush_in_batches(price_stmts)
 
-        print(f"  [{symbol}] OK — {len(price_rows)} price points, {len(divs)} dividends")
+            # Dividend history — flush in real batches of 40
+            if not divs.empty:
+                special_mask = detect_special_dividends(divs)
+                div_stmts = []
+                for date_idx, amount in divs.items():
+                    if dividend_cutoff is not None and date_idx < dividend_cutoff:
+                        continue
+                    is_sp = bool(special_mask.loc[date_idx]) if date_idx in special_mask.index else False
+                    div_stmts.append(stmt(
+                        """INSERT OR REPLACE INTO dividend_history
+                           (symbol, date, amount, is_special) VALUES (?, ?, ?, ?)""",
+                        [symbol, str(date_idx.date()), float(amount), int(is_sp)],
+                    ))
+                flush_in_batches(div_stmts)
+
+        elapsed = time.monotonic() - started_at
+        refresh_mode = "full" if full_refresh else "incremental"
+        print(f"  [{symbol}] OK — {len(price_rows)} price points, {len(div_stmts) if not divs.empty else 0} dividends ({refresh_mode}, {elapsed:.1f}s)")
         return True
 
+    except TickerTimeoutError:
+        print(f"  [{symbol}] TIMEOUT after {timeout_seconds}s")
+        return False
     except Exception as e:
         print(f"  [{symbol}] ERROR: {e}")
         return False
@@ -456,24 +574,63 @@ def ingest_collections():
     print(f"Collections ready: {list(COLLECTIONS.keys())}")
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--tickers", help="Comma-separated ticker list. Defaults to the full DividendVisual universe.")
+    parser.add_argument("--limit", type=int, help="Limit the number of tickers processed, useful for smoke tests.")
+    parser.add_argument("--ticker-timeout", type=int, default=DEFAULT_TICKER_TIMEOUT_SECONDS)
+    parser.add_argument("--max-failures", type=int, default=DEFAULT_MAX_FAILURES)
+    parser.add_argument("--fail-on-errors", action="store_true", help="Exit non-zero if any ticker fails.")
+    parser.add_argument("--full-refresh", action="store_true", help="Rewrite the full 15-year history instead of recent rows only.")
+    return parser.parse_args()
+
+
+def selected_tickers(args) -> list[str]:
+    if args.tickers:
+        tickers = [symbol.strip().upper() for symbol in args.tickers.split(",") if symbol.strip()]
+    else:
+        tickers = TICKERS[:]
+    if args.limit:
+        tickers = tickers[: args.limit]
+    return tickers
+
+
 def main():
+    args = parse_args()
+    tickers = selected_tickers(args)
     init_schema()
-    print(f"\nIngesting {len(TICKERS)} tickers...\n")
+    print(f"\nIngesting {len(tickers)} tickers...")
+    print(
+        f"Ticker timeout: {args.ticker_timeout}s | Request timeout: {YFINANCE_REQUEST_TIMEOUT_SECONDS}s | "
+        f"Turso timeout: {TURSO_REQUEST_TIMEOUT_SECONDS}s | Pause: {REQUEST_PAUSE_SECONDS}s | "
+        f"Max failures: {args.max_failures} | Mode: {'full' if args.full_refresh else 'incremental'}\n"
+    )
 
     ok, failed = 0, []
-    for symbol in TICKERS:
-        success = ingest_ticker(symbol)
+    started_at = time.monotonic()
+    for index, symbol in enumerate(tickers, start=1):
+        print(f"[{index}/{len(tickers)}]")
+        success = ingest_ticker(symbol, args.ticker_timeout, args.full_refresh)
         if success:
             ok += 1
         else:
             failed.append(symbol)
-        time.sleep(1)  # rate limiting
+        time.sleep(REQUEST_PAUSE_SECONDS)  # rate limiting
 
     ingest_collections()
 
-    print(f"\nDone. {ok}/{len(TICKERS)} tickers OK.")
+    elapsed = time.monotonic() - started_at
+    print(f"\nDone. {ok}/{len(tickers)} tickers OK in {elapsed / 60:.1f} min.")
     if failed:
         print(f"Failed: {failed}")
+    if ok == 0:
+        print("No tickers were ingested successfully.", file=sys.stderr)
+        sys.exit(1)
+    if args.fail_on_errors and failed:
+        sys.exit(1)
+    if len(failed) > args.max_failures:
+        print(f"Failure count {len(failed)} exceeded max failures {args.max_failures}.", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
