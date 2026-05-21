@@ -156,6 +156,33 @@ async function sendImmediateWelcomeEmail(email: string, source: string, symbol: 
   return response.json() as Promise<{ id: string }>
 }
 
+async function syncResendContact(email: string) {
+  const resendApiKey = process.env.RESEND_API_KEY
+  const resendAudienceId = process.env.RESEND_AUDIENCE_ID
+
+  if (!resendApiKey || !resendAudienceId) {
+    throw new Error('Resend audience sync is not configured')
+  }
+
+  const resendRes = await fetch(`https://api.resend.com/audiences/${resendAudienceId}/contacts`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${resendApiKey}`,
+    },
+    body: JSON.stringify({
+      email,
+      unsubscribed: false,
+    }),
+    signal: AbortSignal.timeout(8_000),
+  })
+
+  if (!resendRes.ok && resendRes.status !== 409) {
+    const body = await resendRes.json().catch(() => ({}))
+    throw new Error(`Resend contact sync error ${resendRes.status}: ${JSON.stringify(body)}`)
+  }
+}
+
 async function syncBeehiivContact(email: string, source: string, symbol: string, path: string, referer: string) {
   const beehiivApiKey = process.env.BEEHIIV_API_KEY
   const beehiivPublicationId = process.env.BEEHIIV_PUBLICATION_ID
@@ -242,25 +269,6 @@ export async function POST(req: NextRequest) {
 
   if (!resendApiKey || !resendAudienceId) {
     return NextResponse.json({ error: 'Service unavailable.' }, { status: 503 })
-  }
-
-  const resendRes = await fetch(`https://api.resend.com/audiences/${resendAudienceId}/contacts`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${resendApiKey}`,
-    },
-    body: JSON.stringify({
-      email,
-      unsubscribed: false,
-    }),
-    signal: AbortSignal.timeout(8_000),
-  })
-
-  if (!resendRes.ok && resendRes.status !== 409) {
-    const body = await resendRes.json().catch(() => ({}))
-    console.error('Resend contact sync error', resendRes.status, body)
-    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
   }
 
   try {
@@ -355,6 +363,7 @@ export async function POST(req: NextRequest) {
   after(async () => {
     try {
       await Promise.all([
+        syncResendContact(email),
         syncBeehiivContact(email, source, symbol, path, referer),
         sendWelcomeIfDue(email, source, symbol),
       ])
