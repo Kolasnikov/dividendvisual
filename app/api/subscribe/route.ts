@@ -1,5 +1,5 @@
 import { createHash, createHmac } from 'crypto'
-import { NextRequest, NextResponse } from 'next/server'
+import { after, NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { checkRateLimit, getIp, tooManyRequests } from '@/lib/rateLimit'
 
@@ -156,6 +156,72 @@ async function sendImmediateWelcomeEmail(email: string, source: string, symbol: 
   return response.json() as Promise<{ id: string }>
 }
 
+async function syncBeehiivContact(email: string, source: string, symbol: string, path: string, referer: string) {
+  const beehiivApiKey = process.env.BEEHIIV_API_KEY
+  const beehiivPublicationId = process.env.BEEHIIV_PUBLICATION_ID
+
+  if (!beehiivApiKey || !beehiivPublicationId) return
+
+  const beehiivRes = await fetch(
+    `https://api.beehiiv.com/v2/publications/${beehiivPublicationId}/subscriptions`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${beehiivApiKey}`,
+      },
+      body: JSON.stringify({
+        email,
+        reactivate_existing: true,
+        send_welcome_email: false,
+        utm_source: source,
+        utm_medium: 'website',
+        utm_campaign: 'newsletter_signup',
+        utm_content: symbol || path || 'generic',
+        referring_site: referer || undefined,
+        custom_fields: [
+          { name: 'Signup Source', value: source },
+          ...(symbol ? [{ name: 'Signup Symbol', value: symbol }] : []),
+          ...(path ? [{ name: 'Signup Path', value: path }] : []),
+        ],
+      }),
+      signal: AbortSignal.timeout(8_000),
+    }
+  )
+
+  if (!beehiivRes.ok && beehiivRes.status !== 409) {
+    const body = await beehiivRes.json().catch(() => ({}))
+    console.error('Beehiiv optional sync error', beehiivRes.status, body)
+  }
+}
+
+async function sendWelcomeIfDue(email: string, source: string, symbol: string) {
+  const subscriber = await db.execute({
+    sql: 'SELECT welcome_step FROM newsletter_subscribers WHERE email = ?',
+    args: [email],
+  })
+  const welcomeStep = Number(subscriber.rows[0]?.welcome_step ?? 0)
+
+  if (welcomeStep !== 0) return
+
+  const welcome = await sendImmediateWelcomeEmail(email, source, symbol)
+  await db.execute({
+    sql: `
+      UPDATE newsletter_subscribers
+      SET welcome_step = 1, last_welcome_sent_at = datetime('now'), updated_at = datetime('now')
+      WHERE email = ?
+    `,
+    args: [email],
+  })
+  await db.execute({
+    sql: `
+      INSERT INTO newsletter_events (email, event_type, metadata)
+      VALUES (?, 'welcome_email_sent', ?)
+    `,
+    args: [email, JSON.stringify({ step: 1, resend_id: welcome.id, delivery: 'immediate' })],
+  })
+}
+
 export async function POST(req: NextRequest) {
   if (!checkRateLimit('subscribe', getIp(req), 5, 60_000).ok) return tooManyRequests()
 
@@ -188,48 +254,13 @@ export async function POST(req: NextRequest) {
       email,
       unsubscribed: false,
     }),
+    signal: AbortSignal.timeout(8_000),
   })
 
   if (!resendRes.ok && resendRes.status !== 409) {
     const body = await resendRes.json().catch(() => ({}))
     console.error('Resend contact sync error', resendRes.status, body)
     return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
-  }
-
-  const beehiivApiKey = process.env.BEEHIIV_API_KEY
-  const beehiivPublicationId = process.env.BEEHIIV_PUBLICATION_ID
-
-  if (beehiivApiKey && beehiivPublicationId) {
-    const beehiivRes = await fetch(
-      `https://api.beehiiv.com/v2/publications/${beehiivPublicationId}/subscriptions`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${beehiivApiKey}`,
-        },
-        body: JSON.stringify({
-          email,
-          reactivate_existing: true,
-          send_welcome_email: false,
-          utm_source: source,
-          utm_medium: 'website',
-          utm_campaign: 'newsletter_signup',
-          utm_content: symbol || path || 'generic',
-          referring_site: referer || undefined,
-          custom_fields: [
-            { name: 'Signup Source', value: source },
-            ...(symbol ? [{ name: 'Signup Symbol', value: symbol }] : []),
-            ...(path ? [{ name: 'Signup Path', value: path }] : []),
-          ],
-        }),
-      }
-    )
-
-    if (!beehiivRes.ok && beehiivRes.status !== 409) {
-      const body = await beehiivRes.json().catch(() => ({}))
-      console.error('Beehiiv optional sync error', beehiivRes.status, body)
-    }
   }
 
   try {
@@ -289,35 +320,6 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const subscriber = await db.execute({
-      sql: 'SELECT welcome_step FROM newsletter_subscribers WHERE email = ?',
-      args: [email],
-    })
-    const welcomeStep = Number(subscriber.rows[0]?.welcome_step ?? 0)
-
-    if (welcomeStep === 0) {
-      const welcome = await sendImmediateWelcomeEmail(email, source, symbol)
-      await db.execute({
-        sql: `
-          UPDATE newsletter_subscribers
-          SET welcome_step = 1, last_welcome_sent_at = datetime('now'), updated_at = datetime('now')
-          WHERE email = ?
-        `,
-        args: [email],
-      })
-      await db.execute({
-        sql: `
-          INSERT INTO newsletter_events (email, event_type, metadata)
-          VALUES (?, 'welcome_email_sent', ?)
-        `,
-        args: [email, JSON.stringify({ step: 1, resend_id: welcome.id, delivery: 'immediate' })],
-      })
-    }
-  } catch (error) {
-    console.error('Immediate welcome email error', error)
-  }
-
-  try {
     await db.execute(`
       CREATE TABLE IF NOT EXISTS newsletter_signups (
         email TEXT PRIMARY KEY,
@@ -349,6 +351,17 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Newsletter signup source tracking error', error)
   }
+
+  after(async () => {
+    try {
+      await Promise.all([
+        syncBeehiivContact(email, source, symbol, path, referer),
+        sendWelcomeIfDue(email, source, symbol),
+      ])
+    } catch (error) {
+      console.error('Newsletter post-signup background work error', error)
+    }
+  })
 
   return NextResponse.json({ ok: true })
 }

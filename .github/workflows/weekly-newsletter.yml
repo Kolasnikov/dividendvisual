@@ -8,7 +8,7 @@ on:
 jobs:
   newsletter:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 45
 
     env:
       TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
@@ -33,10 +33,13 @@ jobs:
         run: pip install -r scripts/requirements.txt
 
       - name: 1 - Ingest prices and dividends
+        timeout-minutes: 25
         run: python scripts/ingest.py
 
       - name: 2 - Compute Weiss bands and quality scores
+        timeout-minutes: 10
         run: python scripts/compute_bands.py
 
       - name: 3 - Send weekly newsletter
+        timeout-minutes: 5
         run: python scripts/send_weekly_newsletter.py
