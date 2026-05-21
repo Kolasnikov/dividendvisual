@@ -7,9 +7,10 @@ import type { WatchlistItem } from '@/lib/types'
 
 interface EmailCaptureProps {
   variant?: 'hero' | 'banner'
+  source?: string
 }
 
-export function EmailCapture({ variant = 'hero' }: EmailCaptureProps) {
+export function EmailCapture({ variant = 'hero', source = 'email-capture' }: EmailCaptureProps) {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
@@ -25,13 +26,17 @@ export function EmailCapture({ variant = 'hero' }: EmailCaptureProps) {
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          email,
+          source,
+          path: window.location.pathname,
+        }),
       })
       const data = await res.json()
       if (data.ok) {
         setStatus('success')
         setEmail('')
-        track('email_subscribed')
+        track('email_subscribed', { source })
         fetch('/api/watchlist?sort=quality&order=desc')
           .then((r) => r.json())
           .then((all: WatchlistItem[]) => {

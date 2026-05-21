@@ -31,10 +31,11 @@ export default function PrivacyPage() {
 
         <h3>Email Address (optional)</h3>
         <p>
-          If you subscribe to our newsletter, we collect your email address. This is the only personally
-          identifiable information we collect. Email addresses are stored via{' '}
+          If you subscribe to our newsletter, we collect your email address and basic signup context,
+          such as the page or feature where you subscribed. Email addresses are stored via{' '}
           <a href="https://resend.com" target="_blank" rel="noopener noreferrer" className="text-[#6366f1] hover:text-[#818cf8]">Resend</a>,
-          our email service provider. We do not sell, share, or rent your email address to third parties.
+          our email service provider, and may also be stored in our database for subscription analytics.
+          We do not sell, share, or rent your email address to third parties.
         </p>
 
         <h3>Usage Data</h3>
@@ -53,7 +54,7 @@ export default function PrivacyPage() {
 
         <h2>How We Use Your Information</h2>
         <ul>
-          <li><strong>Email address:</strong> To send newsletter updates about DividendVisual content and features. You can unsubscribe at any time using the link in any email we send.</li>
+          <li><strong>Email address and signup context:</strong> To send newsletter updates, understand which pages convert subscribers, and improve the newsletter. You can unsubscribe at any time using the link in any email we send.</li>
           <li><strong>Usage data:</strong> To understand how the site is used, identify popular features, and improve the product. This data is aggregated and anonymous.</li>
         </ul>
 
@@ -68,8 +69,8 @@ export default function PrivacyPage() {
         <p>
           Financial data (stock prices, dividends, computed metrics) is stored in Turso, a cloud-hosted
           SQLite database. Email addresses collected via newsletter signup are stored by Resend, which is
-          SOC 2 compliant. We do not store payment information — DividendVisual does not currently process
-          any transactions.
+          SOC 2 compliant, and limited signup metadata may be stored in Turso for analytics and debugging.
+          We do not store payment information — DividendVisual does not currently process any transactions.
         </p>
         <p>
           While we take reasonable measures to protect your information, no internet transmission is

@@ -34,7 +34,12 @@ export function DividendAlertsCTA({
       const res = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({
+          email,
+          source,
+          symbol,
+          path: window.location.pathname,
+        }),
       })
       const data = await res.json()
 

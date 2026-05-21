@@ -219,7 +219,7 @@ export default async function DividendScreenerPage() {
         </div>
 
         <aside className="rounded-lg border border-[#1e1e2e] bg-[#111118] p-5 h-fit">
-          <EmailCapture />
+          <EmailCapture source="screener" />
           <div className="mt-6 border-t border-[#1e1e2e] pt-5">
             <p className="text-xs text-[#71717a] leading-relaxed">
               Data is refreshed regularly and should be used for research only. DividendVisual does not provide
