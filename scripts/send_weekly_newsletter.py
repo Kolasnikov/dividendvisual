@@ -33,12 +33,20 @@ from dotenv import load_dotenv
 
 load_dotenv(".env.local")
 
+
+def env_value(name: str, fallback: str | None = None) -> str:
+    value = os.getenv(name)
+    if value and value.strip():
+        return value.strip()
+    return fallback or ""
+
+
 TURSO_URL = os.environ["TURSO_DATABASE_URL"]
 TURSO_TOKEN = os.environ["TURSO_AUTH_TOKEN"]
 RESEND_KEY = os.environ["RESEND_API_KEY"]
 AUDIENCE_ID = os.environ["RESEND_AUDIENCE_ID"]
-FROM_EMAIL = os.getenv("NEWSLETTER_FROM_EMAIL", os.getenv("ALERT_FROM_EMAIL", "newsletter@dividendvisual.com"))
-SITE_URL = os.getenv("NEXT_PUBLIC_BASE_URL", "https://dividendvisual.com").rstrip("/")
+FROM_EMAIL = env_value("NEWSLETTER_FROM_EMAIL", env_value("ALERT_FROM_EMAIL", "newsletter@dividendvisual.com"))
+SITE_URL = env_value("NEXT_PUBLIC_BASE_URL", "https://dividendvisual.com").rstrip("/")
 MIN_QUALITY = int(os.getenv("NEWSLETTER_MIN_QUALITY", "60"))
 MAX_DATA_AGE_DAYS = int(os.getenv("NEWSLETTER_MAX_DATA_AGE_DAYS", "7"))
 
@@ -549,6 +557,8 @@ def resend_request(method: str, path: str, body: dict | None = None) -> dict:
         json=body,
         timeout=30,
     )
+    if response.status_code >= 400:
+        print(f"Resend API error {response.status_code}: {response.text}", file=sys.stderr)
     response.raise_for_status()
     return response.json()
 

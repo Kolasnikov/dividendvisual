@@ -35,12 +35,20 @@ from dotenv import load_dotenv
 
 load_dotenv(".env.local")
 
+
+def env_value(name: str, fallback: str | None = None) -> str:
+    value = os.getenv(name)
+    if value and value.strip():
+        return value.strip()
+    return fallback or ""
+
+
 TURSO_URL = os.environ["TURSO_DATABASE_URL"]
 TURSO_TOKEN = os.environ["TURSO_AUTH_TOKEN"]
 RESEND_KEY = os.environ["RESEND_API_KEY"]
-FROM_EMAIL = os.getenv("NEWSLETTER_FROM_EMAIL", os.getenv("ALERT_FROM_EMAIL", "newsletter@dividendvisual.com"))
-SITE_URL = os.getenv("NEXT_PUBLIC_BASE_URL", "https://dividendvisual.com").rstrip("/")
-UNSUBSCRIBE_SECRET = os.getenv("NEWSLETTER_UNSUBSCRIBE_SECRET", RESEND_KEY)
+FROM_EMAIL = env_value("NEWSLETTER_FROM_EMAIL", env_value("ALERT_FROM_EMAIL", "newsletter@dividendvisual.com"))
+SITE_URL = env_value("NEXT_PUBLIC_BASE_URL", "https://dividendvisual.com").rstrip("/")
+UNSUBSCRIBE_SECRET = env_value("NEWSLETTER_UNSUBSCRIBE_SECRET", RESEND_KEY)
 
 HTTP_URL = TURSO_URL.replace("libsql://", "https://") + "/v2/pipeline"
 
@@ -331,6 +339,8 @@ def resend_email(email: str, subject: str, html_body: str, text: str, step_index
         },
         timeout=30,
     )
+    if response.status_code >= 400:
+        print(f"Resend API error {response.status_code}: {response.text}", file=sys.stderr)
     response.raise_for_status()
     return response.json()["id"]
 
