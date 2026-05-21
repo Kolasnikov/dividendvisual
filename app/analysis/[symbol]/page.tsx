@@ -218,6 +218,138 @@ function riskSentence(metrics: ComputedMetrics, company: Company): string {
   return `Investors should be aware of the following factors: ${risks.join('; ')}. These do not necessarily signal an imminent dividend cut, but they reduce the margin of safety relative to higher-scoring peers.`
 }
 
+function valuationVerdict(metrics: ComputedMetrics, company: Company) {
+  const yieldPct = pct(metrics.currentYield)!
+  const median = pct(metrics.medianYield)!
+  const quality = `${metrics.qualityScore}/100`
+
+  if (metrics.weissSignal === 'undervalued' && metrics.qualityScore >= 65) {
+    return {
+      label: 'Research view',
+      title: `${company.symbol} looks actionable for income investors`,
+      body: `${company.name} is in Weiss undervalued territory with a ${yieldPct} yield and a ${quality} quality score. The setup is strongest when the elevated yield is paired with stable payout coverage, so the next step is checking whether cash flow and dividend growth still support the signal.`,
+    }
+  }
+
+  if (metrics.weissSignal === 'undervalued') {
+    return {
+      label: 'Research view',
+      title: `${company.symbol} is cheap, but needs extra dividend safety work`,
+      body: `${company.name} screens as undervalued by yield history, but the ${quality} quality score keeps this from being a clean buy signal. Treat the high yield as a prompt for deeper due diligence rather than a standalone green light.`,
+    }
+  }
+
+  if (metrics.weissSignal === 'overvalued') {
+    return {
+      label: 'Research view',
+      title: `${company.symbol} is a quality check, not an entry signal`,
+      body: `${company.name} currently yields ${yieldPct}, below the level income investors have historically been paid at better entry points. Unless the business quality or dividend growth is exceptional, the Weiss setup argues for patience rather than chasing the stock here.`,
+    }
+  }
+
+  return {
+    label: 'Research view',
+    title: `${company.symbol} is balanced, but not a bargain`,
+    body: `${company.name} is near fair value with a ${yieldPct} yield versus a ${median} historical median. Existing holders can focus on dividend safety and growth; new buyers may want either a better yield or stronger evidence that the dividend growth rate can compound through the next cycle.`,
+  }
+}
+
+function whyNowSentence(metrics: ComputedMetrics, company: Company): string {
+  if (metrics.whyNowText) return metrics.whyNowText
+
+  if (metrics.weissSignal === 'undervalued') {
+    return `${company.symbol} matters now because the market is offering a yield near the high end of its own history. That can be a long-term entry opportunity, but only if the dividend has not become impaired. The quality score and payout ratios are the guardrails.`
+  }
+
+  if (metrics.weissSignal === 'overvalued') {
+    return `${company.symbol} matters now because the stock is priced at a low income return relative to its own history. The dividend may still be safe, but the current yield offers less margin of safety than usual.`
+  }
+
+  return `${company.symbol} matters now because the setup is neutral. The stock is not obviously cheap or stretched by yield history, so dividend growth, payout coverage, and peer alternatives should drive the decision.`
+}
+
+function peerContextSentence(metrics: ComputedMetrics, company: Company, peers: PeerRow[]): string | null {
+  if (peers.length === 0) return null
+
+  const higherYield = peers.filter((peer) => peer.currentYield > metrics.currentYield)
+  const higherQuality = peers.filter((peer) => peer.qualityScore > metrics.qualityScore)
+  const bestPeer = [...peers].sort((a, b) => b.qualityScore - a.qualityScore)[0]
+
+  if (higherYield.length > 0 && higherQuality.length > 0) {
+    return `${company.symbol} is not the only candidate in ${company.sector ?? 'its peer group'}. ${higherYield[0].symbol} offers a higher current yield, while ${higherQuality[0].symbol} screens higher on quality. That makes peer comparison important before treating ${company.symbol}'s Weiss signal as the best available setup.`
+  }
+
+  if (higherYield.length > 0) {
+    return `${higherYield[0].symbol} currently offers a higher yield than ${company.symbol}, but yield alone is not the decision. Compare quality score and payout coverage to decide whether the extra income is compensation for higher risk.`
+  }
+
+  if (higherQuality.length > 0) {
+    return `${bestPeer.symbol} screens stronger on quality than ${company.symbol}. If dividend safety is the priority, investors should compare the quality gap against ${company.symbol}'s valuation signal.`
+  }
+
+  return `${company.symbol} compares well against the available ${company.sector ?? 'peer'} set on the metrics shown here. The main question is whether the current valuation signal is strong enough to justify choosing it over similar dividend payers.`
+}
+
+function sectorRiskSentence(company: Company): string {
+  const sector = company.sector ?? ''
+  const industry = company.industry ?? ''
+  const text = `${sector} ${industry}`.toLowerCase()
+
+  if (text.includes('real estate') || text.includes('reit')) {
+    return 'For REITs, the dividend story depends on interest rates, debt maturities, occupancy, and funds-from-operations coverage. A high yield can be attractive, but it can also reflect balance-sheet stress or refinancing risk.'
+  }
+  if (text.includes('utilities')) {
+    return 'For utilities, the key variables are regulation, allowed returns, capital spending, and leverage. Dividend stability is often high, but rate-case outcomes and debt costs can limit growth.'
+  }
+  if (text.includes('health') || text.includes('pharma') || text.includes('biotech')) {
+    return 'For healthcare dividend stocks, patent cycles, reimbursement pressure, product pipelines, and litigation can matter as much as current payout ratios. A safe-looking dividend still needs durable earnings power behind it.'
+  }
+  if (text.includes('energy') || text.includes('oil') || text.includes('gas')) {
+    return 'For energy stocks, commodity prices and capital discipline drive dividend durability. The strongest setups combine a high current yield with conservative balance-sheet policy through the cycle.'
+  }
+  if (text.includes('financial') || text.includes('bank') || text.includes('insurance')) {
+    return 'For financials, dividend safety depends on credit quality, capital ratios, interest-rate sensitivity, and underwriting discipline. Historical yield signals should be checked against balance-sheet risk.'
+  }
+  if (text.includes('consumer staples')) {
+    return 'For consumer staples, pricing power and volume resilience are the core dividend supports. The main risk is paying too much for stability when growth is slow.'
+  }
+  if (text.includes('technology') || text.includes('semiconductor')) {
+    return 'For technology dividend payers, dividend growth can be strong but more cyclical than classic staples or utilities. Watch free cash flow durability, buyback priorities, and capital spending needs.'
+  }
+  if (text.includes('telecom') || ['T', 'VZ'].includes(company.symbol)) {
+    return 'For telecom stocks, debt, spectrum spending, capital intensity, and slow revenue growth are the main dividend constraints. High yield needs especially careful coverage analysis.'
+  }
+
+  return 'The sector backdrop matters because dividend yield signals can mean different things in different industries. Always compare the Weiss signal with balance-sheet strength, cash-flow coverage, and sector-specific business risk.'
+}
+
+function watchItems(metrics: ComputedMetrics, company: Company): string[] {
+  const items: string[] = []
+  items.push(`Yield moving toward ${pct(metrics.historicalMaxYield)} would strengthen the undervaluation signal; yield falling toward ${pct(metrics.medianYield)} would indicate mean reversion.`)
+
+  if (metrics.payoutRatio != null && metrics.payoutRatio <= 2.0) {
+    items.push(`Payout ratio staying below ${(Math.max(metrics.payoutRatio, 0.6) * 100).toFixed(0)}% would support dividend flexibility.`)
+  } else {
+    items.push('Payout ratio becoming available and remaining within a normal range would improve confidence in dividend sustainability.')
+  }
+
+  if (metrics.fcfPayout != null && metrics.fcfPayout <= 2.0) {
+    items.push(`Free-cash-flow payout near ${(metrics.fcfPayout * 100).toFixed(0)}% should be monitored for deterioration.`)
+  } else {
+    items.push('Free-cash-flow coverage should be checked separately before relying on the dividend signal.')
+  }
+
+  if (metrics.dividendCagr5y != null) {
+    items.push(`Dividend growth above ${(metrics.dividendCagr5y * 100).toFixed(1)}% would confirm the income-compounding case; a slowdown would reduce the appeal.`)
+  }
+
+  if (company.yearsIncreasingDividends >= 25) {
+    items.push(`Any break in the ${company.yearsIncreasingDividends}-year dividend growth streak would materially change the thesis.`)
+  }
+
+  return items.slice(0, 5)
+}
+
 function buildJsonLd(company: Company, metrics: ComputedMetrics, symbol: string) {
   return {
     '@context': 'https://schema.org',
@@ -322,6 +454,9 @@ export default async function AnalysisPage({ params }: PageProps) {
   const drip = dripSentence(metrics)
   const jsonLd = buildJsonLd(company, metrics, symbol)
   const faqJsonLd = buildFaqJsonLd(company, metrics)
+  const verdict = valuationVerdict(metrics, company)
+  const peerContext = peerContextSentence(metrics, company, sectorPeers)
+  const watch = watchItems(metrics, company)
 
   const signalColor = metrics.weissSignal === 'undervalued' ? '#22c55e'
     : metrics.weissSignal === 'overvalued' ? '#ef4444' : '#f59e0b'
@@ -377,8 +512,29 @@ export default async function AnalysisPage({ params }: PageProps) {
         <ResearchDisclosure updatedLabel={updatedLabel} compact />
       </header>
 
+      <section className="mb-10 rounded-xl border border-[#1e1e2e] bg-[#111118] p-5">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-[#71717a]">{verdict.label}</p>
+        <h2 className="mt-2 text-xl font-bold leading-snug text-[#f4f4f5]">{verdict.title}</h2>
+        <p className="mt-3 text-sm leading-relaxed text-[#a1a1aa]">{verdict.body}</p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          {[
+            { label: 'Entry signal', value: signalLabel },
+            { label: 'Dividend quality', value: metrics.qualityCategory },
+            { label: 'Dividend record', value: company.yearsIncreasingDividends > 0 ? `${company.yearsIncreasingDividends} years` : `${metrics.yearsNoCut} no-cut years` },
+          ].map(({ label, value }) => (
+            <div key={label} className="rounded-lg border border-[#2e2e3e] bg-[#09090b] px-3 py-2">
+              <p className="text-[10px] uppercase tracking-wide text-[#71717a]">{label}</p>
+              <p className="mt-1 text-sm font-semibold text-[#f4f4f5]">{value}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Article body */}
       <article className="prose-dv">
+
+        <h2>Why {sym} Matters Now</h2>
+        <p>{whyNowSentence(metrics, company)}</p>
 
         <h2>Weiss Valuation: Where Does {sym} Stand Today?</h2>
         <p>{signalSentence(metrics, company)}</p>
@@ -417,6 +573,13 @@ export default async function AnalysisPage({ params }: PageProps) {
           </p>
         )}
 
+        {peerContext && (
+          <>
+            <h2>Peer Context: Is {sym} the Best Setup?</h2>
+            <p>{peerContext}</p>
+          </>
+        )}
+
         <h2>10-Year Yield History</h2>
         <p>
           Over the past decade, {company.name}&apos;s dividend yield has ranged from a low of <strong>{pct(metrics.historicalMinYield)}</strong> (when
@@ -443,12 +606,20 @@ export default async function AnalysisPage({ params }: PageProps) {
 
         <h2>Key Risks to Consider</h2>
         <p>{riskSentence(metrics, company)}</p>
+        <p>{sectorRiskSentence(company)}</p>
         <p>
           Beyond company-specific factors, all dividend stocks carry interest rate risk: when rates rise, income investors have
           alternatives, and dividend stock valuations tend to compress. {company.name}&apos;s{' '}
           {company.sector ? `position in the ${company.sector} sector` : 'business profile'} should be evaluated in the
           context of your portfolio&apos;s overall rate sensitivity.
         </p>
+
+        <h2>What to Watch Next</h2>
+        <ul>
+          {watch.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
 
         <h2>Bottom Line</h2>
         <p>
