@@ -283,6 +283,12 @@ def money(value: float | None) -> str:
     return f"${value:.2f}"
 
 
+def number(value: float | None, digits: int = 1) -> str:
+    if value is None:
+        return "n/a"
+    return f"{value:.{digits}f}"
+
+
 def e(value: Any) -> str:
     return html.escape("" if value is None else str(value), quote=True)
 
@@ -292,30 +298,89 @@ def ticker_url(symbol: str) -> str:
 
 
 def why_now(row: dict) -> str:
-    if row.get("why_now_text"):
-        return row["why_now_text"]
-    signal = row.get("weiss_signal")
     symbol = row["symbol"]
-    if signal == "undervalued":
-        return f"{symbol} is offering a yield near the high end of its own history. That can be attractive if payout coverage still supports the dividend."
-    if signal == "overvalued":
-        return f"{symbol} is priced at a low income return versus its own history. The dividend may be fine, but the entry yield is less compelling."
-    return f"{symbol} is near fair value. Dividend safety, payout coverage, and peer alternatives matter more than the headline yield this week."
+    name = row.get("name") or symbol
+    sector = row.get("sector") or "dividend"
+    current_price = row.get("current_price")
+    current_yield = row.get("current_yield")
+    undervalued_price = row.get("undervalued_price")
+    quality = row.get("quality_score") or 0
+    payout = row.get("payout_ratio")
+    fcf = row.get("fcf_payout")
+    cagr = row.get("dividend_cagr_5y")
+
+    if quality >= 85:
+        quality_phrase = "an elite quality score"
+    elif quality >= 75:
+        quality_phrase = "a strong quality score"
+    elif quality >= 65:
+        quality_phrase = "a solid quality score"
+    else:
+        quality_phrase = "a quality score that still needs caution"
+
+    if undervalued_price and current_price:
+        margin = (undervalued_price - current_price) / current_price
+        if margin > 0.25:
+            valuation_phrase = f"is well below the model's undervalued reference level near {money(undervalued_price)}"
+        elif margin > 0.05:
+            valuation_phrase = (
+                f"is about {number(margin * 100, 0)}% below the model's undervalued reference level "
+                f"of {money(undervalued_price)}"
+            )
+        elif margin >= -0.03:
+            valuation_phrase = f"is sitting almost exactly on its undervalued reference level near {money(undervalued_price)}"
+        else:
+            valuation_phrase = f"is still close enough to its undervalued band to deserve a review"
+    else:
+        valuation_phrase = "is flagged as undervalued by its own dividend-yield history"
+
+    if payout is not None and payout <= 0.55:
+        coverage_phrase = f"earnings payout is comfortable at {pct(payout, 0)}"
+    elif payout is not None and payout <= 0.8:
+        coverage_phrase = f"earnings payout is acceptable but worth tracking at {pct(payout, 0)}"
+    elif payout is not None and payout <= 2:
+        coverage_phrase = f"earnings payout is elevated at {pct(payout, 0)}"
+    elif fcf is not None and fcf <= 0.75:
+        coverage_phrase = f"free-cash-flow payout looks manageable at {pct(fcf, 0)}"
+    else:
+        coverage_phrase = "coverage needs a closer look before treating the yield as clean"
+
+    growth_phrase = ""
+    if cagr is not None:
+        if cagr >= 0.08:
+            growth_phrase = f" Five-year dividend growth is still healthy at {pct(cagr, 1)}, which adds an income-growth angle."
+        elif cagr >= 0.03:
+            growth_phrase = f" Dividend growth is moderate at {pct(cagr, 1)} over five years, so valuation matters more than acceleration."
+        else:
+            growth_phrase = f" Dividend growth is slow at {pct(cagr, 1)} over five years, so this is more of a yield/valuation setup than a compounding story."
+
+    return (
+        f"{name} stands out because it {valuation_phrase} while carrying {quality_phrase}. "
+        f"The current yield is {pct(current_yield)} in {sector}, and {coverage_phrase}."
+        f"{growth_phrase}"
+    )
 
 
 def risk_note(row: dict) -> str:
     payout = row.get("payout_ratio")
     fcf = row.get("fcf_payout")
     cagr = row.get("dividend_cagr_5y")
+    quality = row.get("quality_score", 0) or 0
+    current_yield = row.get("current_yield")
+    sector = row.get("sector") or "sector"
     if payout is not None and payout > 0.8 and payout <= 2.0:
         return f"Payout ratio is elevated at {pct(payout, 0)}, leaving less room if earnings weaken."
     if fcf is not None and fcf > 0.9 and fcf <= 2.0:
         return f"Free-cash-flow payout is high at {pct(fcf, 0)}, so cash coverage deserves a closer look."
     if cagr is not None and cagr < 0.03:
         return f"Dividend growth has been slow at {pct(cagr, 1)} over five years, which limits income compounding."
-    if row.get("quality_score", 0) < 65:
+    if quality < 65:
         return "Quality score is below the preferred threshold, so treat the signal as a watchlist candidate rather than a clean setup."
-    return "Main risk: a high yield only matters if the dividend remains well covered and the business quality holds."
+    if current_yield is not None and current_yield < 0.015:
+        return "Yield is low in absolute terms, so the setup needs capital appreciation or dividend growth to justify attention."
+    if quality >= 80:
+        return f"The main risk is paying up for quality too early; compare the setup against other {sector} names before acting."
+    return "The signal is attractive, but verify the latest earnings trend and balance-sheet context before treating it as actionable."
 
 
 def educational_snippet(current_issue: str) -> tuple[str, str]:
@@ -348,6 +413,15 @@ def build_watchlist(rows: list[dict], previous: dict[str, dict]) -> dict:
         row for row in undervalued
         if previous.get(row["symbol"], {}).get("weiss_signal") != "undervalued"
     ]
+    continuing = [
+        row for row in undervalued
+        if previous.get(row["symbol"], {}).get("weiss_signal") == "undervalued"
+    ]
+    current_symbols = {row["symbol"] for row in undervalued}
+    dropped = [
+        row for row in previous.values()
+        if row.get("weiss_signal") == "undervalued" and row.get("symbol") not in current_symbols
+    ]
 
     risky = [
         row for row in rows
@@ -368,6 +442,9 @@ def build_watchlist(rows: list[dict], previous: dict[str, dict]) -> dict:
     return {
         "undervalued": undervalued,
         "new": new,
+        "continuing": continuing,
+        "dropped": dropped,
+        "has_previous": bool(previous),
         "top": undervalued[:5],
         "risky": risky[:1],
         "sectors": sectors,
@@ -391,7 +468,7 @@ def setup_card(row: dict, rank: int) -> str:
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td style="vertical-align:top;">
-              <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Setup #{rank}</div>
+              <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Top setup #{rank}</div>
               <a href="{ticker_url(symbol)}" style="font-family:monospace;font-size:20px;font-weight:700;color:#4f46e5;text-decoration:none;">{e(symbol)}</a>
               <span style="font-size:13px;color:#111827;font-weight:600;"> {e(row['name'])}</span>
               <div style="font-size:12px;color:#6b7280;margin-top:3px;">{e(row.get('sector') or 'Dividend stock')}</div>
@@ -415,6 +492,63 @@ def setup_card(row: dict, rank: int) -> str:
     """
 
 
+def symbol_list(rows: list[dict], limit: int = 8) -> str:
+    symbols = [row["symbol"] for row in rows[:limit]]
+    if len(rows) > limit:
+        symbols.append(f"+{len(rows) - limit} more")
+    return ", ".join(symbols) if symbols else "None"
+
+
+def what_changed_html(watchlist: dict) -> str:
+    if not watchlist["has_previous"]:
+        return f"""
+          <h2 style="margin:26px 0 8px;font-size:18px;color:#111827;">What changed</h2>
+          <p style="margin:0 0 18px;color:#374151;font-size:14px;line-height:1.6;">
+            This first issue creates the baseline. Future editions will separate fresh entrants,
+            names that remain attractive, and stocks that left the undervalued zone.
+          </p>
+        """
+
+    return f"""
+      <h2 style="margin:26px 0 8px;font-size:18px;color:#111827;">What changed</h2>
+      <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+        <tr>
+          <td style="padding:12px;border-bottom:1px solid #e5e7eb;">
+            <div style="font-size:12px;color:#6b7280;font-weight:700;text-transform:uppercase;">New entrants</div>
+            <div style="font-size:14px;color:#111827;margin-top:4px;">{e(symbol_list(watchlist['new']))}</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:12px;border-bottom:1px solid #e5e7eb;">
+            <div style="font-size:12px;color:#6b7280;font-weight:700;text-transform:uppercase;">Still undervalued</div>
+            <div style="font-size:14px;color:#111827;margin-top:4px;">{e(symbol_list(watchlist['continuing']))}</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:12px;">
+            <div style="font-size:12px;color:#6b7280;font-weight:700;text-transform:uppercase;">Left the zone</div>
+            <div style="font-size:14px;color:#111827;margin-top:4px;">{e(symbol_list(watchlist['dropped']))}</div>
+          </td>
+        </tr>
+      </table>
+    """
+
+
+def what_changed_text(watchlist: dict) -> str:
+    if not watchlist["has_previous"]:
+        return (
+            "What changed:\n"
+            "This first issue creates the baseline. Future editions will separate fresh entrants, "
+            "still-undervalued names, and stocks that left the undervalued zone.\n"
+        )
+    return (
+        "What changed:\n"
+        f"New entrants: {symbol_list(watchlist['new'])}\n"
+        f"Still undervalued: {symbol_list(watchlist['continuing'])}\n"
+        f"Left the zone: {symbol_list(watchlist['dropped'])}\n"
+    )
+
+
 def build_email(current_issue: str, rows: list[dict], watchlist: dict, freshness: dict) -> tuple[str, str, str]:
     today = date.today().strftime("%B %d, %Y")
     top = watchlist["top"]
@@ -425,11 +559,7 @@ def build_email(current_issue: str, rows: list[dict], watchlist: dict, freshness
     if freshness.get("is_stale"):
         subject = f"{len(watchlist['undervalued'])} dividend setups to review"
     else:
-        subject = (
-            f"{len(new)} new undervalued dividend setup{'s' if len(new) != 1 else ''} this week"
-            if new else
-            f"{len(watchlist['undervalued'])} undervalued dividend setup{'s' if len(watchlist['undervalued']) != 1 else ''} to review"
-        )
+        subject = f"{len(watchlist['undervalued'])} undervalued dividend setup{'s' if len(watchlist['undervalued']) != 1 else ''} on this week's watchlist"
 
     cards = "".join(setup_card(row, index + 1) for index, row in enumerate(top))
     if not cards:
@@ -458,6 +588,8 @@ def build_email(current_issue: str, rows: list[dict], watchlist: dict, freshness
         f"{sector}: {count}" for sector, count in sorted(watchlist["sectors"].items(), key=lambda item: item[1], reverse=True)[:4]
     ) or "No undervalued sectors this week"
     freshness_text = freshness_label(freshness)
+    changed_html = what_changed_html(watchlist)
+    change_stat_label = "New this week" if watchlist["has_previous"] else "Baseline names"
     stale_html = ""
     if freshness.get("is_stale"):
         stale_html = f"""
@@ -493,12 +625,17 @@ def build_email(current_issue: str, rows: list[dict], watchlist: dict, freshness
               <tr>
                 {stat_box('Stocks tracked', str(len(rows)))}
                 {stat_box('Undervalued now', str(len(watchlist['undervalued'])))}
-                {stat_box('New this week', str(len(new)))}
+                {stat_box(change_stat_label, str(len(new)))}
               </tr>
             </table>
             <p style="margin:0 0 18px;color:#6b7280;font-size:13px;line-height:1.5;">
               <strong>Sector concentration:</strong> {e(sector_line)}
               <br><strong>Data freshness:</strong> {e(freshness_text)}
+            </p>
+            {changed_html}
+            <h2 style="margin:26px 0 4px;font-size:18px;color:#111827;">Top 5 setups to review</h2>
+            <p style="margin:0 0 4px;color:#6b7280;font-size:13px;line-height:1.5;">
+              Ranked by quality first, then by current yield. Open the screener to review the full list of {len(watchlist['undervalued'])}.
             </p>
             <table width="100%" cellpadding="0" cellspacing="0">
               {cards}
@@ -529,12 +666,14 @@ def build_email(current_issue: str, rows: list[dict], watchlist: dict, freshness
 
 Stocks tracked: {len(rows)}
 Undervalued now: {len(watchlist['undervalued'])}
-New this week: {len(new)}
+{change_stat_label}: {len(new)}
 Data freshness: {freshness_text}
 
 {"Data freshness note: verify live prices before making any decision." if freshness.get("is_stale") else ""}
 
-Top setups:
+{what_changed_text(watchlist)}
+
+Top 5 setups to review:
 """ + "\n".join(
         f"- {row['symbol']} ({row['name']}): {pct(row.get('current_yield'))} yield, quality {row.get('quality_score')}/100. {why_now(row)} {ticker_url(row['symbol'])}"
         for row in top
@@ -614,7 +753,8 @@ def main() -> None:
     subject, html_body, text = build_email(current_issue, rows, watchlist, freshness)
 
     print(f"Subject: {subject}")
-    print(f"Tracked: {len(rows)} | Undervalued: {len(watchlist['undervalued'])} | New: {len(watchlist['new'])}")
+    change_label = "New" if watchlist["has_previous"] else "Baseline"
+    print(f"Tracked: {len(rows)} | Undervalued: {len(watchlist['undervalued'])} | {change_label}: {len(watchlist['new'])}")
 
     if args.dry_run:
         write_preview(subject, html_body, text, current_issue)
