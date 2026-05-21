@@ -1,0 +1,41 @@
+name: Data refresh
+
+on:
+  schedule:
+    - cron: '30 6 * * 2-6' # Tue-Sat 06:30 UTC, after US market data settles
+  workflow_dispatch:
+
+concurrency:
+  group: data-refresh
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    env:
+      TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+      TURSO_AUTH_TOKEN:   ${{ secrets.TURSO_AUTH_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Refresh prices and dividends
+        timeout-minutes: 25
+        run: python -u scripts/ingest.py
+
+      - name: Compute Weiss bands and quality scores
+        timeout-minutes: 10
+        run: python -u scripts/compute_bands.py
