@@ -26,7 +26,7 @@ export function UndervaluedCarousel({ items }: { items: WatchlistItem[] }) {
         {visible.map((row) => (
           <Link
             key={row.symbol}
-            href={`/analysis/${row.symbol.toLowerCase()}`}
+            href={`/ticker/${row.symbol}`}
             className="bg-[#111118] border border-[#22c55e]/30 rounded-xl p-4 hover:border-[#22c55e]/60 transition-colors group"
           >
             <div className="flex items-start justify-between mb-3">

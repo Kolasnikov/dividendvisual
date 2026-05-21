@@ -183,7 +183,7 @@ export default async function DividendAristocratsPage() {
                 <tr key={row.symbol} className="border-b border-[#1e1e2e]/70 last:border-0">
                   <td className="py-3 pl-4 pr-4">
                     <Link
-                      href={`/analysis/${row.symbol.toLowerCase()}`}
+                      href={`/ticker/${row.symbol}`}
                       className="font-mono font-semibold text-[#f4f4f5] hover:text-[#6366f1] transition-colors"
                     >
                       {row.symbol}
@@ -206,7 +206,7 @@ export default async function DividendAristocratsPage() {
                   <td className="py-3 pr-4 text-[#a1a1aa]">{pct(row.dividendCagr5y, 1)}</td>
                   <td className="py-3 pr-4 text-right">
                     <Link
-                      href={`/analysis/${row.symbol.toLowerCase()}`}
+                      href={`/ticker/${row.symbol}`}
                       className="text-xs text-[#6366f1] hover:text-[#818cf8] transition-colors"
                     >
                       View
@@ -224,7 +224,7 @@ export default async function DividendAristocratsPage() {
             {topQuality ? (
               <>
                 <Link
-                  href={`/analysis/${topQuality.symbol.toLowerCase()}`}
+                  href={`/ticker/${topQuality.symbol}`}
                   className="font-mono text-xl font-semibold text-[#f4f4f5] hover:text-[#6366f1]"
                 >
                   {topQuality.symbol}

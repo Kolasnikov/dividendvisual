@@ -57,7 +57,7 @@ export function TickerTape() {
           return (
             <Link
               key={`${item.symbol}-${i}`}
-              href={`/analysis/${item.symbol.toLowerCase()}`}
+              href={`/ticker/${item.symbol}`}
               className="flex items-center gap-2 px-4 py-2 hover:bg-[#1e1e2e]/40 transition-colors shrink-0 border-r border-[#1e1e2e]/50"
               tabIndex={i >= items.length ? -1 : 0}
             >

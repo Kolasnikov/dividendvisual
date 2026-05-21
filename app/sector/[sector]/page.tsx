@@ -427,7 +427,7 @@ function StockCard({ row }: { row: SectorRow }) {
       <div className="flex items-start justify-between mb-3">
         <div>
           <Link
-            href={`/analysis/${row.symbol.toLowerCase()}`}
+            href={`/ticker/${row.symbol}`}
             className="font-mono font-semibold text-[#f4f4f5] hover:text-[#6366f1] transition-colors"
           >
             {row.symbol}
@@ -468,7 +468,7 @@ function StockCard({ row }: { row: SectorRow }) {
           {row.isDividendAristocrat && !row.isDividendKing && <DividendBadge type="aristocrat" />}
         </div>
         <Link
-          href={`/analysis/${row.symbol.toLowerCase()}`}
+          href={`/ticker/${row.symbol}`}
           className="text-xs text-[#6366f1] hover:text-[#818cf8] transition-colors"
         >
           Analysis →

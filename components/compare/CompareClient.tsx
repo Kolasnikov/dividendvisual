@@ -326,14 +326,14 @@ function ComparisonTable({
       {/* Footer links */}
       <div className="grid grid-cols-2 gap-3">
         <Link
-          href={`/analysis/${cA.symbol.toLowerCase()}`}
+          href={`/ticker/${cA.symbol}`}
           className="flex items-center justify-center gap-2 px-4 py-3 bg-[#1e1e2e] hover:bg-[#2e2e3e] rounded-xl text-sm text-[#f4f4f5] transition-colors"
         >
           <ExternalLink className="w-3.5 h-3.5 text-[#71717a]" />
           {cA.symbol} Full Analysis
         </Link>
         <Link
-          href={`/analysis/${cB.symbol.toLowerCase()}`}
+          href={`/ticker/${cB.symbol}`}
           className="flex items-center justify-center gap-2 px-4 py-3 bg-[#1e1e2e] hover:bg-[#2e2e3e] rounded-xl text-sm text-[#f4f4f5] transition-colors"
         >
           <ExternalLink className="w-3.5 h-3.5 text-[#71717a]" />

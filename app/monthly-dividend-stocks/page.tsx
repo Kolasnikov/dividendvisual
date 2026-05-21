@@ -203,7 +203,7 @@ export default async function MonthlyDividendStocksPage() {
                   <tr key={row.symbol} className="border-b border-[#1e1e2e]/70 last:border-0">
                     <td className="py-3 pr-4">
                       <Link
-                        href={`/analysis/${row.symbol.toLowerCase()}`}
+                        href={`/ticker/${row.symbol}`}
                         className="font-mono font-semibold text-[#f4f4f5] hover:text-[#6366f1] transition-colors"
                       >
                         {row.symbol}
@@ -220,7 +220,7 @@ export default async function MonthlyDividendStocksPage() {
                     <td className="py-3 pr-4 text-[#a1a1aa]">{pct(row.dividendCagr5y, 1)}</td>
                     <td className="py-3 text-right">
                       <Link
-                        href={`/analysis/${row.symbol.toLowerCase()}`}
+                        href={`/ticker/${row.symbol}`}
                         className="text-xs text-[#6366f1] hover:text-[#818cf8] transition-colors"
                       >
                         View
@@ -241,7 +241,7 @@ export default async function MonthlyDividendStocksPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <Link
-                      href={`/analysis/${highestYield.symbol.toLowerCase()}`}
+                      href={`/ticker/${highestYield.symbol}`}
                       className="font-mono text-xl font-semibold text-[#f4f4f5] hover:text-[#6366f1]"
                     >
                       {highestYield.symbol}
@@ -348,7 +348,7 @@ export default async function MonthlyDividendStocksPage() {
             {rows.slice(0, 4).map((row) => (
               <Link
                 key={row.symbol}
-                href={`/analysis/${row.symbol.toLowerCase()}`}
+                href={`/ticker/${row.symbol}`}
                 className="rounded-md border border-[#2e2e3e] bg-[#1e1e2e] px-3 py-1.5 text-xs text-[#a1a1aa] hover:border-[#6366f1]/40 hover:text-[#f4f4f5]"
               >
                 {row.symbol}

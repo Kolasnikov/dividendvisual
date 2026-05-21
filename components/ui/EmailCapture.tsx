@@ -91,7 +91,7 @@ export function EmailCapture({ variant = 'hero' }: EmailCaptureProps) {
             {picks.map((pick, i) => (
               <Link
                 key={pick.symbol}
-                href={`/analysis/${pick.symbol.toLowerCase()}`}
+                href={`/ticker/${pick.symbol}`}
                 className={`flex items-center justify-between px-4 py-3 hover:bg-[#22c55e]/5 transition-colors group ${i > 0 ? 'border-t border-[#1e1e2e]' : ''}`}
               >
                 <div className="min-w-0">

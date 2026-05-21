@@ -217,7 +217,7 @@ export default async function HomePage() {
             {['KO', 'JNJ', 'PG', 'O', 'MO'].map((sym) => (
               <Link
                 key={sym}
-                href={`/analysis/${sym.toLowerCase()}`}
+                href={`/ticker/${sym}`}
                 className="px-2 py-0.5 rounded-md bg-[#1e1e2e] text-[#71717a] hover:text-[#f4f4f5] transition-colors font-mono text-xs"
               >
                 {sym}

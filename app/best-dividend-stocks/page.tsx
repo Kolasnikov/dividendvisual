@@ -136,7 +136,7 @@ function RankedTable({ rows }: { rows: WatchlistItem[] }) {
               <td className="py-3 pl-4 pr-4 text-[#71717a]">{index + 1}</td>
               <td className="py-3 pr-4">
                 <Link
-                  href={`/analysis/${row.symbol.toLowerCase()}`}
+                  href={`/ticker/${row.symbol}`}
                   className="font-mono font-semibold text-[#f4f4f5] hover:text-[#6366f1] transition-colors"
                 >
                   {row.symbol}
@@ -161,7 +161,7 @@ function RankedTable({ rows }: { rows: WatchlistItem[] }) {
               </td>
               <td className="py-3 pr-4 text-right">
                 <Link
-                  href={`/analysis/${row.symbol.toLowerCase()}`}
+                  href={`/ticker/${row.symbol}`}
                   className="text-xs text-[#6366f1] hover:text-[#818cf8] transition-colors"
                 >
                   View

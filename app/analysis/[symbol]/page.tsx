@@ -500,7 +500,7 @@ export default async function AnalysisPage({ params }: PageProps) {
                     return (
                       <Link
                         key={peer.symbol}
-                        href={`/analysis/${peer.symbol.toLowerCase()}`}
+                        href={`/ticker/${peer.symbol}`}
                         title={`${peer.name} — ${(peer.currentYield * 100).toFixed(2)}% yield`}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#1e1e2e] text-sm font-mono text-[#71717a] hover:text-[#f4f4f5] transition-colors"
                       >
@@ -515,7 +515,7 @@ export default async function AnalysisPage({ params }: PageProps) {
                 : ['KO', 'JNJ', 'PG', 'MO', 'O', 'XOM'].filter((s) => s !== sym).slice(0, 5).map((s) => (
                     <Link
                       key={s}
-                      href={`/analysis/${s.toLowerCase()}`}
+                      href={`/ticker/${s}`}
                       className="px-3 py-1.5 rounded-md bg-[#1e1e2e] text-sm font-mono text-[#71717a] hover:text-[#f4f4f5] transition-colors"
                     >
                       {s}
