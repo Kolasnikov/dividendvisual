@@ -15,6 +15,7 @@ Requires env vars:
 Optional:
     NEWSLETTER_FROM_EMAIL (default: newsletter@dividendvisual.com)
     NEWSLETTER_MIN_QUALITY (default: 60)
+    NEWSLETTER_MAX_DATA_AGE_DAYS (default: 7)
 """
 
 from __future__ import annotations
@@ -39,6 +40,7 @@ AUDIENCE_ID = os.environ["RESEND_AUDIENCE_ID"]
 FROM_EMAIL = os.getenv("NEWSLETTER_FROM_EMAIL", os.getenv("ALERT_FROM_EMAIL", "newsletter@dividendvisual.com"))
 SITE_URL = os.getenv("NEXT_PUBLIC_BASE_URL", "https://dividendvisual.com").rstrip("/")
 MIN_QUALITY = int(os.getenv("NEWSLETTER_MIN_QUALITY", "60"))
+MAX_DATA_AGE_DAYS = int(os.getenv("NEWSLETTER_MAX_DATA_AGE_DAYS", "7"))
 
 HTTP_URL = TURSO_URL.replace("libsql://", "https://") + "/v2/pipeline"
 
@@ -144,6 +146,59 @@ def get_current_rows() -> list[dict]:
           AND cm.current_price IS NOT NULL
         ORDER BY cm.quality_score DESC NULLS LAST
     """)
+
+
+def parse_turso_datetime(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    normalized = value.replace("Z", "+00:00")
+    try:
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        try:
+            parsed = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def get_data_freshness() -> dict:
+    rows = turso_query("""
+        SELECT MAX(updated_at) AS latest_updated_at, COUNT(*) AS metrics_count
+        FROM computed_metrics
+        WHERE current_yield IS NOT NULL
+          AND current_price IS NOT NULL
+    """)
+    row = rows[0] if rows else {}
+    latest = parse_turso_datetime(row.get("latest_updated_at"))
+    age_days = None
+    is_stale = True
+    if latest:
+        age_seconds = (datetime.now(timezone.utc) - latest).total_seconds()
+        age_days = max(0, age_seconds / 86400)
+        is_stale = age_days > MAX_DATA_AGE_DAYS
+    return {
+        "latest_updated_at": latest,
+        "age_days": age_days,
+        "is_stale": is_stale,
+        "metrics_count": row.get("metrics_count") or 0,
+    }
+
+
+def freshness_label(freshness: dict) -> str:
+    latest = freshness.get("latest_updated_at")
+    age_days = freshness.get("age_days")
+    if not latest or age_days is None:
+        return "Data freshness could not be verified."
+    if age_days < 1:
+        age = "today"
+    elif age_days < 2:
+        age = "1 day ago"
+    else:
+        age = f"{int(age_days)} days ago"
+    return f"Data refreshed {age} ({latest.date().isoformat()} UTC)."
 
 
 def get_previous_snapshot(current_issue: str) -> dict[str, dict]:
@@ -352,18 +407,21 @@ def setup_card(row: dict, rank: int) -> str:
     """
 
 
-def build_email(current_issue: str, rows: list[dict], watchlist: dict) -> tuple[str, str, str]:
+def build_email(current_issue: str, rows: list[dict], watchlist: dict, freshness: dict) -> tuple[str, str, str]:
     today = date.today().strftime("%B %d, %Y")
     top = watchlist["top"]
     new = watchlist["new"]
     risky = watchlist["risky"]
     educational_title, educational_body = educational_snippet(current_issue)
 
-    subject = (
-        f"{len(new)} new undervalued dividend setup{'s' if len(new) != 1 else ''} this week"
-        if new else
-        f"{len(watchlist['undervalued'])} undervalued dividend setup{'s' if len(watchlist['undervalued']) != 1 else ''} to review"
-    )
+    if freshness.get("is_stale"):
+        subject = f"{len(watchlist['undervalued'])} dividend setups to review"
+    else:
+        subject = (
+            f"{len(new)} new undervalued dividend setup{'s' if len(new) != 1 else ''} this week"
+            if new else
+            f"{len(watchlist['undervalued'])} undervalued dividend setup{'s' if len(watchlist['undervalued']) != 1 else ''} to review"
+        )
 
     cards = "".join(setup_card(row, index + 1) for index, row in enumerate(top))
     if not cards:
@@ -391,6 +449,15 @@ def build_email(current_issue: str, rows: list[dict], watchlist: dict) -> tuple[
     sector_line = ", ".join(
         f"{sector}: {count}" for sector, count in sorted(watchlist["sectors"].items(), key=lambda item: item[1], reverse=True)[:4]
     ) or "No undervalued sectors this week"
+    freshness_text = freshness_label(freshness)
+    stale_html = ""
+    if freshness.get("is_stale"):
+        stale_html = f"""
+            <p style="margin:0 0 18px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.5;">
+              <strong>Data freshness note:</strong> {e(freshness_text)}
+              The watchlist is still useful for research, but verify live prices before making any decision.
+            </p>
+        """
 
     preheader = "A data-driven dividend watchlist built from Weiss valuation, quality score, and payout safety."
     html_body = f"""<!DOCTYPE html>
@@ -413,6 +480,7 @@ def build_email(current_issue: str, rows: list[dict], watchlist: dict) -> tuple[
               Dividend stocks entering or remaining in historically attractive yield territory,
               filtered through quality score, payout coverage, and risk context.
             </p>
+            {stale_html}
             <table width="100%" cellpadding="0" cellspacing="8" style="margin:0 0 22px;">
               <tr>
                 {stat_box('Stocks tracked', str(len(rows)))}
@@ -422,6 +490,7 @@ def build_email(current_issue: str, rows: list[dict], watchlist: dict) -> tuple[
             </table>
             <p style="margin:0 0 18px;color:#6b7280;font-size:13px;line-height:1.5;">
               <strong>Sector concentration:</strong> {e(sector_line)}
+              <br><strong>Data freshness:</strong> {e(freshness_text)}
             </p>
             <table width="100%" cellpadding="0" cellspacing="0">
               {cards}
@@ -453,6 +522,9 @@ def build_email(current_issue: str, rows: list[dict], watchlist: dict) -> tuple[
 Stocks tracked: {len(rows)}
 Undervalued now: {len(watchlist['undervalued'])}
 New this week: {len(new)}
+Data freshness: {freshness_text}
+
+{"Data freshness note: verify live prices before making any decision." if freshness.get("is_stale") else ""}
 
 Top setups:
 """ + "\n".join(
@@ -519,10 +591,17 @@ def main() -> None:
         return
 
     rows = get_current_rows()
+    freshness = get_data_freshness()
+    print(f"Data freshness: {freshness_label(freshness)}")
+    if freshness.get("is_stale"):
+        print(
+            f"WARNING: computed_metrics data is older than {MAX_DATA_AGE_DAYS} days. "
+            "Newsletter will still send using the latest available data."
+        )
     previous = get_previous_snapshot(current_issue)
     save_snapshot(current_issue, today, rows)
     watchlist = build_watchlist(rows, previous)
-    subject, html_body, text = build_email(current_issue, rows, watchlist)
+    subject, html_body, text = build_email(current_issue, rows, watchlist, freshness)
 
     print(f"Subject: {subject}")
     print(f"Tracked: {len(rows)} | Undervalued: {len(watchlist['undervalued'])} | New: {len(watchlist['new'])}")
