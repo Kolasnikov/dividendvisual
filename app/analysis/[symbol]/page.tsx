@@ -72,6 +72,71 @@ async function getTickerData(symbol: string): Promise<TickerResponse | null> {
 
 type PeerRow = { symbol: string; name: string; currentYield: number; weissSignal: string; qualityScore: number }
 
+type PriorityAnalysisGuide = {
+  eyebrow: string
+  title: string
+  paragraphs: string[]
+  questions: string[]
+  links: { href: string; label: string }[]
+}
+
+const PRIORITY_ANALYSIS_GUIDES: Record<string, PriorityAnalysisGuide> = {
+  ABBV: {
+    eyebrow: 'Healthcare dividend deep dive',
+    title: 'How to read the ABBV dividend setup',
+    paragraphs: [
+      'AbbVie attracts dividend investors for a different reason than the longest-streak healthcare names. The yield is usually more generous, but the research burden is higher because payout confidence depends on the post-Humira earnings mix, pipeline replacement, and balance-sheet progress.',
+      'That makes the Weiss signal useful as a starting point rather than a conclusion. A historically elevated ABBV yield deserves attention when cash-flow coverage and dividend growth remain intact; it deserves skepticism when the market is repricing a real drug or pipeline risk.',
+    ],
+    questions: [
+      'Is ABBV offering a high yield because valuation is attractive or because business risk has risen?',
+      'Does payout coverage still support the dividend after the Humira transition?',
+      'Would JNJ provide a steadier healthcare dividend profile at the current entry price?',
+    ],
+    links: [
+      { href: '/compare/jnj-vs-abbv', label: 'Compare JNJ vs ABBV' },
+      { href: '/best-healthcare-dividend-stocks', label: 'Best healthcare dividend stocks' },
+      { href: '/blog/jnj-vs-abbv-dividend-comparison', label: 'Read the healthcare comparison guide' },
+    ],
+  },
+  O: {
+    eyebrow: 'REIT dividend deep dive',
+    title: 'How to read the O dividend setup',
+    paragraphs: [
+      'Realty Income is searched like a dividend utility: investors want the current yield, the dividend history, and a quick answer on whether the monthly income stream is priced attractively. The quality of that answer depends on separating rate pressure from property-level deterioration.',
+      'For O, a high yield can emerge when REIT valuations compress as rates rise. The Weiss band helps spot that historical pressure point, but the next checks are still REIT-specific: payout coverage, debt refinancing risk, tenant durability, and the spread versus other net lease income options.',
+    ],
+    questions: [
+      'Is O near the high end of its own yield history?',
+      'Does the monthly dividend still look supported by the REIT cash-flow profile?',
+      'How does O compare with NNN or other REIT dividend candidates today?',
+    ],
+    links: [
+      { href: '/compare/o-vs-nnn', label: 'Compare O vs NNN' },
+      { href: '/best-reit-dividend-stocks', label: 'Best REIT dividend stocks' },
+      { href: '/blog/best-reit-dividend-stocks-2026', label: 'Read the REIT dividend guide' },
+    ],
+  },
+  BDX: {
+    eyebrow: 'Healthcare dividend deep dive',
+    title: 'How to read the BDX dividend setup',
+    paragraphs: [
+      'Becton Dickinson is not a yield-chasing healthcare story. The dividend case rests on recurring medical demand, a long growth record, and whether the current yield is unusually attractive for a device and diagnostics business that investors often value for durability.',
+      'That is where a dividend-history lens helps. BDX can look less exciting than a high-yield pharma stock on current income alone, so the research question is whether valuation, payout coverage, and dividend growth make the lower starting yield worth the quality trade-off.',
+    ],
+    questions: [
+      'Is BDX cheap relative to its own dividend yield history?',
+      'Does payout safety compensate for a lower starting yield?',
+      'How does BDX compare with healthcare dividend peers on quality and growth?',
+    ],
+    links: [
+      { href: '/best-healthcare-dividend-stocks', label: 'Best healthcare dividend stocks' },
+      { href: '/blog/best-healthcare-dividend-stocks-2026', label: 'Read the healthcare dividend guide' },
+      { href: '/dividend-screener', label: 'Compare BDX with the screener' },
+    ],
+  },
+}
+
 async function getSectorPeers(sector: string | null, excludeSymbol: string): Promise<PeerRow[]> {
   if (!sector) return []
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
@@ -100,8 +165,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const signalLabel = metrics.weissSignal === 'undervalued' ? 'undervalued'
     : metrics.weissSignal === 'overvalued' ? 'overvalued' : 'fairly valued'
   const yieldPct = (metrics.currentYield * 100).toFixed(2)
-  const title = `${company.symbol} Dividend Analysis — Is ${company.name} Undervalued?`
-  const description = `${company.name} (${company.symbol}) dividend deep-dive. Current yield ${yieldPct}%, historically ${signalLabel}. Quality score ${metrics.qualityScore}/100. 10-year yield history, payout ratio, dividend CAGR, and Weiss valuation breakdown.`
+  const isPriorityDividendHistoryPage = company.symbol in PRIORITY_ANALYSIS_GUIDES
+  const title = isPriorityDividendHistoryPage
+    ? `${company.symbol} Dividend History, Yield & Weiss Analysis — ${company.name}`
+    : `${company.symbol} Dividend Analysis — Is ${company.name} Undervalued?`
+  const description = isPriorityDividendHistoryPage
+    ? `${company.name} (${company.symbol}) dividend history and yield analysis. Current yield ${yieldPct}%, historically ${signalLabel}. Review payout safety, dividend growth, quality score, and Weiss valuation bands.`
+    : `${company.name} (${company.symbol}) dividend deep-dive. Current yield ${yieldPct}%, historically ${signalLabel}. Quality score ${metrics.qualityScore}/100. 10-year yield history, payout ratio, dividend CAGR, and Weiss valuation breakdown.`
   return {
     title,
     description,
@@ -457,6 +527,7 @@ export default async function AnalysisPage({ params }: PageProps) {
   const verdict = valuationVerdict(metrics, company)
   const peerContext = peerContextSentence(metrics, company, sectorPeers)
   const watch = watchItems(metrics, company)
+  const priorityGuide = PRIORITY_ANALYSIS_GUIDES[sym]
 
   const signalColor = metrics.weissSignal === 'undervalued' ? '#22c55e'
     : metrics.weissSignal === 'overvalued' ? '#ef4444' : '#f59e0b'
@@ -529,6 +600,45 @@ export default async function AnalysisPage({ params }: PageProps) {
           ))}
         </div>
       </section>
+
+      {priorityGuide && (
+        <section className="mb-10 border-y border-[#1e1e2e] py-7">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-[#818cf8]">
+            {priorityGuide.eyebrow}
+          </p>
+          <h2 className="mt-2 text-xl font-bold leading-snug text-[#f4f4f5]">{priorityGuide.title}</h2>
+          <div className="mt-4 space-y-3 text-sm leading-relaxed text-[#a1a1aa]">
+            {priorityGuide.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          </div>
+          <div className="mt-5 grid gap-5 sm:grid-cols-[1fr_220px]">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#71717a]">Research questions</p>
+              <ul className="mt-3 space-y-2 text-sm leading-relaxed text-[#a1a1aa]">
+                {priorityGuide.questions.map((question) => (
+                  <li key={question} className="flex gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#22c55e]" />
+                    <span>{question}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#71717a]">Go deeper</p>
+              <div className="mt-3 flex flex-col gap-2">
+                {priorityGuide.links.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="text-sm text-[#6366f1] transition-colors hover:text-[#818cf8]"
+                  >
+                    {link.label} -&gt;
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Article body */}
       <article className="prose-dv">
