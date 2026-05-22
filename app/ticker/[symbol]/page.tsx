@@ -132,6 +132,137 @@ function buildJsonLd(company: Company, metrics: ComputedMetrics) {
   }
 }
 
+type ChecklistTone = 'positive' | 'watch' | 'risk'
+
+function formatPercent(value: number, decimals = 1) {
+  return `${(value * 100).toFixed(decimals)}%`
+}
+
+function formatOptionalPercent(value: number | null, decimals = 0) {
+  return value == null ? 'N/A' : formatPercent(value, decimals)
+}
+
+function formatUpdatedAt(updatedAt: string) {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(updatedAt))
+}
+
+function buildEntryRead(metrics: ComputedMetrics) {
+  const targetYield = metrics.annualDividend / metrics.undervaluedPrice
+  const priceGap = (metrics.currentPrice - metrics.undervaluedPrice) / metrics.currentPrice
+  const yieldGap = targetYield - metrics.currentYield
+
+  if (metrics.weissSignal === 'undervalued') {
+    const discount = (metrics.undervaluedPrice - metrics.currentPrice) / metrics.undervaluedPrice
+
+    return {
+      eyebrow: 'In undervalued territory',
+      title: `Price sits ${formatPercent(Math.max(discount, 0))} below the Weiss buy zone ceiling`,
+      body: `The current yield already clears the historical undervaluation threshold. The next question is whether the dividend quality and payout profile deserve that higher yield.`,
+      priceLabel: 'Zone ceiling',
+      priceValue: `$${metrics.undervaluedPrice.toFixed(2)}`,
+      yieldLabel: 'Current yield',
+      yieldValue: formatPercent(metrics.currentYield, 2),
+    }
+  }
+
+  return {
+    eyebrow: metrics.weissSignal === 'overvalued' ? 'Entry price is stretched' : 'Waiting for a better entry',
+    title: `${metrics.weissSignal === 'overvalued' ? 'Needs' : 'Needs about'} ${formatPercent(Math.max(priceGap, 0))} downside to reach the Weiss buy zone`,
+    body: `Undervaluation starts near $${metrics.undervaluedPrice.toFixed(2)}, where the annual dividend would imply roughly ${formatPercent(targetYield, 2)} yield. That is ${formatPercent(Math.max(yieldGap, 0), 2)} above today's yield.`,
+    priceLabel: 'Buy-zone price',
+    priceValue: `$${metrics.undervaluedPrice.toFixed(2)}`,
+    yieldLabel: 'Target yield',
+    yieldValue: formatPercent(targetYield, 2),
+  }
+}
+
+function buildResearchChecklist(company: Company, metrics: ComputedMetrics) {
+  const payoutTone: ChecklistTone =
+    metrics.payoutRatio == null ? 'watch'
+    : metrics.payoutRatio <= 0.75 ? 'positive'
+    : metrics.payoutRatio <= 1 ? 'watch'
+    : 'risk'
+
+  const fcfTone: ChecklistTone =
+    metrics.fcfPayout == null ? 'watch'
+    : metrics.fcfPayout <= 0.85 ? 'positive'
+    : metrics.fcfPayout <= 1 ? 'watch'
+    : 'risk'
+
+  const growthTone: ChecklistTone =
+    metrics.dividendCagr5y == null ? 'watch'
+    : metrics.dividendCagr5y >= 0.03 ? 'positive'
+    : metrics.dividendCagr5y >= 0 ? 'watch'
+    : 'risk'
+
+  const streakYears = Math.max(company.yearsIncreasingDividends, metrics.yearsNoCut)
+  const streakTone: ChecklistTone = streakYears >= 10 ? 'positive' : streakYears > 0 ? 'watch' : 'risk'
+
+  return [
+    {
+      label: 'Dividend durability',
+      value: streakYears > 0 ? `${streakYears}Y` : 'Check',
+      tone: streakTone,
+      detail: streakYears >= 10
+        ? 'Long dividend history supports a deeper look.'
+        : 'Verify the dividend record before treating yield as durable.',
+    },
+    {
+      label: 'Earnings payout',
+      value: formatOptionalPercent(metrics.payoutRatio),
+      tone: payoutTone,
+      detail: payoutTone === 'positive'
+        ? 'Earnings coverage leaves room for noise.'
+        : 'Coverage deserves a closer look in filings.',
+    },
+    {
+      label: 'Cash payout',
+      value: formatOptionalPercent(metrics.fcfPayout),
+      tone: fcfTone,
+      detail: fcfTone === 'positive'
+        ? 'Free cash flow coverage supports the payment.'
+        : 'Confirm cash conversion and one-off effects.',
+    },
+    {
+      label: 'Dividend growth',
+      value: formatOptionalPercent(metrics.dividendCagr5y, 1),
+      tone: growthTone,
+      detail: growthTone === 'positive'
+        ? 'Recent growth adds income compounding potential.'
+        : 'Lower growth changes the return trade-off.',
+    },
+  ]
+}
+
+function buildNowRead(company: Company, metrics: ComputedMetrics) {
+  const signalRead =
+    metrics.weissSignal === 'undervalued'
+      ? 'Valuation is the invitation here: the yield is elevated versus its own history.'
+      : metrics.weissSignal === 'overvalued'
+        ? 'Valuation is the brake here: the yield is compressed versus its own history.'
+        : 'Valuation is neutral here: quality has to do more of the work than entry price.'
+
+  const qualityRead =
+    metrics.qualityScore >= 80
+      ? `The ${metrics.qualityScore}/100 quality score keeps ${company.symbol} on the serious-research list.`
+      : metrics.qualityScore >= 60
+        ? `The ${metrics.qualityScore}/100 quality score calls for selective follow-up, not autopilot.`
+        : `The ${metrics.qualityScore}/100 quality score says the headline yield needs extra skepticism.`
+
+  const payoutRead =
+    metrics.payoutRatio != null && metrics.payoutRatio > 1
+      ? 'The earnings payout ratio is above 100%, so coverage is the first risk to unpack.'
+      : metrics.fcfPayout != null && metrics.fcfPayout > 1
+        ? 'Free cash flow payout is above 100%, so cash coverage is the first risk to unpack.'
+        : 'Start by checking whether payout coverage and business durability still support the dividend.'
+
+  return { signalRead, qualityRead, payoutRead }
+}
+
 const COLLECTION_LINKS: { slug: string; title: string; check: (c: Company) => boolean }[] = [
   { slug: 'dividend-kings',       title: 'Dividend Kings',       check: (c) => c.isDividendKing },
   { slug: 'dividend-aristocrats', title: 'Dividend Aristocrats', check: (c) => c.isDividendAristocrat && !c.isDividendKing },
@@ -210,6 +341,9 @@ export default async function TickerPage({ params }: PageProps) {
   const relatedCollections = COLLECTION_LINKS.filter((c) => c.check(company))
   const summary = buildSummary(company, metrics)
   const jsonLd = buildJsonLd(company, metrics)
+  const entryRead = buildEntryRead(metrics)
+  const researchChecklist = buildResearchChecklist(company, metrics)
+  const nowRead = buildNowRead(company, metrics)
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -275,6 +409,61 @@ export default async function TickerPage({ params }: PageProps) {
         </p>
       </div>
 
+      {/* Decision layer */}
+      <section aria-label={`${company.symbol} dividend decision snapshot`} className="mb-6 grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-4">
+        <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5">
+          <p className="text-[10px] text-[#22c55e] uppercase tracking-wide font-medium mb-3">
+            Distance to undervalued
+          </p>
+          <p className="text-sm text-[#a1a1aa] mb-2">{entryRead.eyebrow}</p>
+          <h2 className="text-xl font-semibold text-[#f4f4f5] leading-tight mb-3">
+            {entryRead.title}
+          </h2>
+          <p className="text-sm text-[#a1a1aa] leading-relaxed mb-5">
+            {entryRead.body}
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-lg border border-[#1e1e2e] bg-[#09090f] p-3">
+              <p className="text-[10px] text-[#52525b] uppercase tracking-wide mb-1">{entryRead.priceLabel}</p>
+              <p className="text-lg font-semibold text-[#f4f4f5]">{entryRead.priceValue}</p>
+            </div>
+            <div className="rounded-lg border border-[#1e1e2e] bg-[#09090f] p-3">
+              <p className="text-[10px] text-[#52525b] uppercase tracking-wide mb-1">{entryRead.yieldLabel}</p>
+              <p className="text-lg font-semibold text-[#f4f4f5]">{entryRead.yieldValue}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div>
+              <p className="text-[10px] text-[#71717a] uppercase tracking-wide font-medium mb-1">Research checklist</p>
+              <h2 className="text-base font-semibold text-[#f4f4f5]">What to clear before buying the yield</h2>
+            </div>
+            <p className="text-xs text-[#52525b]">Updated {formatUpdatedAt(metrics.updatedAt)}</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {researchChecklist.map((item) => (
+              <div key={item.label} className="rounded-lg border border-[#1e1e2e] bg-[#09090f] p-3">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <p className="text-xs text-[#a1a1aa]">{item.label}</p>
+                  <span className={`text-xs font-semibold ${
+                    item.tone === 'positive'
+                      ? 'text-[#22c55e]'
+                      : item.tone === 'risk'
+                        ? 'text-[#f87171]'
+                        : 'text-[#facc15]'
+                  }`}>
+                    {item.value}
+                  </span>
+                </div>
+                <p className="text-xs text-[#71717a] leading-relaxed">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Main layout: chart area + sidebar */}
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6">
         {/* Left — chart column */}
@@ -299,6 +488,19 @@ export default async function TickerPage({ params }: PageProps) {
 
           {/* Why Now */}
           <WhyNowCard metrics={metrics} />
+
+          {/* Decision context from the current snapshot */}
+          <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5">
+            <p className="text-[10px] text-[#71717a] uppercase tracking-wide font-medium mb-2">What matters now</p>
+            <h2 className="text-base font-semibold text-[#f4f4f5] mb-4">
+              Read the signal before the headline yield
+            </h2>
+            <div className="space-y-3 text-sm text-[#a1a1aa] leading-relaxed">
+              <p>{nowRead.signalRead}</p>
+              <p>{nowRead.qualityRead}</p>
+              <p>{nowRead.payoutRead}</p>
+            </div>
+          </div>
 
           {/* DRIP Compounder */}
           <div>
