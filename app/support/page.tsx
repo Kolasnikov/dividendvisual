@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { HeartHandshake, Mail, Share2 } from 'lucide-react'
+import { TrackNewsletterLanding } from '@/components/analytics/TrackNewsletterLanding'
+import { TrackedOutboundLink } from '@/components/analytics/TrackedOutboundLink'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 const PAGE_URL = 'https://dividendvisual.com/support'
@@ -55,6 +57,7 @@ const NON_MONETARY_SUPPORT = [
 export default function SupportPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+      <TrackNewsletterLanding landing="support" />
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },
         { label: 'Support' },
@@ -92,28 +95,32 @@ export default function SupportPage() {
             <p className="text-xs font-medium text-[#52525b] uppercase tracking-wide">Choose an amount</p>
             <div className="grid grid-cols-3 gap-2">
               {SUPPORT_TIERS.slice(0, 3).map(({ amount, url }) => (
-                <a
+                <TrackedOutboundLink
                   key={amount}
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  event="support_checkout_clicked"
+                  properties={{ amount }}
                   className="flex items-center justify-center rounded-lg border border-[#1e1e2e] bg-[#111118] px-3 py-2.5 text-sm font-semibold text-[#f4f4f5] transition-colors hover:border-[#22c55e] hover:text-[#22c55e]"
                 >
                   ${amount}
-                </a>
+                </TrackedOutboundLink>
               ))}
             </div>
             <div className="grid grid-cols-2 gap-2">
               {SUPPORT_TIERS.slice(3).map(({ amount, url }) => (
-                <a
+                <TrackedOutboundLink
                   key={amount}
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  event="support_checkout_clicked"
+                  properties={{ amount }}
                   className="flex items-center justify-center rounded-lg border border-[#1e1e2e] bg-[#111118] px-3 py-2.5 text-sm font-semibold text-[#f4f4f5] transition-colors hover:border-[#22c55e] hover:text-[#22c55e]"
                 >
                   ${amount}
-                </a>
+                </TrackedOutboundLink>
               ))}
             </div>
           </div>

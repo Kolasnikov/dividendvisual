@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { TrackNewsletterLanding } from '@/components/analytics/TrackNewsletterLanding'
+import { TrackedOutboundLink } from '@/components/analytics/TrackedOutboundLink'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 export const metadata: Metadata = {
@@ -46,6 +48,7 @@ const TOOLS = [
 export default function ToolsPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+      <TrackNewsletterLanding landing="resources-tools" />
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },
         { label: 'Resources', href: '/resources' },
@@ -76,14 +79,16 @@ export default function ToolsPage() {
             <h2 className="text-base font-semibold text-[#f4f4f5]">{tool.name}</h2>
             <p className="text-xs text-[#52525b] mt-0.5 mb-3">{tool.url}</p>
             <p className="text-sm text-[#71717a] leading-relaxed mb-4">{tool.description}</p>
-            <a
+            <TrackedOutboundLink
               href={tool.href}
               target="_blank"
               rel="noopener noreferrer"
+              event="affiliate_resource_clicked"
+              properties={{ kind: 'tool', resource: tool.name }}
               className="inline-flex items-center px-4 py-2 rounded-lg border border-[#2e2e3e] text-sm text-[#a1a1aa] hover:text-[#f4f4f5] hover:border-[#6366f1]/40 transition-colors"
             >
               Visit {tool.name} ↗
-            </a>
+            </TrackedOutboundLink>
           </div>
         ))}
       </div>
