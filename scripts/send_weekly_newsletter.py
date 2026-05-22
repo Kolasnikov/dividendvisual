@@ -297,6 +297,16 @@ def ticker_url(symbol: str) -> str:
     return f"{SITE_URL}/ticker/{symbol}"
 
 
+def support_url() -> str:
+    return (
+        f"{SITE_URL}/support"
+        "?utm_source=newsletter"
+        "&utm_medium=email"
+        "&utm_campaign=weekly-watchlist"
+        "&utm_content=support-cta"
+    )
+
+
 def why_now(row: dict) -> str:
     symbol = row["symbol"]
     name = row.get("name") or symbol
@@ -647,6 +657,18 @@ def build_email(current_issue: str, rows: list[dict], watchlist: dict, freshness
             <h2 style="margin:28px 0 8px;font-size:18px;color:#111827;">{e(educational_title)}</h2>
             <p style="margin:0 0 22px;color:#374151;font-size:14px;line-height:1.6;">{e(educational_body)}</p>
             <a href="{SITE_URL}/dividend-screener" style="display:inline-block;background:#09090b;color:#fff;text-decoration:none;border-radius:8px;padding:12px 18px;font-size:14px;font-weight:700;">Open the full screener →</a>
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 0;border:1px solid #d1fae5;border-radius:8px;background:#f0fdf4;">
+              <tr>
+                <td style="padding:18px;">
+                  <p style="margin:0 0 6px;color:#166534;font-size:12px;font-weight:700;text-transform:uppercase;">Support DividendVisual</p>
+                  <p style="margin:0 0 14px;color:#374151;font-size:14px;line-height:1.6;">
+                    This watchlist is free and independent. If it helps your dividend research,
+                    you can support the project and help keep the data pipeline running.
+                  </p>
+                  <a href="{e(support_url())}" style="display:inline-block;color:#166534;text-decoration:none;font-size:14px;font-weight:700;">Support the project →</a>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
         <tr>
@@ -686,6 +708,11 @@ Top 5 setups to review:
 {educational_body}
 
 Open the screener: {SITE_URL}/dividend-screener
+
+Support DividendVisual
+This watchlist is free and independent. If it helps your dividend research, you can support the project and help keep the data pipeline running.
+Support the project: {support_url()}
+
 Unsubscribe: {{{{RESEND_UNSUBSCRIBE_URL}}}}
 """
     return subject, html_body, text
