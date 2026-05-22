@@ -307,6 +307,63 @@ def support_url() -> str:
     )
 
 
+def resource_url(path: str, content: str) -> str:
+    return (
+        f"{SITE_URL}{path}"
+        "?utm_source=newsletter"
+        "&utm_medium=email"
+        "&utm_campaign=weekly-watchlist"
+        f"&utm_content={content}"
+    )
+
+
+def research_stack(current_issue: str) -> dict[str, str]:
+    stacks = [
+        {
+            "name": "TradingView",
+            "angle": "Charts and alerts",
+            "body": (
+                "DividendVisual flags yield-history valuation. TradingView is a useful next layer "
+                "when you want price structure, longer-term charts, and alerts around a setup."
+            ),
+            "href": resource_url("/resources/tools", "research-stack-tradingview"),
+            "cta": "See the charting tools",
+        },
+        {
+            "name": "FinViz",
+            "angle": "Fundamental cross-check",
+            "body": (
+                "After a Weiss signal appears, FinViz helps cross-check the broader snapshot: "
+                "fundamentals, sector context, analyst views, and upcoming market events."
+            ),
+            "href": resource_url("/resources/tools", "research-stack-finviz"),
+            "cta": "See the research tools",
+        },
+        {
+            "name": "Morningstar",
+            "angle": "Quality second layer",
+            "body": (
+                "A high yield is more useful when the business quality still holds. Morningstar can "
+                "add a second layer with moat and analyst fair value context."
+            ),
+            "href": resource_url("/resources/tools", "research-stack-morningstar"),
+            "cta": "See the research tools",
+        },
+        {
+            "name": "Recommended reading",
+            "angle": "Method discipline",
+            "body": (
+                "The best dividend screen still needs judgment. The DividendVisual reading list "
+                "collects books on dividend growth, margin of safety, and the Weiss method."
+            ),
+            "href": resource_url("/resources/books", "research-stack-books"),
+            "cta": "See the reading list",
+        },
+    ]
+    week_num = int(current_issue.split("W")[-1])
+    return stacks[week_num % len(stacks)]
+
+
 def why_now(row: dict) -> str:
     symbol = row["symbol"]
     name = row.get("name") or symbol
@@ -565,6 +622,7 @@ def build_email(current_issue: str, rows: list[dict], watchlist: dict, freshness
     new = watchlist["new"]
     risky = watchlist["risky"]
     educational_title, educational_body = educational_snippet(current_issue)
+    stack = research_stack(current_issue)
 
     if freshness.get("is_stale"):
         subject = f"{len(watchlist['undervalued'])} dividend setups to review"
@@ -657,6 +715,19 @@ def build_email(current_issue: str, rows: list[dict], watchlist: dict, freshness
             <h2 style="margin:28px 0 8px;font-size:18px;color:#111827;">{e(educational_title)}</h2>
             <p style="margin:0 0 22px;color:#374151;font-size:14px;line-height:1.6;">{e(educational_body)}</p>
             <a href="{SITE_URL}/dividend-screener" style="display:inline-block;background:#09090b;color:#fff;text-decoration:none;border-radius:8px;padding:12px 18px;font-size:14px;font-weight:700;">Open the full screener →</a>
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 0;border:1px solid #c7d2fe;border-radius:8px;background:#eef2ff;">
+              <tr>
+                <td style="padding:18px;">
+                  <p style="margin:0 0 6px;color:#4338ca;font-size:12px;font-weight:700;text-transform:uppercase;">Research stack · {e(stack['angle'])}</p>
+                  <p style="margin:0 0 6px;color:#111827;font-size:15px;font-weight:700;">{e(stack['name'])}</p>
+                  <p style="margin:0 0 12px;color:#374151;font-size:14px;line-height:1.6;">{e(stack['body'])}</p>
+                  <a href="{e(stack['href'])}" style="display:inline-block;color:#4338ca;text-decoration:none;font-size:14px;font-weight:700;">{e(stack['cta'])} →</a>
+                  <p style="margin:12px 0 0;color:#6b7280;font-size:11px;line-height:1.5;">
+                    Resource pages may contain affiliate links. Recommendations stay editorial.
+                  </p>
+                </td>
+              </tr>
+            </table>
             <table width="100%" cellpadding="0" cellspacing="0" style="margin:28px 0 0;border:1px solid #d1fae5;border-radius:8px;background:#f0fdf4;">
               <tr>
                 <td style="padding:18px;">
@@ -708,6 +779,11 @@ Top 5 setups to review:
 {educational_body}
 
 Open the screener: {SITE_URL}/dividend-screener
+
+Research stack: {stack['name']} - {stack['angle']}
+{stack['body']}
+{stack['cta']}: {stack['href']}
+Resource pages may contain affiliate links. Recommendations stay editorial.
 
 Support DividendVisual
 This watchlist is free and independent. If it helps your dividend research, you can support the project and help keep the data pipeline running.
