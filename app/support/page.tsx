@@ -4,7 +4,14 @@ import { HeartHandshake, Mail, Share2 } from 'lucide-react'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 const PAGE_URL = 'https://dividendvisual.com/support'
-const SUPPORT_URL = process.env.NEXT_PUBLIC_SUPPORT_URL?.trim()
+
+const SUPPORT_TIERS = [
+  { amount: 5,   url: 'https://buy.stripe.com/cNieVd3KIf1P23E6458bS00' },
+  { amount: 15,  url: 'https://buy.stripe.com/4gM00j5SQ3j74bM1NP8bS01' },
+  { amount: 25,  url: 'https://buy.stripe.com/dRmcN59522f3gYy0JL8bS02' },
+  { amount: 50,  url: 'https://buy.stripe.com/6oU00j3KI9Hv6jU5018bS03' },
+  { amount: 100, url: 'https://buy.stripe.com/4gM14n6WU1aZbEe8cd8bS04' },
+]
 
 export const metadata: Metadata = {
   title: 'Support DividendVisual',
@@ -81,24 +88,34 @@ export default function SupportPage() {
             </p>
           </div>
 
-          <div className="sm:min-w-[190px]">
-            {SUPPORT_URL ? (
-              <a
-                href={SUPPORT_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex w-full items-center justify-center rounded-lg bg-[#22c55e] px-4 py-3 text-sm font-semibold text-[#04110a] transition-colors hover:bg-[#4ade80]"
-              >
-                Support the project
-              </a>
-            ) : (
-              <div className="rounded-lg border border-[#1e1e2e] bg-[#111118] px-4 py-3">
-                <p className="text-sm font-medium text-[#f4f4f5]">Support payments coming soon</p>
-                <p className="mt-1 text-xs leading-relaxed text-[#71717a]">
-                  The page is live now. A voluntary payment link will be added here next.
-                </p>
-              </div>
-            )}
+          <div className="flex flex-col gap-3 sm:min-w-[200px]">
+            <p className="text-xs font-medium text-[#52525b] uppercase tracking-wide">Choose an amount</p>
+            <div className="grid grid-cols-3 gap-2">
+              {SUPPORT_TIERS.slice(0, 3).map(({ amount, url }) => (
+                <a
+                  key={amount}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center rounded-lg border border-[#1e1e2e] bg-[#111118] px-3 py-2.5 text-sm font-semibold text-[#f4f4f5] transition-colors hover:border-[#22c55e] hover:text-[#22c55e]"
+                >
+                  ${amount}
+                </a>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {SUPPORT_TIERS.slice(3).map(({ amount, url }) => (
+                <a
+                  key={amount}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center rounded-lg border border-[#1e1e2e] bg-[#111118] px-3 py-2.5 text-sm font-semibold text-[#f4f4f5] transition-colors hover:border-[#22c55e] hover:text-[#22c55e]"
+                >
+                  ${amount}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </section>
