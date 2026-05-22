@@ -164,6 +164,27 @@ const FEATURES = [
   },
 ]
 
+const PRIORITY_RESEARCH = [
+  {
+    href: '/analysis/o',
+    symbol: 'O',
+    title: 'Realty Income dividend analysis',
+    note: 'Monthly REIT income, yield history, and rate-sensitive Weiss context.',
+  },
+  {
+    href: '/analysis/abbv',
+    symbol: 'ABBV',
+    title: 'AbbVie dividend analysis',
+    note: 'Higher healthcare yield with payout coverage and post-Humira risk context.',
+  },
+  {
+    href: '/analysis/bdx',
+    symbol: 'BDX',
+    title: 'Becton Dickinson dividend analysis',
+    note: 'Dividend King quality through a medical device and diagnostics lens.',
+  },
+]
+
 export default async function HomePage() {
   const topPicks = await getTopPicks()
 
@@ -339,6 +360,33 @@ export default async function HomePage() {
           <UndervaluedCarousel items={topPicks} />
         </section>
       )}
+
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div className="flex flex-col gap-3 border-y border-[#1e1e2e] py-8 md:flex-row md:items-start md:justify-between">
+          <div className="max-w-md">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[#71717a]">Dividend research</p>
+            <h2 className="mt-2 text-xl font-bold text-[#f4f4f5]">Start with live dividend analyses</h2>
+            <p className="mt-3 text-sm leading-relaxed text-[#71717a]">
+              Read the yield history, payout context, and Weiss valuation signal before moving from a ticker idea to deeper research.
+            </p>
+          </div>
+          <div className="grid flex-1 gap-3 md:max-w-2xl md:grid-cols-3">
+            {PRIORITY_RESEARCH.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group rounded-lg border border-[#1e1e2e] bg-[#111118] p-4 transition-colors hover:border-[#6366f1]/40"
+              >
+                <p className="font-mono text-xs font-semibold text-[#818cf8]">{item.symbol}</p>
+                <h3 className="mt-2 text-sm font-semibold text-[#f4f4f5] transition-colors group-hover:text-[#818cf8]">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-xs leading-relaxed text-[#71717a]">{item.note}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Email capture banner */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">

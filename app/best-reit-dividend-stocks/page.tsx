@@ -40,6 +40,14 @@ export default function BestReitDividendStocksPage() {
       statLabel="REITs tracked"
       ctaTitle="Get alerts when REIT dividend stocks become undervalued"
       ctaDescription="A weekly dividend research email with REITs and other income stocks entering historically attractive Weiss yield territory."
+      featuredAnalyses={[
+        {
+          href: '/analysis/o',
+          symbol: 'O',
+          title: 'Realty Income dividend history, yield, and monthly income setup',
+          note: 'Read the O analysis before comparing rate-driven yield pressure with tenant durability, debt costs, and net lease peers.',
+        },
+      ]}
       relatedLinks={[
         { href: '/best-monthly-dividend-stocks', label: 'Best monthly dividend stocks' },
         { href: '/high-yield-dividend-stocks', label: 'High yield dividend stocks' },

@@ -19,6 +19,7 @@ interface SectorDividendLandingProps {
   statLabel: string
   ctaTitle: string
   ctaDescription: string
+  featuredAnalyses?: { href: string; symbol: string; title: string; note: string }[]
   relatedLinks: { href: string; label: string }[]
   sections: { heading: string; paragraphs: string[] }[]
   checklist: string[]
@@ -227,6 +228,35 @@ export async function SectorDividendLanding(props: SectorDividendLandingProps) {
           </div>
         </aside>
       </section>
+
+      {props.featuredAnalyses && props.featuredAnalyses.length > 0 && (
+        <section className="mb-12 border-y border-[#1e1e2e] py-8">
+          <div className="mb-5 max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[#71717a]">
+              Priority analysis
+            </p>
+            <h2 className="mt-2 text-xl font-semibold text-[#f4f4f5]">
+              Dividend analyses to read next
+            </h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            {props.featuredAnalyses.map((analysis) => (
+              <Link
+                key={analysis.href}
+                href={analysis.href}
+                className="group rounded-lg border border-[#1e1e2e] bg-[#111118] p-5 transition-colors hover:border-[#6366f1]/40"
+              >
+                <p className="font-mono text-xs font-semibold text-[#818cf8]">{analysis.symbol}</p>
+                <h3 className="mt-2 text-sm font-semibold text-[#f4f4f5] transition-colors group-hover:text-[#818cf8]">
+                  {analysis.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#71717a]">{analysis.note}</p>
+                <p className="mt-4 text-sm text-[#6366f1]">Read analysis -&gt;</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="mb-12">
         <DividendAlertsCTA

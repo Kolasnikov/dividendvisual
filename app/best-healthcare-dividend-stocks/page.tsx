@@ -40,6 +40,20 @@ export default function BestHealthcareDividendStocksPage() {
       statLabel="Healthcare stocks"
       ctaTitle="Get alerts when healthcare dividend stocks become undervalued"
       ctaDescription="A weekly dividend research email with healthcare and other quality defensive stocks entering historically attractive Weiss yield territory."
+      featuredAnalyses={[
+        {
+          href: '/analysis/abbv',
+          symbol: 'ABBV',
+          title: 'AbbVie dividend history, yield, and Humira transition risk',
+          note: 'Use the Weiss setup with payout coverage and pipeline context before treating the higher yield as a clean entry signal.',
+        },
+        {
+          href: '/analysis/bdx',
+          symbol: 'BDX',
+          title: 'Becton Dickinson dividend quality and yield history',
+          note: 'A device and diagnostics dividend profile where recurring demand, payout safety, and dividend growth matter more than headline yield.',
+        },
+      ]}
       relatedLinks={[
         { href: '/dividend-aristocrats', label: 'Dividend Aristocrats' },
         { href: '/dividend-kings', label: 'Dividend Kings' },
