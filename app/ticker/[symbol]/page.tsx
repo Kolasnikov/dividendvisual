@@ -409,61 +409,6 @@ export default async function TickerPage({ params }: PageProps) {
         </p>
       </div>
 
-      {/* Decision layer */}
-      <section aria-label={`${company.symbol} dividend decision snapshot`} className="mb-6 grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-4">
-        <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5">
-          <p className="text-[10px] text-[#22c55e] uppercase tracking-wide font-medium mb-3">
-            Distance to undervalued
-          </p>
-          <p className="text-sm text-[#a1a1aa] mb-2">{entryRead.eyebrow}</p>
-          <h2 className="text-xl font-semibold text-[#f4f4f5] leading-tight mb-3">
-            {entryRead.title}
-          </h2>
-          <p className="text-sm text-[#a1a1aa] leading-relaxed mb-5">
-            {entryRead.body}
-          </p>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-lg border border-[#1e1e2e] bg-[#09090f] p-3">
-              <p className="text-[10px] text-[#52525b] uppercase tracking-wide mb-1">{entryRead.priceLabel}</p>
-              <p className="text-lg font-semibold text-[#f4f4f5]">{entryRead.priceValue}</p>
-            </div>
-            <div className="rounded-lg border border-[#1e1e2e] bg-[#09090f] p-3">
-              <p className="text-[10px] text-[#52525b] uppercase tracking-wide mb-1">{entryRead.yieldLabel}</p>
-              <p className="text-lg font-semibold text-[#f4f4f5]">{entryRead.yieldValue}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-            <div>
-              <p className="text-[10px] text-[#71717a] uppercase tracking-wide font-medium mb-1">Research checklist</p>
-              <h2 className="text-base font-semibold text-[#f4f4f5]">What to clear before buying the yield</h2>
-            </div>
-            <p className="text-xs text-[#52525b]">Updated {formatUpdatedAt(metrics.updatedAt)}</p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {researchChecklist.map((item) => (
-              <div key={item.label} className="rounded-lg border border-[#1e1e2e] bg-[#09090f] p-3">
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <p className="text-xs text-[#a1a1aa]">{item.label}</p>
-                  <span className={`text-xs font-semibold ${
-                    item.tone === 'positive'
-                      ? 'text-[#22c55e]'
-                      : item.tone === 'risk'
-                        ? 'text-[#f87171]'
-                        : 'text-[#facc15]'
-                  }`}>
-                    {item.value}
-                  </span>
-                </div>
-                <p className="text-xs text-[#71717a] leading-relaxed">{item.detail}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Main layout: chart area + sidebar */}
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6">
         {/* Left — chart column */}
@@ -485,6 +430,61 @@ export default async function TickerPage({ params }: PageProps) {
             </div>
             <WeissChart data={chartData} currentPrice={metrics.currentPrice} label={`${company.symbol} dividend yield history — Weiss valuation bands (undervalued threshold $${metrics.undervaluedPrice.toFixed(2)}, overvalued threshold $${metrics.overvaluedPrice.toFixed(2)})`} />
           </div>
+
+          {/* Decision layer */}
+          <section aria-label={`${company.symbol} dividend decision snapshot`} className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-4">
+            <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5">
+              <p className="text-[10px] text-[#22c55e] uppercase tracking-wide font-medium mb-3">
+                Distance to undervalued
+              </p>
+              <p className="text-sm text-[#a1a1aa] mb-2">{entryRead.eyebrow}</p>
+              <h2 className="text-xl font-semibold text-[#f4f4f5] leading-tight mb-3">
+                {entryRead.title}
+              </h2>
+              <p className="text-sm text-[#a1a1aa] leading-relaxed mb-5">
+                {entryRead.body}
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-lg border border-[#1e1e2e] bg-[#09090f] p-3">
+                  <p className="text-[10px] text-[#52525b] uppercase tracking-wide mb-1">{entryRead.priceLabel}</p>
+                  <p className="text-lg font-semibold text-[#f4f4f5]">{entryRead.priceValue}</p>
+                </div>
+                <div className="rounded-lg border border-[#1e1e2e] bg-[#09090f] p-3">
+                  <p className="text-[10px] text-[#52525b] uppercase tracking-wide mb-1">{entryRead.yieldLabel}</p>
+                  <p className="text-lg font-semibold text-[#f4f4f5]">{entryRead.yieldValue}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <div>
+                  <p className="text-[10px] text-[#71717a] uppercase tracking-wide font-medium mb-1">Research checklist</p>
+                  <h2 className="text-base font-semibold text-[#f4f4f5]">What to clear before buying the yield</h2>
+                </div>
+                <p className="text-xs text-[#52525b]">Updated {formatUpdatedAt(metrics.updatedAt)}</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {researchChecklist.map((item) => (
+                  <div key={item.label} className="rounded-lg border border-[#1e1e2e] bg-[#09090f] p-3">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <p className="text-xs text-[#a1a1aa]">{item.label}</p>
+                      <span className={`text-xs font-semibold ${
+                        item.tone === 'positive'
+                          ? 'text-[#22c55e]'
+                          : item.tone === 'risk'
+                            ? 'text-[#f87171]'
+                            : 'text-[#facc15]'
+                      }`}>
+                        {item.value}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#71717a] leading-relaxed">{item.detail}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
 
           {/* Why Now */}
           <WhyNowCard metrics={metrics} />
