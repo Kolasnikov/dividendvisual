@@ -221,7 +221,7 @@ export default async function TickerPage({ params }: PageProps) {
 
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },
-        { label: 'Watchlist', href: '/watchlist' },
+        { label: 'Dividend Screener', href: '/dividend-screener' },
         { label: `${company.symbol} — ${company.name}` },
       ]} />
 
@@ -405,7 +405,7 @@ export default async function TickerPage({ params }: PageProps) {
                   </Link>
                 ))}
                 <Link
-                  href="/watchlist"
+                  href="/dividend-screener"
                   className="text-sm text-[#71717a] hover:text-[#f4f4f5] transition-colors"
                 >
                   → Full Watchlist

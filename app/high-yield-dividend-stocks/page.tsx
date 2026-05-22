@@ -203,10 +203,10 @@ export default async function HighYieldDividendStocksPage() {
                   <td className="py-3 pr-4 text-[#a1a1aa]">{pct(row.dividendCagr5y, 1)}</td>
                   <td className="py-3 pr-4 text-right">
                     <Link
-                      href={`/ticker/${row.symbol}`}
+                      href={`/analysis/${row.symbol.toLowerCase()}`}
                       className="text-xs text-[#6366f1] hover:text-[#818cf8] transition-colors"
                     >
-                      View
+                      Read
                     </Link>
                   </td>
                 </tr>

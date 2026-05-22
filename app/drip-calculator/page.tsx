@@ -107,7 +107,7 @@ export default function DRIPCalculatorPage() {
               {sym}
             </Link>
           ))}
-          <Link href="/watchlist" className="px-3 py-1.5 rounded-md bg-[#6366f1]/10 text-xs text-[#6366f1] border border-[#6366f1]/20 hover:bg-[#6366f1]/20 transition-colors">
+          <Link href="/dividend-screener" className="px-3 py-1.5 rounded-md bg-[#6366f1]/10 text-xs text-[#6366f1] border border-[#6366f1]/20 hover:bg-[#6366f1]/20 transition-colors">
             All stocks →
           </Link>
         </div>
@@ -150,7 +150,7 @@ export default function DRIPCalculatorPage() {
         <p>
           The dividend CAGR is the most consequential input in the projection over horizons longer than
           10 years. Each stock&apos;s{' '}
-          <Link href="/watchlist" className="text-[#6366f1] hover:text-[#818cf8]">DividendVisual page</Link>{' '}
+          <Link href="/dividend-screener" className="text-[#6366f1] hover:text-[#818cf8]">DividendVisual page</Link>{' '}
           shows its historical 5-year and 10-year dividend CAGR. Use the 5-year figure as your
           baseline, and shade it downward by 1–2 percentage points for conservatism.
         </p>

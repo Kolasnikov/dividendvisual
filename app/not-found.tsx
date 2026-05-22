@@ -17,7 +17,7 @@ export default function NotFound() {
       </p>
       <div className="flex flex-wrap gap-3 justify-center">
         <Link
-          href="/watchlist"
+          href="/dividend-screener"
           className="px-4 py-2 rounded-lg bg-[#6366f1] text-white text-sm font-medium hover:bg-[#818cf8] transition-colors"
         >
           Browse all stocks

@@ -161,7 +161,7 @@ export function PortfolioClient({ universe }: Props) {
           <p className="text-sm font-medium text-[#f4f4f5] mb-2">No positions yet</p>
           <p className="text-xs max-w-sm mx-auto leading-relaxed">
             Add stocks above, or browse the{' '}
-            <Link href="/watchlist" className="text-[#6366f1] hover:text-[#818cf8]">screener</Link>{' '}
+            <Link href="/dividend-screener" className="text-[#6366f1] hover:text-[#818cf8]">screener</Link>{' '}
             to find candidates.
           </p>
         </div>

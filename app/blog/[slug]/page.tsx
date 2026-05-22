@@ -141,7 +141,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             </Link>
           ))}
           <Link
-            href="/watchlist"
+            href="/dividend-screener"
             className="px-3 py-1.5 rounded-md bg-[#6366f1]/10 text-sm text-[#6366f1] border border-[#6366f1]/20 hover:bg-[#6366f1]/20 transition-colors"
           >
             View all stocks →

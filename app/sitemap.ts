@@ -60,7 +60,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const statics: MetadataRoute.Sitemap = [
     { url: BASE, lastModified: now, changeFrequency: 'daily', priority: 1 },
-    { url: `${BASE}/watchlist`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${BASE}/dividend-screener`, lastModified: now, changeFrequency: 'daily', priority: 0.95 },
     { url: `${BASE}/best-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.92 },
     { url: `${BASE}/undervalued-dividend-stocks`, lastModified: now, changeFrequency: 'daily', priority: 0.92 },

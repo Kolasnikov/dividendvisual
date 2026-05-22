@@ -273,7 +273,7 @@ export default function GlossaryPage() {
           <Link href="/drip-calculator" className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors">
             → DRIP Calculator: Project Your Income Growth
           </Link>
-          <Link href="/watchlist" className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors">
+          <Link href="/dividend-screener" className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors">
             → Screener: Apply the Weiss Method to 150+ Dividend Stocks
           </Link>
           <a
