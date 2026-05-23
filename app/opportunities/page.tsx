@@ -1,11 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import type { ReactNode } from 'react'
 import type { WatchlistItem } from '@/lib/types'
 import { SignalBadge } from '@/components/ui/SignalBadge'
 import { DividendBadge } from '@/components/ui/DividendBadge'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
+import { db } from '@/lib/db'
 
 export const metadata: Metadata = {
   title: 'Undervalued Dividend Stocks Today - Weiss Signal Opportunities',
@@ -29,9 +31,174 @@ async function getWatchlist(): Promise<WatchlistItem[]> {
   return res.json()
 }
 
+type ChangeTone = 'positive' | 'negative' | 'neutral'
+
+interface RecentChange {
+  symbol: string
+  name: string
+  sector: string | null
+  currentPrice: number
+  currentYield: number
+  weissSignal: WatchlistItem['weissSignal']
+  qualityScore: number
+  previousDate: string
+  currentDate: string
+  priceDeltaPct: number | null
+  yieldDelta: number | null
+  qualityDelta: number | null
+  previousSignal: WatchlistItem['weissSignal'] | null
+  previousYield: number | null
+  previousPrice: number | null
+}
+
+interface RecentChanges {
+  latestDate: string | null
+  previousDate: string | null
+  newlyUndervalued: RecentChange[]
+  yieldIncreases: RecentChange[]
+  priceDrops: RecentChange[]
+  qualityMoves: RecentChange[]
+  leftUndervalued: RecentChange[]
+}
+
+const emptyRecentChanges: RecentChanges = {
+  latestDate: null,
+  previousDate: null,
+  newlyUndervalued: [],
+  yieldIncreases: [],
+  priceDrops: [],
+  qualityMoves: [],
+  leftUndervalued: [],
+}
+
+async function getRecentChanges(): Promise<RecentChanges> {
+  try {
+    const result = await db.execute({
+      sql: `WITH latest AS (
+              SELECT MAX(snapshot_date) AS latest_date
+              FROM ticker_metric_snapshots
+            ),
+            current_rows AS (
+              SELECT s.*
+              FROM ticker_metric_snapshots s
+              JOIN latest l ON s.snapshot_date = l.latest_date
+            ),
+            previous_rows AS (
+              SELECT p.*
+              FROM ticker_metric_snapshots p
+              JOIN current_rows c ON c.symbol = p.symbol
+              WHERE p.snapshot_date = (
+                SELECT MAX(p2.snapshot_date)
+                FROM ticker_metric_snapshots p2
+                WHERE p2.symbol = c.symbol
+                  AND p2.snapshot_date < c.snapshot_date
+              )
+            )
+            SELECT
+              c.symbol,
+              co.name,
+              co.sector,
+              c.snapshot_date AS current_date,
+              p.snapshot_date AS previous_date,
+              c.current_price,
+              p.current_price AS previous_price,
+              c.current_yield,
+              p.current_yield AS previous_yield,
+              c.weiss_signal,
+              p.weiss_signal AS previous_signal,
+              c.quality_score,
+              p.quality_score AS previous_quality_score
+            FROM current_rows c
+            JOIN previous_rows p ON p.symbol = c.symbol
+            JOIN companies co ON co.symbol = c.symbol
+            WHERE c.current_price IS NOT NULL
+              AND p.current_price IS NOT NULL
+              AND c.current_yield IS NOT NULL
+              AND p.current_yield IS NOT NULL`,
+    })
+
+    const rows: RecentChange[] = result.rows.map((row) => {
+      const currentPrice = (row.current_price as number) ?? 0
+      const previousPrice = row.previous_price as number | null
+      const currentYield = (row.current_yield as number) ?? 0
+      const previousYield = row.previous_yield as number | null
+      const qualityScore = (row.quality_score as number) ?? 0
+      const previousQualityScore = row.previous_quality_score as number | null
+
+      return {
+        symbol: row.symbol as string,
+        name: row.name as string,
+        sector: row.sector as string | null,
+        currentDate: row.current_date as string,
+        previousDate: row.previous_date as string,
+        currentPrice,
+        previousPrice,
+        currentYield,
+        previousYield,
+        weissSignal: ((row.weiss_signal as string) ?? 'fair') as WatchlistItem['weissSignal'],
+        previousSignal: (row.previous_signal as WatchlistItem['weissSignal'] | null) ?? null,
+        qualityScore,
+        priceDeltaPct: previousPrice && previousPrice > 0 ? (currentPrice - previousPrice) / previousPrice : null,
+        yieldDelta: previousYield != null ? currentYield - previousYield : null,
+        qualityDelta: previousQualityScore != null ? qualityScore - previousQualityScore : null,
+      }
+    })
+
+    if (rows.length === 0) return emptyRecentChanges
+
+    const byYieldIncrease = [...rows]
+      .filter((row) => (row.yieldDelta ?? 0) >= 0.001)
+      .sort((a, b) => (b.yieldDelta ?? 0) - (a.yieldDelta ?? 0))
+      .slice(0, 4)
+
+    const byPriceDrop = [...rows]
+      .filter((row) => (row.priceDeltaPct ?? 0) <= -0.01)
+      .sort((a, b) => (a.priceDeltaPct ?? 0) - (b.priceDeltaPct ?? 0))
+      .slice(0, 4)
+
+    const byQualityMove = [...rows]
+      .filter((row) => Math.abs(row.qualityDelta ?? 0) >= 3)
+      .sort((a, b) => Math.abs(b.qualityDelta ?? 0) - Math.abs(a.qualityDelta ?? 0))
+      .slice(0, 4)
+
+    return {
+      latestDate: rows[0].currentDate,
+      previousDate: rows[0].previousDate,
+      newlyUndervalued: rows
+        .filter((row) => row.weissSignal === 'undervalued' && row.previousSignal !== 'undervalued')
+        .sort((a, b) => b.qualityScore - a.qualityScore)
+        .slice(0, 4),
+      yieldIncreases: byYieldIncrease,
+      priceDrops: byPriceDrop,
+      qualityMoves: byQualityMove,
+      leftUndervalued: rows
+        .filter((row) => row.previousSignal === 'undervalued' && row.weissSignal !== 'undervalued')
+        .sort((a, b) => (b.previousYield ?? 0) - (a.previousYield ?? 0))
+        .slice(0, 4),
+    }
+  } catch {
+    return emptyRecentChanges
+  }
+}
+
 function pct(v: number | null, d = 2) {
   if (v == null) return '—'
   return `${(v * 100).toFixed(d)}%`
+}
+
+function signedPct(v: number, d = 1) {
+  const sign = v > 0 ? '+' : ''
+  return `${sign}${(v * 100).toFixed(d)}%`
+}
+
+function signedPp(v: number, d = 2) {
+  const sign = v > 0 ? '+' : ''
+  return `${sign}${(v * 100).toFixed(d)} pp`
+}
+
+function signedNumber(v: number) {
+  const sign = v > 0 ? '+' : ''
+  return `${sign}${v}`
 }
 
 function yieldProximity(item: WatchlistItem): number {
@@ -153,6 +320,201 @@ function WatchCard({ item }: { item: WatchlistItem }) {
   )
 }
 
+function toneClass(tone: ChangeTone) {
+  if (tone === 'positive') return 'text-[#22c55e]'
+  if (tone === 'negative') return 'text-[#f87171]'
+  return 'text-[#a1a1aa]'
+}
+
+function RecentChangeCard({
+  change,
+  label,
+  value,
+  detail,
+  tone,
+}: {
+  change: RecentChange
+  label: string
+  value: string
+  detail: string
+  tone: ChangeTone
+}) {
+  return (
+    <Link
+      href={`/ticker/${change.symbol}`}
+      className="block bg-[#111118] border border-[#1e1e2e] rounded-xl p-4 hover:border-[#6366f1]/35 transition-colors group"
+    >
+      <div className="flex items-start justify-between gap-4 mb-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="font-mono font-semibold text-sm text-[#f4f4f5] group-hover:text-[#6366f1] transition-colors">
+              {change.symbol}
+            </span>
+            <SignalBadge signal={change.weissSignal} size="sm" />
+          </div>
+          <p className="mt-1 text-xs text-[#71717a] truncate">{change.name}</p>
+          {change.sector && <p className="text-[10px] text-[#52525b] mt-0.5">{change.sector}</p>}
+        </div>
+        <div className="text-right shrink-0">
+          <p className={`text-sm font-semibold ${toneClass(tone)}`}>{value}</p>
+          <p className="text-[10px] text-[#52525b]">{label}</p>
+        </div>
+      </div>
+      <p className="text-xs text-[#a1a1aa] leading-relaxed">{detail}</p>
+      <div className="mt-3 flex items-center justify-between text-[10px] text-[#52525b]">
+        <span>{pct(change.currentYield)} yield</span>
+        <span>Quality {change.qualityScore}/100</span>
+      </div>
+    </Link>
+  )
+}
+
+function RecentChangeGroup({
+  title,
+  description,
+  changes,
+  render,
+}: {
+  title: string
+  description: string
+  changes: RecentChange[]
+  render: (change: RecentChange) => ReactNode
+}) {
+  if (changes.length === 0) return null
+
+  return (
+    <div>
+      <div className="mb-3">
+        <h3 className="text-sm font-semibold text-[#f4f4f5]">{title}</h3>
+        <p className="mt-1 text-xs text-[#71717a]">{description}</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+        {changes.map((change) => (
+          <div key={`${title}-${change.symbol}`}>{render(change)}</div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function RecentChangesSection({ changes }: { changes: RecentChanges }) {
+  const hasChanges =
+    changes.newlyUndervalued.length > 0 ||
+    changes.yieldIncreases.length > 0 ||
+    changes.priceDrops.length > 0 ||
+    changes.qualityMoves.length > 0 ||
+    changes.leftUndervalued.length > 0
+
+  return (
+    <section className="mb-12">
+      <div className="flex flex-wrap items-center gap-3 mb-5">
+        <h2 className="text-sm font-semibold text-[#f4f4f5] uppercase tracking-wide">
+          Recent Changes
+        </h2>
+        <div className="h-px flex-1 bg-[#1e1e2e]" />
+        {changes.latestDate && changes.previousDate ? (
+          <span className="text-xs text-[#71717a]">{changes.previousDate} → {changes.latestDate}</span>
+        ) : (
+          <span className="text-xs text-[#71717a]">Initializing after the next full refresh</span>
+        )}
+      </div>
+
+      {!changes.previousDate ? (
+        <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5">
+          <p className="text-sm font-medium text-[#f4f4f5] mb-1">Change tracking is warming up</p>
+          <p className="text-sm text-[#71717a] leading-relaxed">
+            The latest metrics are saved. After the next full refresh, this section will show fresh undervalued entrants,
+            yield moves, price drops, quality changes, and stocks that left the undervalued zone.
+          </p>
+        </div>
+      ) : hasChanges ? (
+        <div className="space-y-7">
+          <RecentChangeGroup
+            title="Newly undervalued"
+            description="Stocks whose Weiss signal moved into undervalued territory."
+            changes={changes.newlyUndervalued}
+            render={(change) => (
+              <RecentChangeCard
+                change={change}
+                label="signal"
+                value="New"
+                tone="positive"
+                detail={`Signal moved from ${change.previousSignal ?? 'fair'} to undervalued. Current yield is ${pct(change.currentYield)}.`}
+              />
+            )}
+          />
+          <RecentChangeGroup
+            title="Biggest yield increases"
+            description="Yield moved higher versus the previous update."
+            changes={changes.yieldIncreases}
+            render={(change) => (
+              <RecentChangeCard
+                change={change}
+                label="yield move"
+                value={signedPp(change.yieldDelta ?? 0)}
+                tone="positive"
+                detail={`Yield moved from ${pct(change.previousYield)} to ${pct(change.currentYield)}.`}
+              />
+            )}
+          />
+          <RecentChangeGroup
+            title="Biggest price drops"
+            description="Price weakness that may be worth reviewing."
+            changes={changes.priceDrops}
+            render={(change) => (
+              <RecentChangeCard
+                change={change}
+                label="price move"
+                value={signedPct(change.priceDeltaPct ?? 0)}
+                tone="positive"
+                detail={`Price moved from $${(change.previousPrice ?? 0).toFixed(2)} to $${change.currentPrice.toFixed(2)}.`}
+              />
+            )}
+          />
+          <RecentChangeGroup
+            title="Quality score changes"
+            description="Dividend quality moved enough to review."
+            changes={changes.qualityMoves}
+            render={(change) => {
+              const delta = change.qualityDelta ?? 0
+              return (
+                <RecentChangeCard
+                  change={change}
+                  label="score move"
+                  value={signedNumber(delta)}
+                  tone={delta > 0 ? 'positive' : 'negative'}
+                  detail={`Quality score is now ${change.qualityScore}/100.`}
+                />
+              )
+            }}
+          />
+          <RecentChangeGroup
+            title="Left undervalued zone"
+            description="Stocks no longer showing an undervalued Weiss signal."
+            changes={changes.leftUndervalued}
+            render={(change) => (
+              <RecentChangeCard
+                change={change}
+                label="signal"
+                value="Exited"
+                tone="neutral"
+                detail={`Signal moved from undervalued to ${change.weissSignal}. Current yield is ${pct(change.currentYield)}.`}
+              />
+            )}
+          />
+        </div>
+      ) : (
+        <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5">
+          <p className="text-sm font-medium text-[#f4f4f5] mb-1">No major changes since the last update</p>
+          <p className="text-sm text-[#71717a] leading-relaxed">
+            No ticker crossed the main movement thresholds for signal, yield, price, or quality. Current opportunities are still listed below.
+          </p>
+        </div>
+      )}
+    </section>
+  )
+}
+
 const FAQ = [
   {
     q: 'What does "undervalued" mean on this page?',
@@ -177,7 +539,10 @@ const FAQ = [
 ]
 
 export default async function OpportunitiesPage() {
-  const all = await getWatchlist()
+  const [all, recentChanges] = await Promise.all([
+    getWatchlist(),
+    getRecentChanges(),
+  ])
 
   const strong = all.filter((s) => s.weissSignal === 'undervalued')
   const watching = all
@@ -248,6 +613,8 @@ export default async function OpportunitiesPage() {
           description="We track the Weiss signal daily and send a short weekly digest when quality dividend stocks enter undervalued territory."
         />
       </div>
+
+      <RecentChangesSection changes={recentChanges} />
 
       {/* Strong opportunities */}
       {strong.length > 0 ? (
