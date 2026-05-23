@@ -443,7 +443,7 @@ export default async function TickerPage({ params }: PageProps) {
           </div>
 
           {/* Decision layer */}
-          <section aria-label={`${company.symbol} dividend decision snapshot`} className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-4">
+          <section aria-label={`${company.symbol} dividend decision context`} className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-4">
             <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5">
               <p className="text-[10px] text-[#22c55e] uppercase tracking-wide font-medium mb-3">
                 Distance to undervalued
@@ -503,7 +503,7 @@ export default async function TickerPage({ params }: PageProps) {
               <div>
                 <p className="text-[10px] text-[#71717a] uppercase tracking-wide font-medium mb-1">What changed</p>
                 <h2 className="text-base font-semibold text-[#f4f4f5]">
-                  Snapshot change since the last saved read
+                  What changed since the last update
                 </h2>
               </div>
               {changes.previousDate && changes.currentDate && (
@@ -533,8 +533,8 @@ export default async function TickerPage({ params }: PageProps) {
             ) : (
               <p className="text-sm text-[#a1a1aa] leading-relaxed">
                 {changes.previousDate
-                  ? 'No major signal, yield, price, quality, or payout change versus the prior saved snapshot.'
-                  : 'Change tracking is warming up. After the next data refresh, this card will show whether yield, price, signal, quality, or payout moved versus the prior snapshot.'}
+                  ? 'No major change in signal, yield, price, quality, or payout since the last update.'
+                  : 'Change tracking is warming up. After the next data refresh, this card will show whether yield, price, signal, quality, or payout moved.'}
               </p>
             )}
           </div>
@@ -542,7 +542,7 @@ export default async function TickerPage({ params }: PageProps) {
           {/* Why Now */}
           <WhyNowCard metrics={metrics} />
 
-          {/* Decision context from the current snapshot */}
+          {/* Decision context from the current metrics */}
           <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5">
             <p className="text-[10px] text-[#71717a] uppercase tracking-wide font-medium mb-2">What matters now</p>
             <h2 className="text-base font-semibold text-[#f4f4f5] mb-4">
