@@ -283,6 +283,16 @@ def money(value: float | None) -> str:
     return f"${value:.2f}"
 
 
+def signed_pct(value: float, digits: int = 1) -> str:
+    sign = "+" if value > 0 else ""
+    return f"{sign}{value * 100:.{digits}f}%"
+
+
+def signed_pp(value: float, digits: int = 2) -> str:
+    sign = "+" if value > 0 else ""
+    return f"{sign}{value * 100:.{digits}f} pp"
+
+
 def number(value: float | None, digits: int = 1) -> str:
     if value is None:
         return "n/a"
@@ -450,6 +460,69 @@ def risk_note(row: dict) -> str:
     return "The signal is attractive, but verify the latest earnings trend and balance-sheet context before treating it as actionable."
 
 
+def signal_label(signal: str | None) -> str:
+    if signal == "undervalued":
+        return "undervalued"
+    if signal == "overvalued":
+        return "overvalued"
+    return "fair"
+
+
+def ticker_change_notes(row: dict, previous: dict | None, limit: int = 3) -> list[str]:
+    if not previous:
+        return []
+
+    notes: list[str] = []
+    prev_signal = previous.get("weiss_signal")
+    current_signal = row.get("weiss_signal")
+    if prev_signal and current_signal and prev_signal != current_signal:
+        notes.append(f"Signal moved from {signal_label(prev_signal)} to {signal_label(current_signal)}.")
+
+    prev_yield = previous.get("current_yield")
+    current_yield = row.get("current_yield")
+    if prev_yield is not None and current_yield is not None:
+        delta_yield = current_yield - prev_yield
+        if abs(delta_yield) >= 0.001:
+            direction = "expanded" if delta_yield > 0 else "compressed"
+            notes.append(f"Yield {direction} {signed_pp(delta_yield)} to {pct(current_yield)}.")
+
+    prev_price = previous.get("current_price")
+    current_price = row.get("current_price")
+    if prev_price and current_price:
+        delta_price = (current_price - prev_price) / prev_price
+        if abs(delta_price) >= 0.01:
+            direction = "fell" if delta_price < 0 else "rose"
+            notes.append(f"Price {direction} {abs(delta_price) * 100:.1f}% to {money(current_price)}.")
+
+    prev_quality = previous.get("quality_score")
+    current_quality = row.get("quality_score")
+    if prev_quality is not None and current_quality is not None:
+        delta_quality = current_quality - prev_quality
+        if abs(delta_quality) >= 3:
+            direction = "improved" if delta_quality > 0 else "weakened"
+            sign = "+" if delta_quality > 0 else ""
+            notes.append(f"Quality score {direction} {sign}{delta_quality} points to {current_quality}/100.")
+
+    prev_payout = previous.get("payout_ratio")
+    current_payout = row.get("payout_ratio")
+    if prev_payout is not None and current_payout is not None:
+        delta_payout = current_payout - prev_payout
+        if abs(delta_payout) >= 0.05:
+            direction = "rose" if delta_payout > 0 else "improved"
+            notes.append(f"Payout ratio {direction} {signed_pp(delta_payout)} to {pct(current_payout, 0)}.")
+
+    return notes[:limit]
+
+
+def ticker_change_sentence(row: dict, previous: dict | None) -> str:
+    notes = ticker_change_notes(row, previous, limit=2)
+    if notes:
+        return " ".join(notes)
+    if previous:
+        return "No major price, yield, quality, payout, or signal change versus the prior snapshot."
+    return "This ticker starts from the current baseline; future issues will show what changed."
+
+
 def educational_snippet(current_issue: str) -> tuple[str, str]:
     snippets = [
         (
@@ -512,6 +585,7 @@ def build_watchlist(rows: list[dict], previous: dict[str, dict]) -> dict:
         "continuing": continuing,
         "dropped": dropped,
         "has_previous": bool(previous),
+        "previous": previous,
         "top": undervalued[:5],
         "risky": risky[:1],
         "sectors": sectors,
@@ -527,8 +601,9 @@ def stat_box(label: str, value: str) -> str:
     """
 
 
-def setup_card(row: dict, rank: int) -> str:
+def setup_card(row: dict, rank: int, previous: dict | None) -> str:
     symbol = row["symbol"]
+    change_sentence = ticker_change_sentence(row, previous)
     return f"""
     <tr>
       <td style="padding:18px 0;border-bottom:1px solid #e5e7eb;">
@@ -549,6 +624,7 @@ def setup_card(row: dict, rank: int) -> str:
           <tr>
             <td colspan="2" style="padding-top:12px;">
               <p style="margin:0 0 8px;color:#374151;font-size:14px;line-height:1.55;">{e(why_now(row))}</p>
+              <p style="margin:0 0 8px;color:#374151;font-size:13px;line-height:1.5;"><strong>What changed:</strong> {e(change_sentence)}</p>
               <p style="margin:0 0 12px;color:#6b7280;font-size:13px;line-height:1.5;"><strong>Risk note:</strong> {e(risk_note(row))}</p>
               <a href="{ticker_url(symbol)}" style="display:inline-block;background:#4f46e5;color:#fff;text-decoration:none;border-radius:6px;padding:8px 14px;font-size:13px;font-weight:600;">View Weiss chart →</a>
             </td>
@@ -557,6 +633,16 @@ def setup_card(row: dict, rank: int) -> str:
       </td>
     </tr>
     """
+
+
+def change_detail_list(rows: list[dict], previous: dict[str, dict], limit: int = 5) -> str:
+    details = []
+    for row in rows[:limit]:
+        sentence = ticker_change_sentence(row, previous.get(row["symbol"]))
+        details.append(f"{row['symbol']}: {sentence}")
+    if len(rows) > limit:
+        details.append(f"+{len(rows) - limit} more")
+    return " | ".join(details) if details else "None"
 
 
 def symbol_list(rows: list[dict], limit: int = 8) -> str:
@@ -583,12 +669,14 @@ def what_changed_html(watchlist: dict) -> str:
           <td style="padding:12px;border-bottom:1px solid #e5e7eb;">
             <div style="font-size:12px;color:#6b7280;font-weight:700;text-transform:uppercase;">New entrants</div>
             <div style="font-size:14px;color:#111827;margin-top:4px;">{e(symbol_list(watchlist['new']))}</div>
+            <div style="font-size:12px;color:#6b7280;line-height:1.5;margin-top:6px;">{e(change_detail_list(watchlist['new'], watchlist['previous']))}</div>
           </td>
         </tr>
         <tr>
           <td style="padding:12px;border-bottom:1px solid #e5e7eb;">
             <div style="font-size:12px;color:#6b7280;font-weight:700;text-transform:uppercase;">Still undervalued</div>
             <div style="font-size:14px;color:#111827;margin-top:4px;">{e(symbol_list(watchlist['continuing']))}</div>
+            <div style="font-size:12px;color:#6b7280;line-height:1.5;margin-top:6px;">{e(change_detail_list(watchlist['continuing'], watchlist['previous'], limit=3))}</div>
           </td>
         </tr>
         <tr>
@@ -611,7 +699,9 @@ def what_changed_text(watchlist: dict) -> str:
     return (
         "What changed:\n"
         f"New entrants: {symbol_list(watchlist['new'])}\n"
+        f"New entrant detail: {change_detail_list(watchlist['new'], watchlist['previous'])}\n"
         f"Still undervalued: {symbol_list(watchlist['continuing'])}\n"
+        f"Still undervalued detail: {change_detail_list(watchlist['continuing'], watchlist['previous'], limit=3)}\n"
         f"Left the zone: {symbol_list(watchlist['dropped'])}\n"
     )
 
@@ -629,7 +719,7 @@ def build_email(current_issue: str, rows: list[dict], watchlist: dict, freshness
     else:
         subject = f"{len(watchlist['undervalued'])} undervalued dividend setup{'s' if len(watchlist['undervalued']) != 1 else ''} on this week's watchlist"
 
-    cards = "".join(setup_card(row, index + 1) for index, row in enumerate(top))
+    cards = "".join(setup_card(row, index + 1, watchlist["previous"].get(row["symbol"])) for index, row in enumerate(top))
     if not cards:
         cards = """
         <tr><td style="padding:18px 0;border-bottom:1px solid #e5e7eb;">
@@ -771,7 +861,7 @@ Data freshness: {freshness_text}
 
 Top 5 setups to review:
 """ + "\n".join(
-        f"- {row['symbol']} ({row['name']}): {pct(row.get('current_yield'))} yield, quality {row.get('quality_score')}/100. {why_now(row)} {ticker_url(row['symbol'])}"
+        f"- {row['symbol']} ({row['name']}): {pct(row.get('current_yield'))} yield, quality {row.get('quality_score')}/100. {ticker_change_sentence(row, watchlist['previous'].get(row['symbol']))} {why_now(row)} {ticker_url(row['symbol'])}"
         for row in top
     ) + f"""
 
