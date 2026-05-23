@@ -625,8 +625,6 @@ export default async function OpportunitiesPage() {
         />
       </div>
 
-      <RecentChangesSection changes={recentChanges} />
-
       {/* Strong opportunities */}
       {strong.length > 0 ? (
         <section className="mb-12">
@@ -667,6 +665,8 @@ export default async function OpportunitiesPage() {
           </div>
         </section>
       )}
+
+      <RecentChangesSection changes={recentChanges} />
 
       {/* Pillar content */}
       <div className="border-t border-[#1e1e2e] pt-12 max-w-3xl">
