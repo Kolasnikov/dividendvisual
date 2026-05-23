@@ -534,7 +534,7 @@ export default async function TickerPage({ params }: PageProps) {
               <p className="text-sm text-[#a1a1aa] leading-relaxed">
                 {changes.previousDate
                   ? 'No major signal, yield, price, quality, or payout change versus the prior saved snapshot.'
-                  : 'Change tracking starts after the next metrics refresh saves a second snapshot for this ticker.'}
+                  : 'Change tracking is warming up. After the next data refresh, this card will show whether yield, price, signal, quality, or payout moved versus the prior snapshot.'}
               </p>
             )}
           </div>
