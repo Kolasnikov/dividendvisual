@@ -343,7 +343,12 @@ export default async function TickerPage({ params }: PageProps) {
   const data = await getTickerData(symbol)
   if (!data) notFound()
 
-  const { company, metrics, chartData, changes } = data
+  const { company, metrics, chartData } = data
+  const changes = data.changes ?? {
+    previousDate: null,
+    currentDate: metrics.updatedAt ? metrics.updatedAt.slice(0, 10) : null,
+    items: [],
+  }
   const relatedCollections = COLLECTION_LINKS.filter((c) => c.check(company))
   const summary = buildSummary(company, metrics)
   const jsonLd = buildJsonLd(company, metrics)
