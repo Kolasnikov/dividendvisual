@@ -34,6 +34,22 @@ export interface ComputedMetrics {
   updatedAt: string
 }
 
+export interface TickerChangeItem {
+  kind: 'signal' | 'price' | 'yield' | 'quality' | 'payout'
+  label: string
+  previous: string
+  current: string
+  delta: string | null
+  tone: 'positive' | 'negative' | 'neutral'
+  sentence: string
+}
+
+export interface TickerChangeSummary {
+  previousDate: string | null
+  currentDate: string | null
+  items: TickerChangeItem[]
+}
+
 export interface WeissChartPoint {
   date: string
   price: number | null
@@ -46,6 +62,7 @@ export interface TickerResponse {
   company: Company
   metrics: ComputedMetrics
   chartData: WeissChartPoint[]
+  changes: TickerChangeSummary
 }
 
 export interface WatchlistItem extends Company, ComputedMetrics {}

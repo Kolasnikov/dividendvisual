@@ -263,6 +263,12 @@ function buildNowRead(company: Company, metrics: ComputedMetrics) {
   return { signalRead, qualityRead, payoutRead }
 }
 
+function changeToneClass(tone: 'positive' | 'negative' | 'neutral') {
+  if (tone === 'positive') return 'text-[#22c55e]'
+  if (tone === 'negative') return 'text-[#f87171]'
+  return 'text-[#a1a1aa]'
+}
+
 const COLLECTION_LINKS: { slug: string; title: string; check: (c: Company) => boolean }[] = [
   { slug: 'dividend-kings',       title: 'Dividend Kings',       check: (c) => c.isDividendKing },
   { slug: 'dividend-aristocrats', title: 'Dividend Aristocrats', check: (c) => c.isDividendAristocrat && !c.isDividendKing },
@@ -337,7 +343,7 @@ export default async function TickerPage({ params }: PageProps) {
   const data = await getTickerData(symbol)
   if (!data) notFound()
 
-  const { company, metrics, chartData } = data
+  const { company, metrics, chartData, changes } = data
   const relatedCollections = COLLECTION_LINKS.filter((c) => c.check(company))
   const summary = buildSummary(company, metrics)
   const jsonLd = buildJsonLd(company, metrics)
@@ -485,6 +491,48 @@ export default async function TickerPage({ params }: PageProps) {
               </div>
             </div>
           </section>
+
+          {/* What changed */}
+          <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div>
+                <p className="text-[10px] text-[#71717a] uppercase tracking-wide font-medium mb-1">What changed</p>
+                <h2 className="text-base font-semibold text-[#f4f4f5]">
+                  Snapshot change since the last saved read
+                </h2>
+              </div>
+              {changes.previousDate && changes.currentDate && (
+                <p className="text-xs text-[#52525b]">{changes.previousDate} → {changes.currentDate}</p>
+              )}
+            </div>
+
+            {changes.items.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {changes.items.map((item) => (
+                  <div key={`${item.kind}-${item.label}`} className="rounded-lg border border-[#1e1e2e] bg-[#09090f] p-3">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <p className="text-xs text-[#a1a1aa]">{item.label}</p>
+                      {item.delta && (
+                        <span className={`text-xs font-semibold ${changeToneClass(item.tone)}`}>
+                          {item.delta}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-[#f4f4f5] mb-1">
+                      {item.previous} <span className="text-[#52525b]">→</span> {item.current}
+                    </p>
+                    <p className="text-xs text-[#71717a] leading-relaxed">{item.sentence}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-[#a1a1aa] leading-relaxed">
+                {changes.previousDate
+                  ? 'No major signal, yield, price, quality, or payout change versus the prior saved snapshot.'
+                  : 'Change tracking starts after the next metrics refresh saves a second snapshot for this ticker.'}
+              </p>
+            )}
+          </div>
 
           {/* Why Now */}
           <WhyNowCard metrics={metrics} />

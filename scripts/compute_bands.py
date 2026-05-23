@@ -543,6 +543,55 @@ def save_computed_metrics(symbol: str, metrics: dict, score: int, category: str,
     )])
 
 
+def ensure_metric_snapshots_table():
+    turso_execute([_stmt(
+        """CREATE TABLE IF NOT EXISTS ticker_metric_snapshots (
+             snapshot_date TEXT NOT NULL,
+             symbol TEXT NOT NULL,
+             current_price REAL,
+             annual_dividend REAL,
+             current_yield REAL,
+             weiss_signal TEXT,
+             quality_score INTEGER,
+             quality_category TEXT,
+             payout_ratio REAL,
+             fcf_payout REAL,
+             dividend_cagr_5y REAL,
+             dividend_cagr_10y REAL,
+             undervalued_price REAL,
+             overvalued_price REAL,
+             created_at TEXT NOT NULL DEFAULT (datetime('now')),
+             PRIMARY KEY (snapshot_date, symbol)
+           )"""
+    )])
+
+
+def save_metric_snapshot(symbol: str, metrics: dict, score: int, category: str):
+    turso_execute([_stmt(
+        """INSERT OR REPLACE INTO ticker_metric_snapshots (
+             snapshot_date, symbol, current_price, annual_dividend,
+             current_yield, weiss_signal, quality_score, quality_category,
+             payout_ratio, fcf_payout, dividend_cagr_5y, dividend_cagr_10y,
+             undervalued_price, overvalued_price, created_at
+           ) VALUES (date('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))""",
+        [
+            symbol,
+            metrics.get("current_price"),
+            metrics.get("annual_dividend"),
+            metrics.get("current_yield"),
+            metrics.get("weiss_signal"),
+            score,
+            category,
+            metrics.get("payout_ratio"),
+            metrics.get("fcf_payout"),
+            metrics.get("dividend_cagr_5y"),
+            metrics.get("dividend_cagr_10y"),
+            metrics.get("undervalued_price"),
+            metrics.get("overvalued_price"),
+        ],
+    )])
+
+
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
 def get_fundamentals_from_db(symbol: str) -> dict:
@@ -590,6 +639,7 @@ def process_ticker(symbol: str, company_name: str, chart_lookback_days: int | No
         # Save
         save_weiss_chart_data(symbol, band_df, chart_lookback_days)
         save_computed_metrics(symbol, metrics, score, category, why_now)
+        save_metric_snapshot(symbol, metrics, score, category)
 
         print(
             f"  [{symbol}] OK — signal={metrics['weiss_signal']}, "
@@ -636,6 +686,7 @@ def main():
         ensure_previous_signal_column()
     except Exception:
         pass  # column already exists
+    ensure_metric_snapshots_table()
 
     companies = turso_query("SELECT symbol, name FROM companies ORDER BY symbol")
     if not companies:
