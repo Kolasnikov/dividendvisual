@@ -83,13 +83,24 @@ async function getRecentChanges(): Promise<RecentChanges> {
               FROM ticker_metric_snapshots s
               JOIN latest l ON s.snapshot_date = l.latest_date
             ),
+            historical_rows AS (
+              SELECT
+                snapshot_date, symbol, current_price, current_yield,
+                weiss_signal, quality_score
+              FROM ticker_metric_snapshots
+              UNION ALL
+              SELECT
+                snapshot_date, symbol, current_price, current_yield,
+                weiss_signal, quality_score
+              FROM newsletter_signal_snapshots
+            ),
             previous_rows AS (
               SELECT p.*
-              FROM ticker_metric_snapshots p
+              FROM historical_rows p
               JOIN current_rows c ON c.symbol = p.symbol
               WHERE p.snapshot_date = (
                 SELECT MAX(p2.snapshot_date)
-                FROM ticker_metric_snapshots p2
+                FROM historical_rows p2
                 WHERE p2.symbol = c.symbol
                   AND p2.snapshot_date < c.snapshot_date
               )
