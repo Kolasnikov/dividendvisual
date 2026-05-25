@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { MDXRemote } from 'next-mdx-remote/rsc'
+import remarkGfm from 'remark-gfm'
 import { getAllPosts, getPost } from '@/lib/blog'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
@@ -124,7 +125,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
       {/* Content */}
       <article className="prose-dv">
-        <MDXRemote source={post.content} />
+        <MDXRemote source={post.content} options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }} />
       </article>
 
       {/* Footer CTA */}
