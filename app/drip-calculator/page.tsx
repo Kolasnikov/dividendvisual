@@ -113,6 +113,21 @@ export default function DRIPCalculatorPage() {
         </div>
       </div>
 
+      <a
+        href="https://med.etoro.com/B22260_A129812_TClick_SDivVisual.aspx"
+        target="_blank"
+        rel="noopener noreferrer sponsored"
+        className="mt-6 flex items-center justify-between gap-4 rounded-xl border border-[#6366f1]/25 bg-[#111118] px-5 py-4 hover:border-[#6366f1]/50 transition-colors group"
+      >
+        <div>
+          <p className="text-sm font-semibold text-[#f4f4f5] group-hover:text-white transition-colors">
+            Ready to start compounding? Invest commission-free on eToro
+          </p>
+          <p className="text-xs text-[#52525b] mt-0.5">€50 minimum · Fractional shares · Capital at risk</p>
+        </div>
+        <span className="text-[#6366f1] group-hover:text-[#818cf8] transition-colors text-lg shrink-0">→</span>
+      </a>
+
       <article className="prose-dv mt-14">
         <h2>How DRIP Compounding Works</h2>
         <p>
