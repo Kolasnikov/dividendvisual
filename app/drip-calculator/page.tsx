@@ -114,7 +114,7 @@ export default function DRIPCalculatorPage() {
       </div>
 
       <a
-        href="https://med.etoro.com/B22260_A129812_TClick_SDivVisual.aspx"
+        href="https://med.etoro.com/B19645_A129812_TClick_SDivVisualENStocks.aspx"
         target="_blank"
         rel="noopener noreferrer sponsored"
         className="mt-6 flex items-center justify-between gap-4 rounded-xl border border-[#6366f1]/25 bg-[#111118] px-5 py-4 hover:border-[#6366f1]/50 transition-colors group"

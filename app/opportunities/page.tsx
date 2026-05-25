@@ -624,7 +624,7 @@ export default async function OpportunitiesPage() {
           description="We track the Weiss signal daily and send a short weekly digest when quality dividend stocks enter undervalued territory."
         />
         <a
-          href="https://med.etoro.com/B22260_A129812_TClick_SDivVisual.aspx"
+          href="https://med.etoro.com/B19645_A129812_TClick_SDivVisualENStocks.aspx"
           target="_blank"
           rel="noopener noreferrer sponsored"
           className="flex flex-col items-center justify-center gap-2 rounded-lg border border-[#22c55e]/25 bg-[#0b1a10] px-6 py-4 text-center hover:border-[#22c55e]/50 transition-colors group lg:min-w-[200px]"

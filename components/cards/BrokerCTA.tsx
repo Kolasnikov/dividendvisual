@@ -1,4 +1,4 @@
-const ETORO_HREF = 'https://med.etoro.com/B22260_A129812_TClick_SDivVisual.aspx'
+const ETORO_HREF = 'https://med.etoro.com/B19645_A129812_TClick_SDivVisualENStocks.aspx'
 
 interface BrokerCTAProps {
   signal: string

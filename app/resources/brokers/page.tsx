@@ -20,7 +20,7 @@ const BROKERS = [
   {
     name: 'eToro',
     url: 'etoro.com',
-    href: 'https://med.etoro.com/B22260_A129812_TClick_SDivVisual.aspx',
+    href: 'https://med.etoro.com/B19645_A129812_TClick_SDivVisualENStocks.aspx',
     tag: 'Commission-free',
     highlight: true,
     cta: 'Open an account on eToro',

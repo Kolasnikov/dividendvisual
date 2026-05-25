@@ -32,6 +32,7 @@ const LEARN_LINKS = [
   { href: '/blog/dividend-aristocrats-vs-kings',             label: 'Aristocrats vs Kings' },
   { href: '/resources/books',                                label: 'Books' },
   { href: '/resources/tools',                                label: 'Tools' },
+  { href: '/resources/brokers',                              label: 'Brokers' },
 ]
 
 export function Footer() {
