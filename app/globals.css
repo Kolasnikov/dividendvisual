@@ -137,3 +137,36 @@
   border-color: #1e1e2e;
   margin: 2rem 0;
 }
+.prose-dv table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  overflow-x: auto;
+  display: block;
+}
+.prose-dv thead tr {
+  border-bottom: 1px solid #2e2e3e;
+}
+.prose-dv th {
+  text-align: left;
+  padding: 0.6rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #71717a;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.prose-dv td {
+  padding: 0.6rem 0.875rem;
+  color: #a1a1aa;
+  border-bottom: 1px solid #1e1e2e;
+  vertical-align: top;
+}
+.prose-dv tr:last-child td {
+  border-bottom: none;
+}
+.prose-dv tbody tr:hover td {
+  background: #111118;
+}
