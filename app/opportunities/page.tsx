@@ -617,12 +617,22 @@ export default async function OpportunitiesPage() {
         </p>
       </div>
 
-      <div className="mb-10">
+      <div className="mb-10 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 items-start">
         <DividendAlertsCTA
           source="opportunities"
           title="Get notified when new dividend opportunities appear"
           description="We track the Weiss signal daily and send a short weekly digest when quality dividend stocks enter undervalued territory."
         />
+        <a
+          href="https://med.etoro.com/B22260_A129812_TClick_SDivVisual.aspx"
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          className="flex flex-col items-center justify-center gap-2 rounded-lg border border-[#22c55e]/25 bg-[#0b1a10] px-6 py-4 text-center hover:border-[#22c55e]/50 transition-colors group lg:min-w-[200px]"
+        >
+          <span className="text-[10px] font-semibold text-[#22c55e] uppercase tracking-wide">Commission-free</span>
+          <span className="text-sm font-semibold text-[#f4f4f5] group-hover:text-white transition-colors leading-snug">Buy these stocks<br />on eToro</span>
+          <span className="text-[10px] text-[#52525b]">€50 minimum · Capital at risk</span>
+        </a>
       </div>
 
       {/* Strong opportunities */}

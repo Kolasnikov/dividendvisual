@@ -12,6 +12,7 @@ import { DividendBadge } from '@/components/ui/DividendBadge'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
 import { WatchlistButton } from '@/components/ui/WatchlistButton'
+import { BrokerCTA } from '@/components/cards/BrokerCTA'
 
 const TICKERS = [
   'KO', 'PEP', 'JNJ', 'PG', 'MMM', 'MCD', 'WMT', 'HD', 'LOW',
@@ -607,6 +608,7 @@ export default async function TickerPage({ params }: PageProps) {
             <QualityScoreCard metrics={metrics} />
           </div>
           <MetricsCard metrics={metrics} />
+          <BrokerCTA signal={metrics.weissSignal} symbol={company.symbol} companyName={company.name} />
 
           {/* Dividend streak callout */}
           {company.yearsIncreasingDividends > 0 && (
