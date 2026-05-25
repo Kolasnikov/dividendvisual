@@ -98,6 +98,9 @@ export default function ToolsPage() {
           Links may be affiliate links. DividendVisual may earn a commission on qualifying
           sign-ups. Recommendations reflect genuine editorial judgment — no paid placements.
         </p>
+        <Link href="/resources/brokers" className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors">
+          → Brokers for buying dividend stocks commission-free
+        </Link>
         <Link href="/resources/books" className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors">
           → Recommended books on dividend investing
         </Link>
