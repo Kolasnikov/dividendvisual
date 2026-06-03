@@ -562,6 +562,21 @@ export default async function TickerPage({ params }: PageProps) {
             <DRIPChart metrics={metrics} />
           </div>
 
+          {/* Sharesight — track actual vs. projected */}
+          <a
+            href="https://www.sharesight.com/dividendvisual/"
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            className="flex items-center justify-between gap-4 rounded-xl border border-[#1e1e2e] bg-[#111118] px-5 py-4 hover:border-[#6366f1]/40 transition-colors group"
+          >
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#52525b] mb-1">Track actual vs. projected</p>
+              <p className="text-sm font-semibold text-[#f4f4f5]">See what {company.symbol} dividends you actually received with Sharesight</p>
+              <p className="text-xs text-[#71717a] mt-0.5">Dividend income log · Yield on cost · DRIP cost basis · Tax reports</p>
+            </div>
+            <span className="text-[#6366f1] group-hover:text-[#818cf8] transition-colors text-lg shrink-0">→</span>
+          </a>
+
           {/* External research tools */}
           <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-4 flex flex-col gap-3">
             <p className="text-[10px] text-[#52525b] uppercase tracking-wide font-medium">More research</p>
@@ -596,6 +611,17 @@ export default async function TickerPage({ params }: PageProps) {
                 className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors whitespace-nowrap"
               >
                 Morningstar ↗
+              </a>
+            </div>
+            <div className="flex items-center justify-between gap-4 border-t border-[#1e1e2e] pt-3">
+              <p className="text-xs text-[#71717a]">Track dividends received &amp; tax reports</p>
+              <a
+                href="https://www.sharesight.com/dividendvisual/"
+                target="_blank"
+                rel="noopener noreferrer sponsored"
+                className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors whitespace-nowrap"
+              >
+                Sharesight ↗
               </a>
             </div>
           </div>

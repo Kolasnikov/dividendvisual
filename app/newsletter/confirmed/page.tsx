@@ -204,6 +204,27 @@ export default async function NewsletterConfirmedPage({
           </div>
         </div>
       </section>
+
+      <section className="mt-8">
+        <a
+          href="https://www.sharesight.com/dividendvisual/"
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          className="flex items-center justify-between gap-6 rounded-xl border border-[#1e1e2e] bg-[#111118] px-5 py-4 hover:border-[#6366f1]/40 transition-colors group"
+        >
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-[#52525b] mb-1">While you wait for the first email</p>
+            <p className="text-sm font-semibold text-[#f4f4f5]">Set up dividend tracking with Sharesight</p>
+            <p className="text-xs text-[#71717a] mt-0.5">
+              Tracks actual dividends received, DRIP cost basis, and tax reports across multiple brokers.
+            </p>
+          </div>
+          <span className="text-[#6366f1] group-hover:text-[#818cf8] transition-colors text-lg shrink-0">→</span>
+        </a>
+        <p className="text-[10px] text-[#3e3e4e] mt-2 text-right">
+          Affiliate link — DividendVisual may earn a commission at no cost to you.
+        </p>
+      </section>
     </div>
   )
 }

@@ -164,6 +164,14 @@ export function PortfolioClient({ universe }: Props) {
             <Link href="/dividend-screener" className="text-[#6366f1] hover:text-[#818cf8]">screener</Link>{' '}
             to find candidates.
           </p>
+          <a
+            href="https://www.sharesight.com/dividendvisual/"
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            className="mt-6 inline-flex items-center gap-2 text-xs text-[#52525b] hover:text-[#a1a1aa] transition-colors"
+          >
+            Already investing? Track actual dividends received with Sharesight ↗
+          </a>
         </div>
       ) : (
         <>
@@ -294,6 +302,19 @@ export function PortfolioClient({ universe }: Props) {
           <p className="text-xs text-[#3e3e4e] mt-4 text-center">
             Saved locally in your browser. Prices updated daily.
           </p>
+
+          <a
+            href="https://www.sharesight.com/dividendvisual/"
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            className="mt-4 flex items-center justify-between gap-4 rounded-xl border border-[#1e1e2e] bg-[#111118] px-5 py-4 hover:border-[#6366f1]/40 transition-colors group"
+          >
+            <div>
+              <p className="text-sm font-semibold text-[#f4f4f5]">Track actual dividends received across all brokers</p>
+              <p className="text-xs text-[#52525b] mt-0.5">Sharesight · Tax reports · DRIP cost basis · Multi-broker · 500k+ users</p>
+            </div>
+            <span className="text-[#6366f1] group-hover:text-[#818cf8] transition-colors text-lg shrink-0">→</span>
+          </a>
         </>
       )}
     </div>

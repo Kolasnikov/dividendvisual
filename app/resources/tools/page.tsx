@@ -43,6 +43,14 @@ const TOOLS = [
     description:
       "Morningstar's independent analyst team assigns economic moat ratings (wide / narrow / none) and fair value estimates to thousands of stocks. These are particularly useful alongside a Weiss undervalue signal: DividendVisual tells you the stock is historically cheap on yield — Morningstar tells you whether the underlying business still has the durable competitive advantage to justify holding it long term.",
   },
+  {
+    name: 'Sharesight',
+    url: 'sharesight.com',
+    href: 'https://www.sharesight.com/dividendvisual/',
+    tag: 'Portfolio Tracking',
+    description:
+      'DividendVisual projects what your dividends could be. Sharesight tracks what you actually received — dividend income logged by payment date, cost basis from DRIP reinvestment, tax reports by broker, and portfolio performance across multiple accounts. Used by 500,000+ investors globally. Complementary to DividendVisual, not a replacement.',
+  },
 ]
 
 export default function ToolsPage() {
