@@ -78,10 +78,15 @@ type PriorityAnalysisGuide = {
   paragraphs: string[]
   questions: string[]
   links: { href: string; label: string }[]
+  titleOverride?: string
+  descriptionOverride?: (yieldPct: string) => string
 }
 
 const PRIORITY_ANALYSIS_GUIDES: Record<string, PriorityAnalysisGuide> = {
   ABBV: {
+    titleOverride: 'AbbVie (ABBV) Dividend Analysis 2026 — Yield History, Payout Safety & Weiss Signal',
+    descriptionOverride: (yieldPct) =>
+      `ABBV currently yields ${yieldPct}%. See 10 years of AbbVie dividend history, payout ratio, FCF coverage, and whether today's yield is historically cheap or expensive by the Weiss method.`,
     eyebrow: 'Healthcare dividend deep dive',
     title: 'How to read the ABBV dividend setup',
     paragraphs: [
@@ -166,12 +171,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     : metrics.weissSignal === 'overvalued' ? 'overvalued' : 'fairly valued'
   const yieldPct = (metrics.currentYield * 100).toFixed(2)
   const isPriorityDividendHistoryPage = company.symbol in PRIORITY_ANALYSIS_GUIDES
-  const title = isPriorityDividendHistoryPage
-    ? `${company.symbol} Dividend History, Yield & Weiss Analysis — ${company.name}`
-    : `${company.symbol} Dividend Analysis — Is ${company.name} Undervalued?`
-  const description = isPriorityDividendHistoryPage
-    ? `${company.name} (${company.symbol}) dividend history and yield analysis. Current yield ${yieldPct}%, historically ${signalLabel}. Review payout safety, dividend growth, quality score, and Weiss valuation bands.`
-    : `${company.name} (${company.symbol}) dividend deep-dive. Current yield ${yieldPct}%, historically ${signalLabel}. Quality score ${metrics.qualityScore}/100. 10-year yield history, payout ratio, dividend CAGR, and Weiss valuation breakdown.`
+  const guide = isPriorityDividendHistoryPage ? PRIORITY_ANALYSIS_GUIDES[company.symbol] : null
+  const title = guide?.titleOverride
+    ?? (isPriorityDividendHistoryPage
+      ? `${company.symbol} Dividend History, Yield & Weiss Analysis — ${company.name}`
+      : `${company.symbol} Dividend Analysis — Is ${company.name} Undervalued?`)
+  const description = guide?.descriptionOverride?.(yieldPct)
+    ?? (isPriorityDividendHistoryPage
+      ? `${company.name} (${company.symbol}) dividend history and yield analysis. Current yield ${yieldPct}%, historically ${signalLabel}. Review payout safety, dividend growth, quality score, and Weiss valuation bands.`
+      : `${company.name} (${company.symbol}) dividend deep-dive. Current yield ${yieldPct}%, historically ${signalLabel}. Quality score ${metrics.qualityScore}/100. 10-year yield history, payout ratio, dividend CAGR, and Weiss valuation breakdown.`)
   return {
     title,
     description,

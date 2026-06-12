@@ -4,8 +4,8 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { DRIPCalculatorClient } from '@/components/calculators/DRIPCalculatorClient'
 
 export const metadata: Metadata = {
-  title: 'Dividend Reinvestment Calculator (DRIP) — Project Your Income Growth',
-  description: 'Free DRIP calculator: enter any dividend yield, growth rate, and investment to project income over 20+ years. See yield on cost, total compounded income, and year-by-year growth.',
+  title: 'DRIP Calculator — Project Your Dividend Income Over 20 Years | DividendVisual',
+  description: 'Enter any yield, growth rate, and investment amount to see exactly how much income DRIP compounding generates year by year. Pre-fill with real stock data from 150+ dividend payers.',
   alternates: { canonical: 'https://dividendvisual.com/drip-calculator' },
   openGraph: {
     title: 'Dividend Reinvestment Calculator (DRIP) | DividendVisual',

@@ -7,9 +7,9 @@ const YEAR = 2026
 const DB_SECTOR = getSectorApiNameBySlug('healthcare') ?? 'Healthcare'
 
 export const metadata: Metadata = {
-  title: `Best Healthcare Dividend Stocks ${YEAR} - Ranked by Safety, Growth & Weiss Signal`,
+  title: `Best Healthcare Dividend Stocks ${YEAR} — Ranked by Yield, Quality Score & Weiss Signal`,
   description:
-    'Best healthcare dividend stocks ranked by payout safety, dividend growth, quality score, current yield, and Geraldine Weiss valuation signal. Compare JNJ, ABT, MDT, BDX, ABBV, UNH, and more.',
+    'JNJ, ABBV, BDX and more — compare healthcare dividend stocks by current yield, payout safety, dividend streak, and whether they\'re historically cheap or expensive right now.',
   alternates: {
     canonical: PAGE_URL,
   },
