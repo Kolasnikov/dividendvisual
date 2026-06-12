@@ -47,10 +47,15 @@ function CustomTooltip({ active, payload, label }: any) {
   )
 }
 
-export function DRIPCalculatorClient() {
+interface DRIPCalculatorClientProps {
+  initialYield?: number
+  initialCagr?: number
+}
+
+export function DRIPCalculatorClient({ initialYield, initialCagr }: DRIPCalculatorClientProps = {}) {
   const [investmentStr, setInvestmentStr] = useState('10000')
-  const [yieldStr, setYieldStr] = useState('3.00')
-  const [cagrStr, setCagrStr] = useState('5.0')
+  const [yieldStr, setYieldStr] = useState(initialYield != null ? initialYield.toFixed(2) : '3.00')
+  const [cagrStr, setCagrStr] = useState(initialCagr != null ? initialCagr.toFixed(1) : '5.0')
   const [horizonStr, setHorizonStr] = useState('20')
 
   const investment = Math.max(100, parseFloat(investmentStr) || 100)
