@@ -1,12 +1,11 @@
-const ETORO_HREF = 'https://med.etoro.com/B19645_A129812_TClick_SDivVisualENStocks.aspx'
-
 interface BrokerCTAProps {
   signal: string
   symbol: string
   companyName: string
+  etoroHref: string
 }
 
-export function BrokerCTA({ signal, symbol, companyName }: BrokerCTAProps) {
+export function BrokerCTA({ signal, symbol, companyName, etoroHref }: BrokerCTAProps) {
   const isUndervalued = signal === 'undervalued'
 
   return (
@@ -31,7 +30,7 @@ export function BrokerCTA({ signal, symbol, companyName }: BrokerCTAProps) {
       )}
 
       <a
-        href={ETORO_HREF}
+        href={etoroHref}
         target="_blank"
         rel="noopener noreferrer sponsored"
         className={`flex items-center justify-center w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors ${

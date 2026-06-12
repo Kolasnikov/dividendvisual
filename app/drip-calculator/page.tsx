@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { headers } from 'next/headers'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { DRIPCalculatorClient } from '@/components/calculators/DRIPCalculatorClient'
+import { getEtoroLink } from '@/lib/etoro'
 
 export const metadata: Metadata = {
   title: 'DRIP Calculator — Project Your Dividend Income Over 20 Years | DividendVisual',
@@ -148,7 +150,8 @@ const FAQ_VISIBLE = [
   },
 ]
 
-export default function DRIPCalculatorPage() {
+export default async function DRIPCalculatorPage() {
+  const etoroHref = getEtoroLink((await headers()).get('x-vercel-ip-country'))
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(WEB_APP_SCHEMA) }} />
@@ -190,7 +193,7 @@ export default function DRIPCalculatorPage() {
       </div>
 
       <a
-        href="https://med.etoro.com/B19645_A129812_TClick_SDivVisualENStocks.aspx"
+        href={etoroHref}
         target="_blank"
         rel="noopener noreferrer sponsored"
         className="mt-6 flex items-center justify-between gap-4 rounded-xl border border-[#6366f1]/25 bg-[#111118] px-5 py-4 hover:border-[#6366f1]/50 transition-colors group"

@@ -13,6 +13,8 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
 import { WatchlistButton } from '@/components/ui/WatchlistButton'
 import { BrokerCTA } from '@/components/cards/BrokerCTA'
+import { headers } from 'next/headers'
+import { getEtoroLink } from '@/lib/etoro'
 
 const TICKERS = [
   'KO', 'PEP', 'JNJ', 'PG', 'MMM', 'MCD', 'WMT', 'HD', 'LOW',
@@ -344,6 +346,9 @@ export default async function TickerPage({ params }: PageProps) {
   const data = await getTickerData(symbol)
   if (!data) notFound()
 
+  const country = (await headers()).get('x-vercel-ip-country')
+  const etoroHref = getEtoroLink(country)
+
   const { company, metrics, chartData } = data
   const changes = data.changes ?? {
     previousDate: null,
@@ -634,7 +639,7 @@ export default async function TickerPage({ params }: PageProps) {
             <QualityScoreCard metrics={metrics} />
           </div>
           <MetricsCard metrics={metrics} />
-          <BrokerCTA signal={metrics.weissSignal} symbol={company.symbol} companyName={company.name} />
+          <BrokerCTA signal={metrics.weissSignal} symbol={company.symbol} companyName={company.name} etoroHref={etoroHref} />
 
           {/* Dividend streak callout */}
           {company.yearsIncreasingDividends > 0 && (

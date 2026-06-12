@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { headers } from 'next/headers'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { getEtoroLink } from '@/lib/etoro'
 
 export const metadata: Metadata = {
   title: 'Best Brokers for Dividend Investing — Commission-Free Stocks | DividendVisual',
@@ -52,7 +54,8 @@ const BROKERS = [
   },
 ]
 
-export default function BrokersPage() {
+export default async function BrokersPage() {
+  const etoroHref = getEtoroLink((await headers()).get('x-vercel-ip-country'))
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
       <Breadcrumbs items={[
@@ -118,7 +121,7 @@ export default function BrokersPage() {
             </div>
 
             <a
-              href={broker.href}
+              href={broker.name === 'eToro' ? etoroHref : broker.href}
               target="_blank"
               rel="noopener noreferrer sponsored"
               className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
