@@ -19,10 +19,6 @@ export const metadata: Metadata = {
   alternates: {
     canonical: PAGE_URL,
   },
-  robots: {
-    index: false,
-    follow: true,
-  },
   openGraph: {
     title: `Best Monthly Dividend Stocks ${YEAR} | DividendVisual`,
     description:

@@ -84,9 +84,9 @@ type PriorityAnalysisGuide = {
 
 const PRIORITY_ANALYSIS_GUIDES: Record<string, PriorityAnalysisGuide> = {
   ABBV: {
-    titleOverride: 'AbbVie (ABBV) Dividend Analysis 2026 — Yield History, Payout Safety & Weiss Signal',
+    titleOverride: 'ABBV Dividend Analysis 2026: Yield, Safety & Value',
     descriptionOverride: (yieldPct) =>
-      `ABBV currently yields ${yieldPct}%. See 10 years of AbbVie dividend history, payout ratio, FCF coverage, and whether today's yield is historically cheap or expensive by the Weiss method.`,
+      `Analyze ABBV's ${yieldPct}% yield, 10-year dividend history, payout ratio, FCF coverage, and Weiss value signal to judge AbbVie income safety today.`,
     eyebrow: 'Healthcare dividend deep dive',
     title: 'How to read the ABBV dividend setup',
     paragraphs: [

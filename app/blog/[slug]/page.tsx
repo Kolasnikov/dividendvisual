@@ -46,6 +46,10 @@ function formatDate(dateStr: string): string {
   })
 }
 
+function serializeJsonLd(value: unknown): string {
+  return JSON.stringify(value).replace(/</g, '\\u003c')
+}
+
 function getRelatedPosts(currentSlug: string, currentTags: string[], count = 3) {
   const normalize = (t: string) => t.toLowerCase().trim()
   const currentNorm = new Set(currentTags.map(normalize))
@@ -65,6 +69,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   if (!post) notFound()
 
   const related = getRelatedPosts(slug, post.tags)
+  const modifiedDate = post.updated ?? post.date
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -72,16 +77,33 @@ export default async function BlogPostPage({ params }: PageProps) {
     headline: post.title,
     description: post.description,
     datePublished: post.date,
-    dateModified: post.date,
+    dateModified: modifiedDate,
     author: { '@type': 'Organization', name: 'DividendVisual', url: 'https://dividendvisual.com' },
     publisher: { '@type': 'Organization', name: 'DividendVisual', url: 'https://dividendvisual.com' },
     url: `https://dividendvisual.com/blog/${slug}`,
     isAccessibleForFree: true,
   }
+  const faqJsonLd = post.faq?.length
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: post.faq.map((item) => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: item.answer,
+          },
+        })),
+      }
+    : null
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
+      {faqJsonLd ? (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }} />
+      ) : null}
 
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },
@@ -93,6 +115,12 @@ export default async function BlogPostPage({ params }: PageProps) {
       <header className="mb-10">
         <div className="flex items-center gap-3 mb-4">
           <span className="text-xs text-[#71717a]">{formatDate(post.date)}</span>
+          {post.updated ? (
+            <>
+              <span className="text-[#1e1e2e]">·</span>
+              <span className="text-xs text-[#71717a]">Updated {formatDate(post.updated)}</span>
+            </>
+          ) : null}
           <span className="text-[#1e1e2e]">·</span>
           <span className="text-xs text-[#71717a]">DividendVisual Research</span>
           <span className="text-[#1e1e2e]">·</span>
@@ -127,6 +155,20 @@ export default async function BlogPostPage({ params }: PageProps) {
       <article className="prose-dv">
         <MDXRemote source={post.content} options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }} />
       </article>
+
+      {post.faq?.length ? (
+        <section className="mt-12 border-t border-[#1e1e2e] pt-8">
+          <h2 className="text-2xl font-bold text-[#f4f4f5] mb-6">{post.faqTitle ?? 'Frequently Asked Questions'}</h2>
+          <div className="space-y-6">
+            {post.faq.map((item) => (
+              <div key={item.question}>
+                <h3 className="text-base font-semibold text-[#f4f4f5]">{item.question}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#a1a1aa]">{item.answer}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {/* Footer CTA */}
       <div className="mt-12 pt-8 border-t border-[#1e1e2e]">

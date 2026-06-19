@@ -9,12 +9,20 @@ export interface PostMeta {
   title: string
   description: string
   date: string
+  updated?: string
   readingTime: number
   tags: string[]
+  faqTitle?: string
+  faq?: PostFaq[]
 }
 
 export interface Post extends PostMeta {
   content: string
+}
+
+export interface PostFaq {
+  question: string
+  answer: string
 }
 
 function readingTime(content: string): number {
@@ -35,8 +43,11 @@ export function getAllPosts(): PostMeta[] {
         title: data.title ?? slug,
         description: data.description ?? '',
         date: data.date ?? '',
+        updated: data.updated,
         readingTime: readingTime(content),
         tags: data.tags ?? [],
+        faqTitle: data.faqTitle,
+        faq: data.faq ?? [],
       }
     })
     .sort((a, b) => (a.date > b.date ? -1 : 1))
@@ -51,8 +62,11 @@ export function getPost(slug: string): Post | null {
     title: data.title ?? slug,
     description: data.description ?? '',
     date: data.date ?? '',
+    updated: data.updated,
     readingTime: readingTime(content),
     tags: data.tags ?? [],
+    faqTitle: data.faqTitle,
+    faq: data.faq ?? [],
     content,
   }
 }

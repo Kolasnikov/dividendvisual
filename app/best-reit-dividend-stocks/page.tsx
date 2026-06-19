@@ -7,9 +7,9 @@ const YEAR = 2026
 const DB_SECTOR = getSectorApiNameBySlug('real-estate') ?? 'Real Estate'
 
 export const metadata: Metadata = {
-  title: `Best REIT Dividend Stocks ${YEAR} — Ranked by Yield, Safety & Weiss Valuation Signal`,
+  title: `Best REIT Dividend Stocks ${YEAR}: Yield, Safety & Value`,
   description:
-    'Compare 14 REIT dividend stocks by current yield, AFFO payout ratio, dividend growth, and Geraldine Weiss undervalue signal. Updated daily. No yield-chasing, just data.',
+    'Compare 14 REIT dividend stocks by yield, AFFO payout ratio, dividend growth, and Weiss value signals. Updated daily to find safer income ideas.',
   alternates: {
     canonical: PAGE_URL,
   },

@@ -6,8 +6,8 @@ import { DRIPCalculatorClient } from '@/components/calculators/DRIPCalculatorCli
 import { getEtoroLink } from '@/lib/etoro'
 
 export const metadata: Metadata = {
-  title: 'DRIP Calculator — Project Your Dividend Income Over 20 Years | DividendVisual',
-  description: 'Enter any yield, growth rate, and investment amount to see exactly how much income DRIP compounding generates year by year. Pre-fill with real stock data from 150+ dividend payers.',
+  title: 'DRIP Calculator 2026: Project Dividend Income Growth',
+  description: 'Use our DRIP calculator to project dividend income for 20 years. Enter yield, growth rate, and investment amount, or pre-fill 150+ dividend stocks.',
   alternates: { canonical: 'https://dividendvisual.com/drip-calculator' },
   openGraph: {
     title: 'Dividend Reinvestment Calculator (DRIP) | DividendVisual',
@@ -32,86 +32,7 @@ const WEB_APP_SCHEMA = {
   },
 }
 
-const FAQ_SCHEMA = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: [
-    {
-      '@type': 'Question',
-      name: 'What is DRIP (Dividend Reinvestment Plan)?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'A DRIP (Dividend Reinvestment Plan) automatically reinvests your dividend payments to purchase additional shares of the same stock instead of paying out cash. Over time, this compounds your share count and income — each quarter you own more shares, which earn more dividends, which buy more shares. Most major brokerages offer DRIP enrollment at no cost.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'What is yield on cost?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: "Yield on cost (YOC) is your annual dividend income divided by your original purchase price. As companies raise their dividends over time, your YOC grows even if the stock price stays flat. A stock bought at $100 with a 3% yield that grows its dividend 8% annually will have a YOC of about 6.5% after 10 years — more than double the starting yield.",
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'What dividend CAGR should I use in the calculator?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: "Use each stock's historical 5-year dividend CAGR as a starting point. Dividend Kings and Aristocrats typically range from 3% to 10% annual growth. Conservative income stocks (utilities, consumer staples) tend to grow 3–5%. Higher-quality compounders like Home Depot, Texas Instruments, and Microsoft have grown 8–15% historically. You can look up each stock's dividend CAGR on its DividendVisual analysis page.",
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Does this calculator account for taxes on dividends?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'No. This is a pre-tax projection. In a tax-advantaged account (IRA, 401k), DRIP compounding is fully tax-deferred. In a taxable account, qualified dividends are taxed at preferential capital gains rates each year — reducing the effective reinvestment amount. Consult a tax advisor for your specific situation.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'What does DRIP stand for?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'DRIP stands for Dividend Reinvestment Plan. Instead of receiving dividend payments as cash, a DRIP automatically uses that income to purchase additional shares of the same stock. Most major brokerages — Fidelity, Schwab, Vanguard, Interactive Brokers — offer DRIP enrollment at no cost.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Is DRIP investing worth it?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'For long-term investors in quality dividend-growth stocks, DRIP investing is one of the most effective ways to compound wealth passively. The reinvestment removes the temptation to spend dividends, eliminates the need to time reinvestment decisions, and allows fractional share purchases that would be impractical manually. The compounding benefit is largest with stocks that consistently grow their dividend over decades.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'What is a good dividend growth rate to assume in the calculator?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'A conservative but realistic range is 4–8% annually for established dividend-growth stocks. Utilities and consumer staples typically grow dividends 3–5%. High-quality compounders like Home Depot, Texas Instruments, and Microsoft have grown 8–15% historically. Use each stock\'s 5-year dividend CAGR from its DividendVisual page as your starting assumption, and reduce it by 1–2 points for a margin of safety.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'What is yield on cost and why does it matter?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Yield on cost (YOC) is your annual dividend income divided by your original purchase price — not the current stock price. It grows each year the dividend increases. A stock bought at a 3% yield that grows its dividend at 8% annually has a YOC of about 13% after 20 years. YOC matters because it shows the true income return on your original capital, which keeps improving even when the stock\'s current yield appears modest to new investors.',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'Can I use this calculator for ETF dividends?',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: 'Yes, with caveats. Enter the ETF\'s current dividend yield and its historical distribution growth rate as your CAGR input. ETF distributions are less predictable than individual stock dividends because they depend on the underlying holdings changing over time. For ETFs, use a conservative CAGR of 2–4% unless the ETF has a strong track record of distribution growth.',
-      },
-    },
-  ],
-}
-
-const FAQ_VISIBLE = [
+const DRIP_FAQ = [
   {
     q: 'What is DRIP (Dividend Reinvestment Plan)?',
     a: 'A DRIP automatically reinvests your dividend payments to purchase additional shares of the same stock instead of paying out cash. Over time, this compounds your share count and income. Most major brokerages offer DRIP enrollment at no cost.',
@@ -129,33 +50,34 @@ const FAQ_VISIBLE = [
     a: 'No. This is a pre-tax projection. In a tax-advantaged account (IRA, 401k), DRIP compounding is fully tax-deferred. In a taxable account, qualified dividends are taxed each year, reducing the effective reinvestment amount.',
   },
   {
-    q: 'What does DRIP stand for?',
-    a: 'DRIP stands for Dividend Reinvestment Plan. Instead of receiving dividend payments as cash, a DRIP automatically uses that income to purchase additional shares of the same stock. Most major brokerages offer DRIP enrollment at no cost.',
-  },
-  {
     q: 'Is DRIP investing worth it?',
     a: 'For long-term investors in quality dividend-growth stocks, DRIP is one of the most effective ways to compound wealth passively. The reinvestment removes the temptation to spend dividends and eliminates timing decisions. The compounding benefit is largest with stocks that grow their dividend consistently over decades.',
   },
-  {
-    q: 'What is a good dividend growth rate to assume?',
-    a: "A conservative but realistic range is 4–8% annually for established dividend-growth stocks. Utilities and consumer staples typically grow 3–5%. High-quality compounders like HD or TXN have grown 8–15%. Use each stock's 5-year CAGR from its DividendVisual page as your starting point, then shade it down 1–2 points for margin of safety.",
-  },
-  {
-    q: 'What is yield on cost and why does it matter?',
-    a: 'Yield on cost (YOC) is your annual dividend income divided by your original purchase price — not the current stock price. It grows each year the dividend increases. A 3% yield growing at 8% annually reaches roughly 13% YOC after 20 years. It matters because it shows the true income return on your original capital.',
-  },
-  {
-    q: 'Can I use this calculator for ETF dividends?',
-    a: "Yes, with caveats. Enter the ETF's current yield and historical distribution growth rate as the CAGR input. ETF distributions are less predictable than individual stock dividends, so use a conservative CAGR of 2–4% unless the ETF has a strong track record of distribution growth.",
-  },
 ]
+
+const FAQ_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: DRIP_FAQ.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: a,
+    },
+  })),
+}
+
+function serializeJsonLd(value: unknown): string {
+  return JSON.stringify(value).replace(/</g, '\\u003c')
+}
 
 export default async function DRIPCalculatorPage() {
   const etoroHref = getEtoroLink((await headers()).get('x-vercel-ip-country'))
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(WEB_APP_SCHEMA) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(WEB_APP_SCHEMA) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(FAQ_SCHEMA) }} />
 
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },
@@ -208,18 +130,27 @@ export default async function DRIPCalculatorPage() {
       </a>
 
       <article className="prose-dv mt-14">
-        <h2>How DRIP Compounding Works</h2>
+        <h2>What is DRIP investing?</h2>
         <p>
-          The Dividend Reinvestment Plan (DRIP) turns dividend income into new shares automatically.
-          Instead of receiving a quarterly cash payment, each dividend goes toward purchasing fractional
-          shares of the same stock at the payment date price.
+          DRIP investing means reinvesting cash dividends back into the same stock or fund instead of
+          taking the dividend as spendable income. DRIP stands for Dividend Reinvestment Plan. When a
+          company pays a dividend, your broker uses that cash to buy additional shares, often including
+          fractional shares, so every dividend payment increases the number of shares you own.
         </p>
         <p>
-          The compounding effect has two simultaneous components. First, you accumulate more shares each
-          period — so the next dividend payment applies to a larger share count. Second, as most
-          dividend-growth companies raise their payout every year, each share generates more income over
-          time. Both effects multiply each other, which is why the income curve accelerates sharply in
-          the later years of any long projection.
+          The compounding effect has two engines. First, reinvested dividends buy more shares, and those
+          new shares generate their own future dividends. Second, quality dividend-growth companies can
+          raise the dividend per share over time, so each share may produce more income in future years.
+          When both forces work together, the income curve starts slowly and then accelerates in the later
+          years of a 10-, 15-, or 20-year projection.
+        </p>
+        <p>
+          DRIP investing is most useful for long-term investors who do not need the income today. It can
+          be especially powerful in retirement accounts, where reinvestment is not interrupted by annual
+          dividend taxes. It is not automatic magic, though. A DRIP still depends on the quality of the
+          underlying business, the sustainability of the dividend, valuation at purchase, and whether the
+          dividend keeps growing. Reinvesting dividends into a weak company can compound mistakes just as
+          efficiently as reinvesting into a strong one compounds income.
         </p>
 
         <h2>Yield on Cost: The Number That Actually Matters</h2>
@@ -272,7 +203,7 @@ export default async function DRIPCalculatorPage() {
           assess dividend sustainability before projecting long-term growth.
         </p>
 
-        <h2>How to Use This DRIP Calculator (Step by Step)</h2>
+        <h2>How to use this DRIP calculator</h2>
         <ol>
           <li>
             <strong>Enter your initial investment amount.</strong> This is the dollar amount you plan to invest today. The calculator works with any size — from $1,000 to $1,000,000.
@@ -290,51 +221,39 @@ export default async function DRIPCalculatorPage() {
           </li>
         </ol>
 
-        <h2>DRIP Calculator Examples by Stock</h2>
+        <h2>DRIP calculator examples</h2>
         <p>
-          The table below shows the estimated year-20 annual income for a $10,000 investment in five dividend stocks, using their approximate current yield and 5-year dividend CAGR. All projections assume full DRIP reinvestment, constant stock price, and no taxes.
+          The examples below use a $10,000 starting investment, full dividend reinvestment, a constant
+          share price assumption, and no taxes. They are not forecasts; they show how different starting
+          yields and dividend growth rates change the income path.
         </p>
         <table>
           <thead>
             <tr>
-              <th>Stock</th>
-              <th>Yield</th>
-              <th>5Y CAGR</th>
+              <th>Case</th>
+              <th>Starting Yield</th>
+              <th>Dividend Growth</th>
               <th>Year 1 Income</th>
               <th>Year 20 Income</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><Link href="/analysis/ko" className="text-[#6366f1] hover:text-[#818cf8]">KO — Coca-Cola</Link></td>
-              <td>3.1%</td>
-              <td>4%</td>
-              <td>~$310</td>
-              <td>~$950</td>
-            </tr>
-            <tr>
-              <td><Link href="/analysis/jnj" className="text-[#6366f1] hover:text-[#818cf8]">JNJ — Johnson &amp; Johnson</Link></td>
-              <td>3.2%</td>
-              <td>5%</td>
-              <td>~$320</td>
-              <td>~$1,150</td>
-            </tr>
-            <tr>
-              <td><Link href="/analysis/o" className="text-[#6366f1] hover:text-[#818cf8]">O — Realty Income</Link></td>
+              <td><Link href="/analysis/o" className="text-[#6366f1] hover:text-[#818cf8]">High-yield REIT example</Link></td>
               <td>5.5%</td>
               <td>3%</td>
               <td>~$550</td>
               <td>~$1,350</td>
             </tr>
             <tr>
-              <td><Link href="/analysis/abbv" className="text-[#6366f1] hover:text-[#818cf8]">ABBV — AbbVie</Link></td>
-              <td>3.8%</td>
-              <td>9%</td>
-              <td>~$380</td>
-              <td>~$2,650</td>
+              <td><Link href="/analysis/jnj" className="text-[#6366f1] hover:text-[#818cf8]">Balanced dividend-growth example</Link></td>
+              <td>3.2%</td>
+              <td>5%</td>
+              <td>~$320</td>
+              <td>~$1,150</td>
             </tr>
             <tr>
-              <td><Link href="/analysis/hd" className="text-[#6366f1] hover:text-[#818cf8]">HD — Home Depot</Link></td>
+              <td><Link href="/analysis/hd" className="text-[#6366f1] hover:text-[#818cf8]">Low-yield compounder example</Link></td>
               <td>2.5%</td>
               <td>11%</td>
               <td>~$250</td>
@@ -343,14 +262,18 @@ export default async function DRIPCalculatorPage() {
           </tbody>
         </table>
         <p>
-          Notice how ABBV and HD, despite starting with lower or similar yields than Realty Income, generate significantly more income by year 20 due to their higher dividend growth rates. A high starting yield matters less than sustained dividend growth over long horizons.
+          The high-yield REIT case starts with the most income, but the lower-yield compounder can pass
+          it over long horizons if dividend growth remains high. The balanced case sits in the middle:
+          less starting income than the REIT, but more growth than a slow-growing high-yield stock. This
+          is why the DRIP calculator is useful: it makes the trade-off between starting yield and dividend
+          growth visible in dollars.
         </p>
       </article>
 
       <section className="mt-14">
         <h2 className="text-xl font-bold text-[#f4f4f5] mb-6">Frequently Asked Questions</h2>
         <div className="space-y-4">
-          {FAQ_VISIBLE.map(({ q, a }) => (
+          {DRIP_FAQ.map(({ q, a }) => (
             <details key={q} className="group bg-[#111118] border border-[#1e1e2e] rounded-xl overflow-hidden">
               <summary className="flex items-center justify-between px-5 py-4 cursor-pointer text-sm font-medium text-[#f4f4f5] list-none select-none hover:text-[#6366f1] transition-colors">
                 {q}
