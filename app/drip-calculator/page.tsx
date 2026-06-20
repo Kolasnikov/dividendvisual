@@ -4,6 +4,7 @@ import { headers } from 'next/headers'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { DRIPCalculatorClient } from '@/components/calculators/DRIPCalculatorClient'
 import { getEtoroLink } from '@/lib/etoro'
+import { serializeJsonLd } from '@/lib/json-ld'
 
 export const metadata: Metadata = {
   title: 'DRIP Calculator 2026: Project Dividend Income Growth',
@@ -66,10 +67,6 @@ const FAQ_SCHEMA = {
       text: a,
     },
   })),
-}
-
-function serializeJsonLd(value: unknown): string {
-  return JSON.stringify(value).replace(/</g, '\\u003c')
 }
 
 export default async function DRIPCalculatorPage() {

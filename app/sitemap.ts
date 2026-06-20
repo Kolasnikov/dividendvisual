@@ -53,6 +53,8 @@ const COLLECTIONS = [
   'low-payout-compounders',
 ]
 
+const DRIP_TICKERS = ['KO', 'JNJ', 'PG', 'O', 'ABBV', 'HD', 'MO', 'XOM', 'TXN', 'BDX', 'MKC', 'NNN', 'VZ', 'FAST', 'STAG']
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
 
@@ -77,6 +79,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/best-technology-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE}/best-energy-dividend-stocks`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE}/drip-calculator`, lastModified: now, changeFrequency: 'monthly', priority: 0.85 },
+    { url: `${BASE}/compare`, lastModified: now, changeFrequency: 'monthly', priority: 0.75 },
     { url: `${BASE}/portfolio`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE}/newsletter`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${BASE}/glossary`, lastModified: now, changeFrequency: 'monthly', priority: 0.75 },
@@ -86,6 +89,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/resources`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/resources/books`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/resources/tools`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${BASE}/resources/brokers`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${BASE}/privacy`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${BASE}/terms`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
@@ -103,6 +107,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: now,
     changeFrequency: 'daily' as const,
     priority: 0.85,
+  }))
+
+  const dripCalculators: MetadataRoute.Sitemap = DRIP_TICKERS.map((symbol) => ({
+    url: `${BASE}/drip-calculator/${symbol.toLowerCase()}`,
+    lastModified: now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.72,
   }))
 
   const collections: MetadataRoute.Sitemap = COLLECTIONS.map((slug) => ({
@@ -127,5 +138,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     }))
 
-  return [...statics, ...analysis, ...collections, ...blogPosts, ...comparePairs, ...sectors]
+  return [...statics, ...analysis, ...dripCalculators, ...collections, ...blogPosts, ...comparePairs, ...sectors]
 }

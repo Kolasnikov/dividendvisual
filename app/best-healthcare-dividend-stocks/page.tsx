@@ -135,6 +135,24 @@ export default function BestHealthcareDividendStocksPage() {
         'Quality score confirms payout durability.',
         'Weiss signal shows the entry yield is attractive versus history.',
       ]}
+      faq={[
+        {
+          question: 'What are the best healthcare dividend stocks?',
+          answer: 'The best healthcare dividend stocks usually combine durable medical demand, conservative payout ratios, recurring cash flow, and long dividend growth records. Examples often include diversified pharma, medical device, diagnostics, managed care, and healthcare distribution companies.',
+        },
+        {
+          question: 'Are healthcare dividend stocks defensive?',
+          answer: 'Healthcare demand is relatively defensive because patients need treatment through economic cycles. Individual healthcare stocks still carry risks from patent expirations, clinical trial failures, pricing regulation, reimbursement pressure, and litigation.',
+        },
+        {
+          question: 'How should investors compare JNJ and ABBV?',
+          answer: 'JNJ is usually the steadier lower-yield healthcare dividend profile, while ABBV offers a higher yield with more product-cycle and pipeline risk. Comparing payout coverage, dividend growth, and Humira replacement progress is more useful than yield alone.',
+        },
+        {
+          question: 'What payout ratio is safe for healthcare dividend stocks?',
+          answer: 'A payout ratio below roughly 60% is generally conservative for large healthcare dividend stocks, but the right threshold depends on business mix. Medical device companies often have steadier cash flow, while pharmaceutical companies require more pipeline and patent-risk analysis.',
+        },
+      ]}
     />
   )
 }

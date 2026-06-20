@@ -5,8 +5,14 @@ import { SignalBadge } from '@/components/ui/SignalBadge'
 import { DividendBadge } from '@/components/ui/DividendBadge'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
+import { serializeJsonLd } from '@/lib/json-ld'
 
 type SectorLandingRow = Company & ComputedMetrics
+
+type FaqItem = {
+  question: string
+  answer: string
+}
 
 interface SectorDividendLandingProps {
   pageUrl: string
@@ -23,6 +29,7 @@ interface SectorDividendLandingProps {
   relatedLinks: { href: string; label: string }[]
   sections: { heading: string; paragraphs: string[] }[]
   checklist: string[]
+  faq?: FaqItem[]
 }
 
 async function getSectorStocks(dbSector: string): Promise<SectorLandingRow[]> {
@@ -76,8 +83,24 @@ function buildItemListJsonLd(props: SectorDividendLandingProps, rows: SectorLand
   }
 }
 
+function buildFaqJsonLd(faq: FaqItem[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  }
+}
+
 export async function SectorDividendLanding(props: SectorDividendLandingProps) {
   const rows = await getSectorStocks(props.dbSector)
+  const topRows = rows.slice(0, 10)
   const undervalued = rows.filter((row) => row.weissSignal === 'undervalued').length
   const avgYield = average(rows.map((row) => row.currentYield).filter((value) => value > 0))
   const avgQuality = Math.round(average(rows.map((row) => row.qualityScore).filter((value) => value > 0)))
@@ -86,8 +109,11 @@ export async function SectorDividendLanding(props: SectorDividendLandingProps) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildArticleJsonLd(props)) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(buildItemListJsonLd(props, rows)) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildArticleJsonLd(props)) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildItemListJsonLd(props, topRows)) }} />
+      {props.faq?.length ? (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildFaqJsonLd(props.faq)) }} />
+      ) : null}
       <TrackPageView event={props.eventName} properties={{ count: rows.length }} />
 
       <Breadcrumbs items={[
@@ -119,6 +145,58 @@ export async function SectorDividendLanding(props: SectorDividendLandingProps) {
               <p className="text-xs text-[#71717a]">{label}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <div className="mb-5 max-w-2xl">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#71717a]">Top 10 comparison</p>
+          <h2 className="mt-2 text-xl font-semibold text-[#f4f4f5]">Top 10 {props.title.replace(/^Best /, '').replace(/ 2026$/, '')}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-[#71717a]">
+            A focused view of the highest-quality stocks in this screen, ranked by DividendVisual quality score.
+            Use it to compare yield, dividend growth, and payout coverage before opening the full analysis.
+          </p>
+        </div>
+        <div className="overflow-x-auto rounded-lg border border-[#1e1e2e] bg-[#111118]">
+          <table className="w-full min-w-[620px] text-sm">
+            <thead>
+              <tr className="border-b border-[#1e1e2e] text-left text-xs text-[#71717a]">
+                <th className="py-3 pl-4 pr-4 font-medium">Ticker</th>
+                <th className="py-3 pr-4 font-medium">Yield</th>
+                <th className="py-3 pr-4 font-medium">Dividend Growth</th>
+                <th className="py-3 pr-4 font-medium">Payout Ratio</th>
+                <th className="py-3 pr-4 text-right font-medium">Analysis</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topRows.map((row) => (
+                <tr key={row.symbol} className="border-b border-[#1e1e2e]/70 last:border-0">
+                  <td className="py-3 pl-4 pr-4">
+                    <Link
+                      href={`/analysis/${row.symbol.toLowerCase()}`}
+                      className="font-mono font-semibold text-[#f4f4f5] transition-colors hover:text-[#6366f1]"
+                    >
+                      {row.symbol}
+                    </Link>
+                    <div className="mt-0.5 max-w-[240px] truncate text-xs text-[#71717a]">{row.name}</div>
+                  </td>
+                  <td className="py-3 pr-4 font-medium text-[#f4f4f5]">{pct(row.currentYield)}</td>
+                  <td className="py-3 pr-4 text-[#a1a1aa]">{pct(row.dividendCagr5y, 1)}</td>
+                  <td className="py-3 pr-4 text-[#a1a1aa]">
+                    {row.payoutRatio != null && row.payoutRatio <= 2 ? pct(row.payoutRatio, 0) : 'n/a'}
+                  </td>
+                  <td className="py-3 pr-4 text-right">
+                    <Link
+                      href={`/analysis/${row.symbol.toLowerCase()}`}
+                      className="text-xs text-[#6366f1] transition-colors hover:text-[#818cf8]"
+                    >
+                      Read
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -268,12 +346,43 @@ export async function SectorDividendLanding(props: SectorDividendLandingProps) {
 
       <section className="grid gap-10 lg:grid-cols-[1fr_360px]">
         <article className="prose-dv max-w-3xl">
+          <h2>How we selected these stocks</h2>
+          <p>
+            This list starts with companies classified in the {props.dbSector} sector inside DividendVisual&apos;s
+            dividend universe, then ranks them by quality score. The quality score weighs dividend durability,
+            payout coverage, dividend growth, streak length, and whether the current yield is attractive versus
+            the stock&apos;s own history.
+          </p>
+          <p>
+            Yield alone is not enough. A high yield can mean a better entry price, but it can also mean the market
+            expects slower growth or a future dividend cut. That is why this page shows dividend growth and payout
+            ratio beside yield, and links every ticker to a full analysis page with Weiss valuation context.
+          </p>
+          <p>
+            For the broader methodology, read the{' '}
+            <Link href="/methodology" className="text-[#6366f1] hover:text-[#818cf8]">DividendVisual methodology</Link>
+            {' '}or compare the full universe in the{' '}
+            <Link href="/dividend-screener" className="text-[#6366f1] hover:text-[#818cf8]">dividend stock screener</Link>.
+          </p>
+
           {props.sections.map((section) => (
             <div key={section.heading}>
               <h2>{section.heading}</h2>
               {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
             </div>
           ))}
+
+          {props.faq?.length ? (
+            <div>
+              <h2>Frequently asked questions</h2>
+              {props.faq.map((item) => (
+                <div key={item.question}>
+                  <h3>{item.question}</h3>
+                  <p>{item.answer}</p>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </article>
 
         <aside className="rounded-lg border border-[#1e1e2e] bg-[#111118] p-5 h-fit">

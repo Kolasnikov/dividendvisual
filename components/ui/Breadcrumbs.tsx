@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { serializeJsonLd } from '@/lib/json-ld'
 
 interface BreadcrumbItem {
   label: string
@@ -23,7 +24,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
       <nav aria-label="Breadcrumb" className="mb-6">
         <ol className="flex items-center flex-wrap gap-1.5 text-xs text-[#52525b]">

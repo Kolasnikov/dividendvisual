@@ -7,6 +7,7 @@ import { TrackPageView } from '@/components/analytics/TrackPageView'
 import { ResearchDisclosure } from '@/components/seo/ResearchDisclosure'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 import { getSectorLandingHref } from '@/lib/sector-mapping'
+import { serializeJsonLd } from '@/lib/json-ld'
 
 const CURRENT_YEAR = new Date().getFullYear()
 
@@ -71,6 +72,39 @@ async function getTickerData(symbol: string): Promise<TickerResponse | null> {
 }
 
 type PeerRow = { symbol: string; name: string; currentYield: number; weissSignal: string; qualityScore: number }
+
+const ABBV_DIVIDEND_HISTORY = [
+  { year: 2016, annualizedDividend: '$2.28', quarterlyDividend: '$0.57', growth: '12%', note: 'Humira cash flow still driving rapid raises' },
+  { year: 2017, annualizedDividend: '$2.56', quarterlyDividend: '$0.64', growth: '12%', note: 'Double-digit dividend growth continued' },
+  { year: 2018, annualizedDividend: '$3.84', quarterlyDividend: '$0.96', growth: '50%', note: 'Large reset after U.S. tax reform and strong earnings' },
+  { year: 2019, annualizedDividend: '$4.28', quarterlyDividend: '$1.07', growth: '11%', note: 'Growth stayed high before Allergan closed' },
+  { year: 2020, annualizedDividend: '$4.72', quarterlyDividend: '$1.18', growth: '10%', note: 'Allergan acquisition added diversification and debt' },
+  { year: 2021, annualizedDividend: '$5.20', quarterlyDividend: '$1.30', growth: '10%', note: 'Peak Humira cash flow supported another raise' },
+  { year: 2022, annualizedDividend: '$5.64', quarterlyDividend: '$1.41', growth: '8%', note: 'Management prepared for Humira biosimilars' },
+  { year: 2023, annualizedDividend: '$5.92', quarterlyDividend: '$1.48', growth: '5%', note: 'Humira U.S. biosimilar competition began' },
+  { year: 2024, annualizedDividend: '$6.20', quarterlyDividend: '$1.55', growth: '5%', note: 'Skyrizi and Rinvoq became the dividend bridge' },
+  { year: 2025, annualizedDividend: '$6.56', quarterlyDividend: '$1.64', growth: '6%', note: 'Dividend growth moderated but continued' },
+  { year: 2026, annualizedDividend: '$6.92', quarterlyDividend: '$1.73', growth: '5.5%', note: 'Rate effective with the February 2026 payment' },
+]
+
+const ABBV_PAYOUT_HISTORY = [
+  { year: 2016, payout: 47 },
+  { year: 2017, payout: 46 },
+  { year: 2018, payout: 49 },
+  { year: 2019, payout: 48 },
+  { year: 2020, payout: 45 },
+  { year: 2021, payout: 41 },
+  { year: 2022, payout: 41 },
+  { year: 2023, payout: 53 },
+  { year: 2024, payout: 57 },
+  { year: 2025, payout: 62 },
+  { year: 2026, payout: 48 },
+]
+
+const ABBV_UPCOMING_DIVIDENDS = [
+  { period: 'Q3 2026', exDate: 'Estimated July 2026', recordDate: 'Estimated July 2026', paymentDate: 'Estimated August 2026', amount: '$1.73', status: 'Estimated' },
+  { period: 'Q4 2026', exDate: 'Estimated October 2026', recordDate: 'Estimated October 2026', paymentDate: 'Estimated November 2026', amount: '$1.73', status: 'Estimated' },
+]
 
 type PriorityAnalysisGuide = {
   eyebrow: string
@@ -428,6 +462,138 @@ function watchItems(metrics: ComputedMetrics, company: Company): string[] {
   return items.slice(0, 5)
 }
 
+function averagePeerYield(peers: PeerRow[]): number | null {
+  if (peers.length === 0) return null
+  return peers.reduce((sum, peer) => sum + peer.currentYield, 0) / peers.length
+}
+
+function AbbvDividendResearch({ metrics, peers }: { metrics: ComputedMetrics; peers: PeerRow[] }) {
+  const currentYield = pct(metrics.currentYield) ?? '—'
+  const healthcareYield = averagePeerYield(peers)
+  const sp500Yield = 0.012
+  const maxPayout = Math.max(...ABBV_PAYOUT_HISTORY.map((row) => row.payout))
+
+  return (
+    <>
+      <h2>AbbVie dividend history</h2>
+      <p>
+        AbbVie&apos;s dividend record is unusually important because the stock&apos;s income case depends on whether
+        management can keep raising the payout after Humira&apos;s U.S. patent cliff. The table below uses
+        year-end annualized regular dividends, which makes the growth path easier to compare across years.
+      </p>
+      <div className="not-prose my-6 overflow-x-auto rounded-xl border border-[#1e1e2e]">
+        <table className="w-full min-w-[680px] text-left text-sm">
+          <thead className="bg-[#111118] text-xs uppercase tracking-wide text-[#71717a]">
+            <tr>
+              <th className="px-4 py-3 font-medium">Year</th>
+              <th className="px-4 py-3 font-medium">Annualized dividend</th>
+              <th className="px-4 py-3 font-medium">Quarterly rate</th>
+              <th className="px-4 py-3 font-medium">Raise</th>
+              <th className="px-4 py-3 font-medium">Context</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#1e1e2e] bg-[#09090b]">
+            {ABBV_DIVIDEND_HISTORY.map((row) => (
+              <tr key={row.year}>
+                <td className="px-4 py-3 font-mono text-[#f4f4f5]">{row.year}</td>
+                <td className="px-4 py-3 font-semibold text-[#f4f4f5]">{row.annualizedDividend}</td>
+                <td className="px-4 py-3 text-[#a1a1aa]">{row.quarterlyDividend}</td>
+                <td className="px-4 py-3 text-[#22c55e]">{row.growth}</td>
+                <td className="px-4 py-3 text-[#71717a]">{row.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Upcoming ABBV ex-dividend dates</h2>
+      <p>
+        AbbVie has historically paid dividends quarterly. The company had raised the quarterly dividend to
+        $1.73 beginning with the February 2026 payment. Future dates below are estimates until AbbVie
+        formally declares each dividend.
+      </p>
+      <div className="not-prose my-6 grid gap-3 sm:grid-cols-2">
+        {ABBV_UPCOMING_DIVIDENDS.map((row) => (
+          <div key={row.period} className="rounded-xl border border-[#1e1e2e] bg-[#111118] p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#71717a]">{row.period}</p>
+                <p className="mt-1 text-lg font-bold text-[#f4f4f5]">{row.amount}/share</p>
+              </div>
+              <span className="rounded-full border border-[#f59e0b]/30 bg-[#f59e0b]/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#f59e0b]">
+                {row.status}
+              </span>
+            </div>
+            <dl className="mt-4 space-y-2 text-sm">
+              <div className="flex justify-between gap-4">
+                <dt className="text-[#71717a]">Ex-dividend</dt>
+                <dd className="text-[#f4f4f5]">{row.exDate}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-[#71717a]">Record date</dt>
+                <dd className="text-[#f4f4f5]">{row.recordDate}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-[#71717a]">Payment</dt>
+                <dd className="text-[#f4f4f5]">{row.paymentDate}</dd>
+              </div>
+            </dl>
+          </div>
+        ))}
+      </div>
+
+      <h2>ABBV payout ratio history</h2>
+      <p>
+        AbbVie&apos;s adjusted payout ratio moved higher after the Humira cliff, then improved as management
+        guided to stronger 2026 earnings. That is the key safety question for income investors: the dividend
+        looks more durable when payout coverage normalizes while Skyrizi and Rinvoq keep scaling.
+      </p>
+      <div className="not-prose my-6 rounded-xl border border-[#1e1e2e] bg-[#111118] p-5">
+        <div className="flex items-end gap-2 overflow-x-auto pb-2" role="img" aria-label="AbbVie adjusted payout ratio history from 2016 to 2026">
+          {ABBV_PAYOUT_HISTORY.map((row) => (
+            <div key={row.year} className="flex min-w-10 flex-1 flex-col items-center gap-2">
+              <div className="flex h-32 w-full items-end rounded bg-[#09090b] px-1">
+                <div
+                  className="w-full rounded-t bg-[#6366f1]"
+                  style={{ height: `${Math.max(8, (row.payout / maxPayout) * 100)}%` }}
+                  title={`${row.year}: ${row.payout}% adjusted payout ratio`}
+                />
+              </div>
+              <span className="text-[10px] text-[#71717a]">{row.year}</span>
+              <span className="text-xs font-semibold text-[#f4f4f5]">{row.payout}%</span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 text-xs leading-relaxed text-[#71717a]">
+          Payout ratios are approximate adjusted EPS payout ratios, using year-end annualized dividend rates and
+          company-adjusted earnings context. GAAP payout ratios can look distorted for AbbVie because acquisition
+          amortization and one-time charges are material.
+        </p>
+      </div>
+
+      <h2>ABBV vs Healthcare and S&amp;P 500 dividend yield</h2>
+      <p>
+        ABBV&apos;s current yield sits well above the broad market and, based on the available DividendVisual
+        healthcare peer set, above the higher-quality healthcare names shown on this page. That higher yield is
+        the reward for accepting more product-cycle risk than a diversified device company or the S&amp;P 500 index.
+      </p>
+      <div className="not-prose my-6 grid gap-3 sm:grid-cols-3">
+        {[
+          { label: 'ABBV indicated yield', value: currentYield, note: 'Current DividendVisual data' },
+          { label: 'Healthcare peer yield', value: healthcareYield != null ? pct(healthcareYield) ?? '—' : '—', note: peers.length > 0 ? `Average of ${peers.length} quality peers` : 'Peer data unavailable' },
+          { label: 'S&P 500 yield', value: pct(sp500Yield), note: 'Broad-market context' },
+        ].map((item) => (
+          <div key={item.label} className="rounded-xl border border-[#1e1e2e] bg-[#111118] p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-[#71717a]">{item.label}</p>
+            <p className="mt-2 text-2xl font-bold text-[#f4f4f5]">{item.value}</p>
+            <p className="mt-2 text-xs leading-relaxed text-[#71717a]">{item.note}</p>
+          </div>
+        ))}
+      </div>
+    </>
+  )
+}
+
 function buildJsonLd(company: Company, metrics: ComputedMetrics, symbol: string) {
   return {
     '@context': 'https://schema.org',
@@ -440,6 +606,14 @@ function buildJsonLd(company: Company, metrics: ComputedMetrics, symbol: string)
     author: { '@type': 'Organization', name: 'DividendVisual Research', url: 'https://dividendvisual.com/about' },
     isAccessibleForFree: true,
     about: { '@type': 'Corporation', name: company.name, tickerSymbol: company.symbol },
+    mainEntity: {
+      '@type': 'FinancialProduct',
+      name: `${company.name} common stock`,
+      category: 'Dividend stock',
+      tickerSymbol: company.symbol,
+      provider: { '@type': 'Organization', name: company.name },
+      annualPercentageYield: metrics.currentYield,
+    },
   }
 }
 
@@ -547,8 +721,8 @@ export default async function AnalysisPage({ params }: PageProps) {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }} />
       <TrackPageView event="analysis_viewed" properties={{ symbol: sym, signal: metrics.weissSignal ?? 'unknown', qualityScore: metrics.qualityScore ?? 0 }} />
 
       <Breadcrumbs items={[
@@ -691,6 +865,8 @@ export default async function AnalysisPage({ params }: PageProps) {
           </p>
         )}
 
+        {sym === 'ABBV' && <AbbvDividendResearch metrics={metrics} peers={sectorPeers} />}
+
         {peerContext && (
           <>
             <h2>Peer Context: Is {sym} the Best Setup?</h2>
@@ -778,7 +954,7 @@ export default async function AnalysisPage({ params }: PageProps) {
         <div className="grid sm:grid-cols-2 gap-8">
           <div>
             <p className="text-xs text-[#71717a] uppercase tracking-wide mb-4">
-              {sectorPeers.length > 0 ? `More ${company.sector ?? 'dividend'} stocks` : 'More stock analysis'}
+              {sectorPeers.length > 0 ? `More ${company.sector ?? 'dividend'} dividend analysis` : 'You might also like'}
             </p>
             <div className="flex flex-wrap gap-2">
               {sectorPeers.length > 0
@@ -789,7 +965,7 @@ export default async function AnalysisPage({ params }: PageProps) {
                     return (
                       <Link
                         key={peer.symbol}
-                        href={`/ticker/${peer.symbol}`}
+                        href={`/analysis/${peer.symbol.toLowerCase()}`}
                         title={`${peer.name} — ${(peer.currentYield * 100).toFixed(2)}% yield`}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#1e1e2e] text-sm font-mono text-[#71717a] hover:text-[#f4f4f5] transition-colors"
                       >
@@ -804,7 +980,7 @@ export default async function AnalysisPage({ params }: PageProps) {
                 : ['KO', 'JNJ', 'PG', 'MO', 'O', 'XOM'].filter((s) => s !== sym).slice(0, 5).map((s) => (
                     <Link
                       key={s}
-                      href={`/ticker/${s}`}
+                      href={`/analysis/${s.toLowerCase()}`}
                       className="px-3 py-1.5 rounded-md bg-[#1e1e2e] text-sm font-mono text-[#71717a] hover:text-[#f4f4f5] transition-colors"
                     >
                       {s}

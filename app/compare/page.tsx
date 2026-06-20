@@ -36,9 +36,13 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   return {
     title: `${title} | DividendVisual`,
     description,
+    alternates: {
+      canonical: 'https://dividendvisual.com/compare',
+    },
     openGraph: {
       title: `${title} | DividendVisual`,
       description,
+      url: 'https://dividendvisual.com/compare',
     },
   }
 }

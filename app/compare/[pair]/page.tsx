@@ -4,6 +4,7 @@ import type { TickerResponse } from '@/lib/types'
 import { CompareClient } from '@/components/compare/CompareClient'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
+import { serializeJsonLd } from '@/lib/json-ld'
 
 export const COMPARE_PAIRS = [
   // Pairs with dedicated blog articles
@@ -204,9 +205,9 @@ export default async function ComparePairPage({ params }: PageProps) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(articleJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }} />
 
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },

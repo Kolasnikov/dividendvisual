@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
 import { getAllPosts, getPost } from '@/lib/blog'
+import { serializeJsonLd } from '@/lib/json-ld'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 
@@ -44,10 +45,6 @@ function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric',
   })
-}
-
-function serializeJsonLd(value: unknown): string {
-  return JSON.stringify(value).replace(/</g, '\\u003c')
 }
 
 function getRelatedPosts(currentSlug: string, currentTags: string[], count = 3) {
@@ -172,12 +169,12 @@ export default async function BlogPostPage({ params }: PageProps) {
 
       {/* Footer CTA */}
       <div className="mt-12 pt-8 border-t border-[#1e1e2e]">
-        <p className="text-sm text-[#71717a] mb-4">See the Weiss valuation chart for any dividend stock:</p>
+        <p className="text-sm text-[#71717a] mb-4">Read the full dividend analysis for popular stocks:</p>
         <div className="flex flex-wrap gap-2">
           {['KO', 'JNJ', 'PG', 'MO', 'O'].map((sym) => (
             <Link
               key={sym}
-              href={`/ticker/${sym}`}
+              href={`/analysis/${sym.toLowerCase()}`}
               className="px-3 py-1.5 rounded-md bg-[#1e1e2e] text-sm font-mono text-[#f4f4f5] hover:bg-[#6366f1]/20 hover:text-[#6366f1] transition-colors"
             >
               {sym}

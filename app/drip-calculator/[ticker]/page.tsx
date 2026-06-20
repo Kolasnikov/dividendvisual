@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { DRIPCalculatorClient } from '@/components/calculators/DRIPCalculatorClient'
+import { serializeJsonLd } from '@/lib/json-ld'
 import type { TickerResponse } from '@/lib/types'
 
 const STATIC_TICKERS = ['KO', 'JNJ', 'PG', 'O', 'ABBV', 'HD', 'MO', 'XOM', 'TXN', 'BDX', 'MKC', 'NNN', 'VZ', 'FAST', 'STAG']
@@ -83,7 +84,7 @@ export default async function TickerDRIPCalculatorPage({ params }: PageProps) {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(webAppSchema) }} />
 
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },

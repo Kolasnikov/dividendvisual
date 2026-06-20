@@ -37,7 +37,9 @@ export function TickerTape() {
       .catch(() => {})
   }, [])
 
-  if (items.length === 0) return null
+  if (items.length === 0) {
+    return <div aria-hidden className="h-[33px] border-b border-[#1e1e2e] bg-[#09090b]" />
+  }
 
   // Duplicate for seamless loop
   const tape = [...items, ...items]

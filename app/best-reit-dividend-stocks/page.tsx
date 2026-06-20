@@ -129,6 +129,24 @@ export default function BestReitDividendStocksPage() {
         'Property type has durable demand through weak markets.',
         'Weiss signal confirms the entry price is historically attractive.',
       ]}
+      faq={[
+        {
+          question: 'What are the best REIT dividend stocks for income investors?',
+          answer: 'The best REIT dividend stocks combine an attractive yield with sustainable FFO or AFFO payout coverage, manageable debt, durable property demand, and a long record of maintaining or raising dividends. DividendVisual ranks REITs by quality score first, then reviews yield and Weiss valuation signal.',
+        },
+        {
+          question: 'Are REIT dividends safe?',
+          answer: 'REIT dividends can be durable, but safety depends on property type, tenant quality, lease length, debt maturities, and payout coverage. Net lease, industrial, storage, and infrastructure REITs often have more resilient cash flows than highly cyclical property types.',
+        },
+        {
+          question: 'Why do REIT dividend yields rise when interest rates rise?',
+          answer: 'REITs compete with bonds for income capital. When Treasury yields rise, investors often demand higher REIT yields, which pushes REIT prices lower. That can create attractive entry points if property cash flows and payout coverage remain healthy.',
+        },
+        {
+          question: 'What payout ratio should REIT investors use?',
+          answer: 'For REITs, AFFO payout ratio is usually more useful than GAAP earnings payout ratio because depreciation reduces accounting earnings without reducing property cash flow. A sustainable REIT dividend is normally supported by recurring FFO or AFFO.',
+        },
+      ]}
     />
   )
 }
