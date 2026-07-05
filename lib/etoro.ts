@@ -1,4 +1,5 @@
 const ETORO_LINKS: Record<string, string> = {
+  US: 'https://med.etoro.com/B12690_A129936_TClick_SeToro%20US%20-%20DividendVisual.aspx',
   ES: 'https://med.etoro.com/B15708_A129812_TClick.aspx',
   EN: 'https://med.etoro.com/B19645_A129812_TClick.aspx',
   FR: 'https://med.etoro.com/B20116_A129812_TClick.aspx',
