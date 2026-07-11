@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import type { Company, ComputedMetrics } from '@/lib/types'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { PortfolioClient } from '@/components/portfolio/PortfolioClient'
+import { getWatchlistStocks } from '@/lib/stock-data'
 
 export const metadata: Metadata = {
   title: 'Dividend Portfolio Tracker — Income & Weiss Signal Overview',
@@ -19,12 +20,7 @@ export const metadata: Metadata = {
 type UniverseRow = Company & ComputedMetrics
 
 async function getUniverse(): Promise<UniverseRow[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-  const res = await fetch(`${baseUrl}/api/watchlist?sort=quality&order=desc`, {
-    next: { revalidate: 3600 },
-  })
-  if (!res.ok) return []
-  return res.json()
+  return getWatchlistStocks()
 }
 
 export default async function PortfolioPage() {

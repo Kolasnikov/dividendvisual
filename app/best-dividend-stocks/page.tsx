@@ -6,6 +6,8 @@ import { SignalBadge } from '@/components/ui/SignalBadge'
 import { DividendBadge } from '@/components/ui/DividendBadge'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
+import { getWatchlistStocks } from '@/lib/stock-data'
+import { DataUnavailableNotice } from '@/components/seo/DataUnavailableNotice'
 
 const PAGE_URL = 'https://dividendvisual.com/best-dividend-stocks'
 const YEAR = 2026
@@ -32,12 +34,7 @@ export const metadata: Metadata = {
 }
 
 async function getWatchlist(): Promise<WatchlistItem[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-  const res = await fetch(`${baseUrl}/api/watchlist?sort=quality&order=desc`, {
-    next: { revalidate: 3600 },
-  })
-  if (!res.ok) return []
-  return res.json()
+  return getWatchlistStocks()
 }
 
 function pct(value: number | null, decimals = 2) {
@@ -231,6 +228,8 @@ export default async function BestDividendStocksPage() {
           ))}
         </div>
       </section>
+
+      {all.length === 0 ? <section className="mb-10"><DataUnavailableNotice label="dividend stock ranking" /></section> : null}
 
       <section className="mb-10">
         <RankedTable rows={best} />

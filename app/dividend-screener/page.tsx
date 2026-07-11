@@ -4,6 +4,8 @@ import type { Company, ComputedMetrics } from '@/lib/types'
 import { WatchlistClient } from '@/components/watchlist/WatchlistClient'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { EmailCapture } from '@/components/ui/EmailCapture'
+import { getWatchlistStocks } from '@/lib/stock-data'
+import { DataUnavailableNotice } from '@/components/seo/DataUnavailableNotice'
 
 export const metadata: Metadata = {
   title: 'Free Dividend Stock Screener - Yield, Safety & Weiss Valuation',
@@ -29,12 +31,7 @@ export const metadata: Metadata = {
 type ScreenerRow = Company & ComputedMetrics
 
 async function getWatchlist(): Promise<ScreenerRow[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-  const res = await fetch(`${baseUrl}/api/watchlist?sort=quality&order=desc`, {
-    next: { revalidate: 3600 },
-  })
-  if (!res.ok) return []
-  return res.json()
+  return getWatchlistStocks()
 }
 
 function pct(value: number | null, digits = 2) {
@@ -162,7 +159,7 @@ export default async function DividendScreenerPage() {
         </div>
       </section>
 
-      <WatchlistClient rows={rows} />
+      {rows.length > 0 ? <WatchlistClient rows={rows} /> : <DataUnavailableNotice label="dividend screener" />}
 
       <section className="mt-12 grid gap-8 lg:grid-cols-[1fr_360px]">
         <div className="space-y-8">

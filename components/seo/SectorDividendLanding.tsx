@@ -6,6 +6,8 @@ import { DividendBadge } from '@/components/ui/DividendBadge'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
 import { serializeJsonLd } from '@/lib/json-ld'
+import { getWatchlistStocks } from '@/lib/stock-data'
+import { DataUnavailableNotice } from '@/components/seo/DataUnavailableNotice'
 
 type SectorLandingRow = Company & ComputedMetrics
 
@@ -25,6 +27,12 @@ interface SectorDividendLandingProps {
   statLabel: string
   ctaTitle: string
   ctaDescription: string
+  tableTitle?: string
+  tableDescription?: string
+  payoutLabel?: string
+  payoutCaveat?: string
+  decisionGuide?: { label: string; title: string; description: string }[]
+  hideTopComparison?: boolean
   featuredAnalyses?: { href: string; symbol: string; title: string; note: string }[]
   relatedLinks: { href: string; label: string }[]
   sections: { heading: string; paragraphs: string[] }[]
@@ -33,13 +41,7 @@ interface SectorDividendLandingProps {
 }
 
 async function getSectorStocks(dbSector: string): Promise<SectorLandingRow[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-  const res = await fetch(
-    `${baseUrl}/api/watchlist?sort=quality&order=desc&sector=${encodeURIComponent(dbSector)}`,
-    { next: { revalidate: 3600 } },
-  )
-  if (!res.ok) return []
-  return res.json()
+  return getWatchlistStocks(dbSector)
 }
 
 function pct(value: number | null, decimals = 2) {
@@ -114,7 +116,12 @@ export async function SectorDividendLanding(props: SectorDividendLandingProps) {
       {props.faq?.length ? (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildFaqJsonLd(props.faq)) }} />
       ) : null}
-      <TrackPageView event={props.eventName} properties={{ count: rows.length }} />
+      <TrackPageView event={props.eventName} properties={{
+        count: rows.length,
+        undervalued,
+        average_yield_pct: Number((avgYield * 100).toFixed(2)),
+        average_quality: avgQuality,
+      }} />
 
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },
@@ -148,7 +155,11 @@ export async function SectorDividendLanding(props: SectorDividendLandingProps) {
         </div>
       </section>
 
-      <section className="mb-10">
+      {rows.length === 0 ? (
+        <section className="mb-10"><DataUnavailableNotice label={`${props.dbSector} screen`} /></section>
+      ) : null}
+
+      {!props.hideTopComparison ? <section className="mb-10">
         <div className="mb-5 max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-wide text-[#71717a]">Top 10 comparison</p>
           <h2 className="mt-2 text-xl font-semibold text-[#f4f4f5]">Top 10 {props.title.replace(/^Best /, '').replace(/ 2026$/, '')}</h2>
@@ -198,16 +209,43 @@ export async function SectorDividendLanding(props: SectorDividendLandingProps) {
             </tbody>
           </table>
         </div>
-      </section>
+      </section> : null}
 
-      <section className="mb-10 grid gap-4 lg:grid-cols-[1fr_340px]">
+      {props.decisionGuide?.length ? (
+        <section className="mb-10">
+          <div className="mb-5 max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[#71717a]">Decision framework</p>
+            <h2 className="mt-2 text-xl font-semibold text-[#f4f4f5]">How to read this screen before comparing yields</h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {props.decisionGuide.map((item) => (
+              <div key={item.label} className="rounded-lg border border-[#1e1e2e] bg-[#111118] p-5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#818cf8]">{item.label}</p>
+                <h3 className="mt-2 text-sm font-semibold text-[#f4f4f5]">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#71717a]">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      <section className="mb-10">
+        <div className="mb-5 max-w-3xl">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#71717a]">Live comparison</p>
+          <h2 className="mt-2 text-xl font-semibold text-[#f4f4f5]">{props.tableTitle ?? props.title}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-[#71717a]">
+            {props.tableDescription ?? 'Ranked by DividendVisual quality score. Open any stock for its complete yield history, payout context, and Weiss valuation bands.'}
+          </p>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
+        <div>
         <div className="overflow-x-auto rounded-lg border border-[#1e1e2e] bg-[#111118]">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#1e1e2e] text-left text-xs text-[#71717a]">
                 <th className="py-3 pl-4 pr-4 font-medium">Stock</th>
                 <th className="py-3 pr-4 font-medium">Yield</th>
-                <th className="py-3 pr-4 font-medium">Payout</th>
+                <th className="py-3 pr-4 font-medium">{props.payoutLabel ?? 'Payout'}</th>
                 <th className="py-3 pr-4 font-medium">Quality</th>
                 <th className="py-3 pr-4 font-medium">Signal</th>
                 <th className="py-3 pr-4 font-medium">5Y CAGR</th>
@@ -219,7 +257,7 @@ export async function SectorDividendLanding(props: SectorDividendLandingProps) {
                 <tr key={row.symbol} className="border-b border-[#1e1e2e]/70 last:border-0">
                   <td className="py-3 pl-4 pr-4">
                     <Link
-                      href={`/ticker/${row.symbol}`}
+                      href={`/analysis/${row.symbol.toLowerCase()}`}
                       className="font-mono font-semibold text-[#f4f4f5] hover:text-[#6366f1] transition-colors"
                     >
                       {row.symbol}
@@ -254,6 +292,10 @@ export async function SectorDividendLanding(props: SectorDividendLandingProps) {
             </tbody>
           </table>
         </div>
+        {props.payoutCaveat ? (
+          <p className="mt-3 text-xs leading-relaxed text-[#52525b]">{props.payoutCaveat}</p>
+        ) : null}
+        </div>
 
         <aside className="space-y-4">
           <div className="rounded-lg border border-[#1e1e2e] bg-[#111118] p-5">
@@ -261,7 +303,7 @@ export async function SectorDividendLanding(props: SectorDividendLandingProps) {
             {highestQuality ? (
               <>
                 <Link
-                  href={`/ticker/${highestQuality.symbol}`}
+                  href={`/analysis/${highestQuality.symbol.toLowerCase()}`}
                   className="font-mono text-xl font-semibold text-[#f4f4f5] hover:text-[#6366f1]"
                 >
                   {highestQuality.symbol}
@@ -281,7 +323,7 @@ export async function SectorDividendLanding(props: SectorDividendLandingProps) {
             {highestYield ? (
               <>
                 <Link
-                  href={`/ticker/${highestYield.symbol}`}
+                  href={`/analysis/${highestYield.symbol.toLowerCase()}`}
                   className="font-mono text-xl font-semibold text-[#f4f4f5] hover:text-[#6366f1]"
                 >
                   {highestYield.symbol}
@@ -305,6 +347,7 @@ export async function SectorDividendLanding(props: SectorDividendLandingProps) {
             </div>
           </div>
         </aside>
+        </div>
       </section>
 
       {props.featuredAnalyses && props.featuredAnalyses.length > 0 && (

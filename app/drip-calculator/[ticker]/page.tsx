@@ -10,6 +10,19 @@ const STATIC_TICKERS = ['KO', 'JNJ', 'PG', 'O', 'ABBV', 'HD', 'MO', 'XOM', 'TXN'
 
 interface PageProps {
   params: Promise<{ ticker: string }>
+  searchParams: Promise<{
+    investment?: string | string[]
+    monthly?: string | string[]
+    yield?: string | string[]
+    growth?: string | string[]
+    years?: string | string[]
+  }>
+}
+
+function numberParam(value: string | string[] | undefined, fallback: number, min: number, max: number) {
+  const raw = Array.isArray(value) ? value[0] : value
+  const parsed = Number(raw)
+  return Number.isFinite(parsed) ? Math.max(min, Math.min(max, parsed)) : fallback
 }
 
 async function getTickerData(symbol: string): Promise<TickerResponse | null> {
@@ -59,7 +72,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function TickerDRIPCalculatorPage({ params }: PageProps) {
+export default async function TickerDRIPCalculatorPage({ params, searchParams }: PageProps) {
   const { ticker } = await params
   const sym = ticker.toUpperCase()
   const data = await getTickerData(sym)
@@ -70,6 +83,7 @@ export default async function TickerDRIPCalculatorPage({ params }: PageProps) {
   const cagrPct = metrics.dividendCagr5y != null
     ? (metrics.dividendCagr5y * 100).toFixed(1)
     : null
+  const query = await searchParams
 
   const webAppSchema = {
     '@context': 'https://schema.org',
@@ -105,8 +119,12 @@ export default async function TickerDRIPCalculatorPage({ params }: PageProps) {
       </header>
 
       <DRIPCalculatorClient
-        initialYield={parseFloat(yieldPct)}
-        initialCagr={cagrPct ? parseFloat(cagrPct) : undefined}
+        initialInvestment={numberParam(query.investment, 10_000, 100, 10_000_000)}
+        initialMonthlyContribution={numberParam(query.monthly, 0, 0, 100_000)}
+        initialYield={numberParam(query.yield, parseFloat(yieldPct), 0.1, 30)}
+        initialCagr={numberParam(query.growth, cagrPct ? parseFloat(cagrPct) : 5, 0, 30)}
+        initialHorizon={numberParam(query.years, 20, 1, 40)}
+        ticker={sym}
       />
 
       <div className="mt-6 p-4 bg-[#111118] border border-[#1e1e2e] rounded-xl">
@@ -117,12 +135,6 @@ export default async function TickerDRIPCalculatorPage({ params }: PageProps) {
             className="px-3 py-1.5 rounded-md bg-[#6366f1]/10 text-xs text-[#6366f1] border border-[#6366f1]/20 hover:bg-[#6366f1]/20 transition-colors"
           >
             {sym} Dividend Analysis →
-          </Link>
-          <Link
-            href={`/ticker/${sym}`}
-            className="px-3 py-1.5 rounded-md bg-[#1e1e2e] text-xs font-mono text-[#71717a] hover:text-[#f4f4f5] transition-colors"
-          >
-            {sym} Weiss Chart
           </Link>
           <Link
             href="/drip-calculator"

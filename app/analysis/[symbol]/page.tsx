@@ -8,6 +8,7 @@ import { ResearchDisclosure } from '@/components/seo/ResearchDisclosure'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 import { getSectorLandingHref } from '@/lib/sector-mapping'
 import { serializeJsonLd } from '@/lib/json-ld'
+import { getWatchlistStocks } from '@/lib/stock-data'
 
 const CURRENT_YEAR = new Date().getFullYear()
 
@@ -178,18 +179,8 @@ const PRIORITY_ANALYSIS_GUIDES: Record<string, PriorityAnalysisGuide> = {
 
 async function getSectorPeers(sector: string | null, excludeSymbol: string): Promise<PeerRow[]> {
   if (!sector) return []
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-  try {
-    const res = await fetch(
-      `${baseUrl}/api/watchlist?sort=quality&order=desc&sector=${encodeURIComponent(sector)}`,
-      { next: { revalidate: 3600 } },
-    )
-    if (!res.ok) return []
-    const rows: PeerRow[] = await res.json()
-    return rows.filter((r) => r.symbol !== excludeSymbol).slice(0, 5)
-  } catch {
-    return []
-  }
+  const rows = await getWatchlistStocks(sector)
+  return rows.filter((row) => row.symbol !== excludeSymbol).slice(0, 5)
 }
 
 export async function generateStaticParams() {

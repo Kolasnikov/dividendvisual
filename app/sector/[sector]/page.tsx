@@ -12,6 +12,7 @@ import {
   getSectorCanonicalUrl,
   isDuplicateSectorRoute,
 } from '@/lib/sector-mapping'
+import { getWatchlistStocks } from '@/lib/stock-data'
 
 type SectorRow = Company & ComputedMetrics
 
@@ -379,17 +380,7 @@ interface PageProps {
 }
 
 async function getSectorStocks(dbSector: string): Promise<SectorRow[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-  try {
-    const res = await fetch(
-      `${baseUrl}/api/watchlist?sort=quality&order=desc&sector=${encodeURIComponent(dbSector)}`,
-      { next: { revalidate: 3600 } },
-    )
-    if (!res.ok) return []
-    return res.json()
-  } catch {
-    return []
-  }
+  return getWatchlistStocks(dbSector)
 }
 
 export async function generateStaticParams() {

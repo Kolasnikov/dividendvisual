@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { track } from '@vercel/analytics'
 import type { WatchlistItem } from '@/lib/types'
+import { trackNewsletterEvent, useNewsletterFunnel } from '@/components/analytics/useNewsletterFunnel'
 
 interface EmailCaptureProps {
   variant?: 'hero' | 'banner'
@@ -17,12 +17,14 @@ export function EmailCapture({ variant = 'hero', source = 'email-capture' }: Ema
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
   const [picks, setPicks] = useState<WatchlistItem[]>([])
+  const { containerRef, trackStarted } = useNewsletterFunnel(source)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!email) return
     setStatus('loading')
     setErrorMsg('')
+    trackNewsletterEvent('newsletter_form_submitted', source)
 
     try {
       const res = await fetch('/api/subscribe', {
@@ -38,7 +40,9 @@ export function EmailCapture({ variant = 'hero', source = 'email-capture' }: Ema
       if (data.ok) {
         setStatus('success')
         setEmail('')
-        track('email_subscribed', { source })
+        trackNewsletterEvent('email_subscribed', source, {
+          subscription_state: data.subscriptionState ?? 'unknown',
+        })
         router.push(`/newsletter/confirmed?source=${encodeURIComponent(source)}`)
         fetch('/api/watchlist?sort=quality&order=desc')
           .then((r) => r.json())
@@ -49,16 +53,18 @@ export function EmailCapture({ variant = 'hero', source = 'email-capture' }: Ema
       } else {
         setStatus('error')
         setErrorMsg(data.error ?? 'Something went wrong.')
+        trackNewsletterEvent('newsletter_form_failed', source, { status: res.status })
       }
     } catch {
       setStatus('error')
       setErrorMsg('Something went wrong. Please try again.')
+      trackNewsletterEvent('newsletter_form_failed', source, { status: 'network_error' })
     }
   }
 
   if (variant === 'banner') {
     return (
-      <section className="border-t border-b border-[#1e1e2e] bg-[#111118]">
+      <section ref={containerRef} className="border-t border-b border-[#1e1e2e] bg-[#111118]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div>
             <p className="font-semibold text-[#f4f4f5] mb-1">Get the weekly undervalued picks</p>
@@ -70,7 +76,7 @@ export function EmailCapture({ variant = 'hero', source = 'email-capture' }: Ema
               <span>You&apos;re on the list.</span>
             </div>
           ) : (
-            <Form email={email} setEmail={setEmail} status={status} errorMsg={errorMsg} onSubmit={handleSubmit} compact />
+            <Form email={email} setEmail={setEmail} status={status} errorMsg={errorMsg} onSubmit={handleSubmit} onStarted={trackStarted} compact />
           )}
         </div>
       </section>
@@ -79,7 +85,7 @@ export function EmailCapture({ variant = 'hero', source = 'email-capture' }: Ema
 
   if (status === 'success') {
     return (
-      <section className="max-w-2xl mx-auto px-4 text-center">
+      <section ref={containerRef} className="max-w-2xl mx-auto px-4 text-center">
         <div className="inline-flex items-center gap-2 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-full px-4 py-1.5 mb-4">
           <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
           <span className="text-xs text-[#22c55e] font-medium">You&apos;re on the list</span>
@@ -99,7 +105,7 @@ export function EmailCapture({ variant = 'hero', source = 'email-capture' }: Ema
             {picks.map((pick, i) => (
               <Link
                 key={pick.symbol}
-                href={`/ticker/${pick.symbol}`}
+                href={`/analysis/${pick.symbol.toLowerCase()}`}
                 className={`flex items-center justify-between px-4 py-3 hover:bg-[#22c55e]/5 transition-colors group ${i > 0 ? 'border-t border-[#1e1e2e]' : ''}`}
               >
                 <div className="min-w-0">
@@ -131,7 +137,7 @@ export function EmailCapture({ variant = 'hero', source = 'email-capture' }: Ema
   }
 
   return (
-    <section className="max-w-2xl mx-auto px-4 text-center">
+    <section ref={containerRef} className="max-w-2xl mx-auto px-4 text-center">
       <div className="inline-flex items-center gap-2 bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-full px-4 py-1.5 mb-4">
         <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
         <span className="text-xs text-[#22c55e] font-medium">Free weekly digest</span>
@@ -143,19 +149,20 @@ export function EmailCapture({ variant = 'hero', source = 'email-capture' }: Ema
         Subscribe and we&apos;ll show you today&apos;s undervalued picks — dividend stocks with yields near
         their 10-year historical highs, ranked by quality score. Updated daily, delivered weekly.
       </p>
-      <Form email={email} setEmail={setEmail} status={status} errorMsg={errorMsg} onSubmit={handleSubmit} />
+      <Form email={email} setEmail={setEmail} status={status} errorMsg={errorMsg} onSubmit={handleSubmit} onStarted={trackStarted} />
     </section>
   )
 }
 
 function Form({
-  email, setEmail, status, errorMsg, onSubmit, compact = false,
+  email, setEmail, status, errorMsg, onSubmit, onStarted, compact = false,
 }: {
   email: string
   setEmail: (v: string) => void
   status: 'idle' | 'loading' | 'error'
   errorMsg: string
   onSubmit: (e: React.FormEvent) => void
+  onStarted: () => void
   compact?: boolean
 }) {
   return (
@@ -165,6 +172,7 @@ function Form({
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          onFocus={onStarted}
           placeholder="your@email.com"
           required
           className="flex-1 bg-[#09090b] border border-[#1e1e2e] rounded-lg px-4 py-2.5 text-sm text-[#f4f4f5] placeholder-[#52525b] focus:outline-none focus:border-[#6366f1] transition-colors min-w-0"

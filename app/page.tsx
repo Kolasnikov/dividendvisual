@@ -6,6 +6,7 @@ import { CollectionCard } from '@/components/cards/CollectionCard'
 import { EmailCapture } from '@/components/ui/EmailCapture'
 import type { Company, ComputedMetrics } from '@/lib/types'
 import { UndervaluedCarousel } from '@/components/home/UndervaluedCarousel'
+import { getWatchlistStocks } from '@/lib/stock-data'
 
 export const metadata: Metadata = {
   title: 'DividendVisual — Find Undervalued Dividend Stocks | Geraldine Weiss Method',
@@ -78,17 +79,8 @@ const ORG_SCHEMA = {
 type WatchlistRow = Company & ComputedMetrics
 
 async function getTopPicks(): Promise<WatchlistRow[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-  try {
-    const res = await fetch(`${baseUrl}/api/watchlist?sort=quality&order=desc`, {
-      next: { revalidate: 3600 },
-    })
-    if (!res.ok) return []
-    const all: WatchlistRow[] = await res.json()
-    return all.filter((r) => r.weissSignal === 'undervalued')
-  } catch {
-    return []
-  }
+  const all = await getWatchlistStocks()
+  return all.filter((row) => row.weissSignal === 'undervalued')
 }
 
 const COLLECTIONS = [

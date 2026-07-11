@@ -7,6 +7,24 @@ import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 const PAGE_URL = 'https://dividendvisual.com/dividend-stock-comparisons'
 const YEAR = 2026
 
+const EDITORIAL_COMPARISONS = [
+  {
+    href: '/blog/jnj-vs-abbv-dividend-comparison',
+    label: 'JNJ vs ABBV',
+    angle: 'Dividend safety versus higher starting income.',
+  },
+  {
+    href: '/blog/unh-vs-cvs-dividend-comparison',
+    label: 'UNH vs CVS',
+    angle: 'Healthcare compounder versus turnaround risk.',
+  },
+  {
+    href: '/blog/cat-vs-mmm-dividend-comparison',
+    label: 'CAT vs MMM',
+    angle: 'Cyclical growth versus recovery potential.',
+  },
+]
+
 export const metadata: Metadata = {
   title: `Dividend Stock Comparisons ${YEAR} - Compare Yield, Safety & Valuation`,
   description:
@@ -140,6 +158,26 @@ export default function DividendStockComparisonsPage() {
           title="Get alerts when comparison candidates become undervalued"
           description="A weekly digest of quality dividend stocks entering historically attractive Weiss yield territory."
         />
+      </section>
+
+      <section className="mb-12">
+        <h2 className="text-xl font-bold text-[#f4f4f5] mb-2">In-depth dividend comparison guides</h2>
+        <p className="mb-4 max-w-3xl text-sm leading-relaxed text-[#71717a]">
+          Go beyond the live metrics with an editorial review of dividend durability, business risk, and the trade-off each pair presents.
+        </p>
+        <div className="grid gap-4 md:grid-cols-3">
+          {EDITORIAL_COMPARISONS.map((comparison) => (
+            <Link
+              key={comparison.href}
+              href={comparison.href}
+              className="rounded-lg border border-[#1e1e2e] bg-[#111118] p-5 hover:border-[#6366f1]/40 transition-colors"
+            >
+              <p className="font-semibold text-[#f4f4f5]">{comparison.label} dividend guide</p>
+              <p className="mt-2 text-sm leading-relaxed text-[#71717a]">{comparison.angle}</p>
+              <p className="mt-4 text-xs text-[#6366f1]">Read the analysis -&gt;</p>
+            </Link>
+          ))}
+        </div>
       </section>
 
       <section className="grid gap-8 lg:grid-cols-[1fr_340px]">

@@ -6,6 +6,8 @@ import { SignalBadge } from '@/components/ui/SignalBadge'
 import { DividendBadge } from '@/components/ui/DividendBadge'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
+import { getCollectionStocks } from '@/lib/stock-data'
+import { DataUnavailableNotice } from '@/components/seo/DataUnavailableNotice'
 
 type AristocratRow = Company & ComputedMetrics
 
@@ -34,12 +36,7 @@ export const metadata: Metadata = {
 }
 
 async function getAristocrats(): Promise<AristocratRow[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-  const res = await fetch(`${baseUrl}/api/collections/dividend-aristocrats`, {
-    next: { revalidate: 3600 },
-  })
-  if (!res.ok) return []
-  return res.json()
+  return getCollectionStocks('dividend-aristocrats')
 }
 
 function pct(value: number | null, decimals = 2) {
@@ -163,6 +160,8 @@ export default async function DividendAristocratsPage() {
           ))}
         </div>
       </section>
+
+      {rows.length === 0 ? <section className="mb-10"><DataUnavailableNotice label="Dividend Aristocrats screen" /></section> : null}
 
       <section className="mb-10 grid gap-4 lg:grid-cols-[1fr_340px]">
         <div className="overflow-x-auto rounded-lg border border-[#1e1e2e] bg-[#111118]">

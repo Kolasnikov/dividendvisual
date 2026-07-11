@@ -5,6 +5,7 @@ import { SignalBadge } from '@/components/ui/SignalBadge'
 import { DividendBadge } from '@/components/ui/DividendBadge'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
+import { getCollectionStocks } from '@/lib/stock-data'
 
 type CollectionRow = Company & ComputedMetrics
 
@@ -365,12 +366,7 @@ interface PageProps {
 }
 
 async function getCollection(slug: string): Promise<CollectionRow[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-  const res = await fetch(`${baseUrl}/api/collections/${slug}`, {
-    next: { revalidate: 3600 },
-  })
-  if (!res.ok) return []
-  return res.json()
+  return getCollectionStocks(slug)
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

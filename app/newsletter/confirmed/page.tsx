@@ -12,6 +12,7 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { NewsletterConfirmedTracking } from '@/components/analytics/NewsletterConfirmedTracking'
 
 export const metadata: Metadata = {
   title: 'Subscription Confirmed | DividendVisual',
@@ -79,7 +80,7 @@ export default async function NewsletterConfirmedPage({
   const source = cleanParam(params.source)
   const symbol = cleanParam(params.symbol).replace(/[^a-zA-Z.-]/g, '').toUpperCase()
   const sourceLabel = source ? source.replace(/-/g, ' ') : 'DividendVisual'
-  const primaryHref = symbol ? `/ticker/${symbol.toLowerCase()}` : '/undervalued-dividend-stocks'
+  const primaryHref = symbol ? `/analysis/${symbol.toLowerCase()}` : '/undervalued-dividend-stocks'
   const primaryLabel = symbol ? `Review ${symbol} analysis` : 'Review current opportunities'
   const primaryDescription = symbol
     ? `Keep going with the full ${symbol} dividend profile, Weiss chart, scoring, payout context, and peer signals.`
@@ -87,6 +88,7 @@ export default async function NewsletterConfirmedPage({
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12">
+      <NewsletterConfirmedTracking source={source} symbol={symbol} />
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },
         { label: 'Newsletter', href: '/newsletter' },

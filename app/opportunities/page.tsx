@@ -10,6 +10,7 @@ import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 import { db } from '@/lib/db'
 import { headers } from 'next/headers'
 import { getEtoroLink } from '@/lib/etoro'
+import { getWatchlistStocks } from '@/lib/stock-data'
 
 export const metadata: Metadata = {
   title: 'Undervalued Dividend Stocks Today - Weiss Signal Opportunities',
@@ -25,12 +26,7 @@ export const metadata: Metadata = {
 }
 
 async function getWatchlist(): Promise<WatchlistItem[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-  const res = await fetch(`${baseUrl}/api/watchlist?sort=quality&order=desc`, {
-    next: { revalidate: 3600 },
-  })
-  if (!res.ok) return []
-  return res.json()
+  return getWatchlistStocks()
 }
 
 type ChangeTone = 'positive' | 'negative' | 'neutral'

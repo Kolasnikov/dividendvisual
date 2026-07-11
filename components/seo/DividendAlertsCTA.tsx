@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { track } from '@vercel/analytics'
+import { trackNewsletterEvent, useNewsletterFunnel } from '@/components/analytics/useNewsletterFunnel'
 
 interface DividendAlertsCTAProps {
   source: string
@@ -24,6 +24,7 @@ export function DividendAlertsCTA({
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
+  const { containerRef, trackStarted } = useNewsletterFunnel(source)
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -31,6 +32,7 @@ export function DividendAlertsCTA({
 
     setStatus('loading')
     setErrorMsg('')
+    trackNewsletterEvent('newsletter_form_submitted', source, { symbol: symbol ?? 'none' })
 
     try {
       const res = await fetch('/api/subscribe', {
@@ -48,17 +50,22 @@ export function DividendAlertsCTA({
       if (data.ok) {
         setEmail('')
         setStatus('success')
-        track('email_subscribed', { source, symbol: symbol ?? 'none' })
+        trackNewsletterEvent('email_subscribed', source, {
+          symbol: symbol ?? 'none',
+          subscription_state: data.subscriptionState ?? 'unknown',
+        })
         const params = new URLSearchParams({ source })
         if (symbol) params.set('symbol', symbol)
         router.push(`/newsletter/confirmed?${params.toString()}`)
       } else {
         setStatus('error')
         setErrorMsg(data.error ?? 'Something went wrong.')
+        trackNewsletterEvent('newsletter_form_failed', source, { status: res.status })
       }
     } catch {
       setStatus('error')
       setErrorMsg('Something went wrong. Please try again.')
+      trackNewsletterEvent('newsletter_form_failed', source, { status: 'network_error' })
     }
   }
 
@@ -69,7 +76,7 @@ export function DividendAlertsCTA({
     'A short weekly email with quality dividend stocks entering historically attractive yield territory. No noise, just signals worth reviewing.'
 
   return (
-    <aside className={`rounded-lg border border-[#22c55e]/25 bg-[#111118] ${compact ? 'p-4' : 'p-5'}`}>
+    <aside ref={containerRef} className={`rounded-lg border border-[#22c55e]/25 bg-[#111118] ${compact ? 'p-4' : 'p-5'}`}>
       <div className="flex flex-col gap-5">
         <div>
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#22c55e]/20 bg-[#22c55e]/10 px-2.5 py-1">
@@ -91,6 +98,7 @@ export function DividendAlertsCTA({
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
+                onFocus={trackStarted}
                 placeholder="your@email.com"
                 required
                 className="min-w-0 flex-1 rounded-md border border-[#2e2e3e] bg-[#09090b] px-3 py-2.5 text-sm text-[#f4f4f5] placeholder-[#52525b] outline-none transition-colors focus:border-[#6366f1]"

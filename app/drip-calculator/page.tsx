@@ -5,14 +5,15 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { DRIPCalculatorClient } from '@/components/calculators/DRIPCalculatorClient'
 import { getEtoroLink } from '@/lib/etoro'
 import { serializeJsonLd } from '@/lib/json-ld'
+import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 
 export const metadata: Metadata = {
-  title: 'DRIP Calculator 2026: Project Dividend Income Growth',
-  description: 'Use our DRIP calculator to project dividend income for 20 years. Enter yield, growth rate, and investment amount, or pre-fill 150+ dividend stocks.',
+  title: 'DRIP Calculator 2026: Reinvestment & Monthly Contributions',
+  description: 'Project dividend income with monthly contributions and compare reinvesting dividends versus taking cash. Model yield, dividend growth, and up to 40 years.',
   alternates: { canonical: 'https://dividendvisual.com/drip-calculator' },
   openGraph: {
     title: 'Dividend Reinvestment Calculator (DRIP) | DividendVisual',
-    description: 'Project your dividend income with DRIP reinvestment. Enter yield, CAGR, and investment to see 20-year income compounding and yield on cost.',
+    description: 'Project dividend income with monthly contributions. Compare DRIP reinvestment against taking dividends as cash over up to 40 years.',
     url: 'https://dividendvisual.com/drip-calculator',
     type: 'website',
   },
@@ -51,6 +52,10 @@ const DRIP_FAQ = [
     a: 'No. This is a pre-tax projection. In a tax-advantaged account (IRA, 401k), DRIP compounding is fully tax-deferred. In a taxable account, qualified dividends are taxed each year, reducing the effective reinvestment amount.',
   },
   {
+    q: 'How are monthly contributions handled?',
+    a: 'The calculator invests each contribution at the beginning of the modeled month in both the DRIP and non-DRIP scenarios. This keeps the comparison fair: only dividends are reinvested differently, while your own deposits remain identical.',
+  },
+  {
     q: 'Is DRIP investing worth it?',
     a: 'For long-term investors in quality dividend-growth stocks, DRIP is one of the most effective ways to compound wealth passively. The reinvestment removes the temptation to spend dividends and eliminates timing decisions. The compounding benefit is largest with stocks that grow their dividend consistently over decades.',
   },
@@ -69,8 +74,32 @@ const FAQ_SCHEMA = {
   })),
 }
 
-export default async function DRIPCalculatorPage() {
+function numberParam(value: string | string[] | undefined, fallback: number, min: number, max: number) {
+  const raw = Array.isArray(value) ? value[0] : value
+  const parsed = Number(raw)
+  return Number.isFinite(parsed) ? Math.max(min, Math.min(max, parsed)) : fallback
+}
+
+export default async function DRIPCalculatorPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    investment?: string | string[]
+    monthly?: string | string[]
+    yield?: string | string[]
+    growth?: string | string[]
+    years?: string | string[]
+  }>
+}) {
   const etoroHref = getEtoroLink((await headers()).get('x-vercel-ip-country'))
+  const params = await searchParams
+  const initialValues = {
+    initialInvestment: numberParam(params.investment, 10_000, 100, 10_000_000),
+    initialMonthlyContribution: numberParam(params.monthly, 0, 0, 100_000),
+    initialYield: numberParam(params.yield, 3, 0.1, 30),
+    initialCagr: numberParam(params.growth, 5, 0, 30),
+    initialHorizon: numberParam(params.years, 20, 1, 40),
+  }
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(WEB_APP_SCHEMA) }} />
@@ -91,7 +120,16 @@ export default async function DRIPCalculatorPage() {
         </p>
       </header>
 
-      <DRIPCalculatorClient />
+      <DRIPCalculatorClient {...initialValues} />
+
+      <section className="mt-6">
+        <DividendAlertsCTA
+          source="drip-calculator"
+          title="Turn the projection into a weekly research habit"
+          description="Get a concise list of dividend stocks entering historically attractive yield territory, with payout and quality context before you model the income."
+          compact
+        />
+      </section>
 
       <div className="mt-6 p-4 bg-[#111118] border border-[#1e1e2e] rounded-xl">
         <p className="text-xs text-[#71717a] mb-3">Use real data — open a stock to pre-fill the calculator:</p>
@@ -99,7 +137,7 @@ export default async function DRIPCalculatorPage() {
           {['KO', 'JNJ', 'PG', 'O', 'MO', 'XOM', 'HD', 'TXN'].map(sym => (
             <Link
               key={sym}
-              href={`/ticker/${sym}`}
+              href={`/drip-calculator/${sym.toLowerCase()}`}
               className="px-3 py-1.5 rounded-md bg-[#1e1e2e] text-xs font-mono text-[#71717a] hover:text-[#f4f4f5] transition-colors"
             >
               {sym}
@@ -127,6 +165,20 @@ export default async function DRIPCalculatorPage() {
       </a>
 
       <article className="prose-dv mt-14">
+        <h2>What this DRIP calculator shows that a basic compound interest calculator misses</h2>
+        <p>
+          A standard compound interest calculator treats every return as one generic percentage. Dividend investing has
+          two separate engines: new shares purchased through reinvestment and growth in the dividend paid by each share.
+          This calculator models both, then compares the result with an investor who contributes the same amount but takes
+          every dividend as cash.
+        </p>
+        <p>
+          The comparison matters because dividend growth alone raises income in both scenarios. The gap between the two
+          lines isolates the additional income created by DRIP: reinvested payments purchase shares that generate their own
+          future payments. Monthly contributions are shown separately as contributed capital so deposits are not mistaken
+          for investment returns.
+        </p>
+
         <h2>What is DRIP investing?</h2>
         <p>
           DRIP investing means reinvesting cash dividends back into the same stock or fund instead of
@@ -199,11 +251,17 @@ export default async function DRIPCalculatorPage() {
           — do happen during severe recessions. Use the quality score on each stock&apos;s page to
           assess dividend sustainability before projecting long-term growth.
         </p>
+        <p>
+          Monthly contributions are invested at the beginning of each modeled month, and dividends are represented as
+          monthly payments to keep the comparison consistent. Real companies may pay quarterly, monthly, semi-annually,
+          or on another schedule. Over long periods the payment schedule usually matters less than dividend sustainability,
+          growth, taxes, and the prices at which reinvestment occurs.
+        </p>
 
         <h2>How to use this DRIP calculator</h2>
         <ol>
           <li>
-            <strong>Enter your initial investment amount.</strong> This is the dollar amount you plan to invest today. The calculator works with any size — from $1,000 to $1,000,000.
+            <strong>Enter your initial investment and optional monthly contribution.</strong> Contributions buy additional shares in both scenarios, so the comparison does not credit DRIP for capital you supplied yourself.
           </li>
           <li>
             <strong>Set the current dividend yield of your target stock.</strong> Use the stock&apos;s current yield — available on its{' '}
@@ -214,7 +272,7 @@ export default async function DRIPCalculatorPage() {
             <strong>Enter the dividend growth CAGR.</strong> Open the stock&apos;s DividendVisual analysis page to find its 5-year or 10-year dividend CAGR. Use the 5-year figure as a baseline. If the company has slowed its growth in recent years, shade it down by 1–2 percentage points.
           </li>
           <li>
-            <strong>Choose your time horizon and read the results.</strong> Compare Year 1 income against final-year income to see the full compounding arc. Pay attention to yield on cost in the final year — it shows what your original investment is effectively yielding after dividend growth compounds over your chosen period.
+            <strong>Choose your time horizon and compare both income paths.</strong> The purple series reinvests dividends; the gray series takes them as cash. Yield on cost uses all capital contributed when monthly deposits are enabled.
           </li>
         </ol>
 

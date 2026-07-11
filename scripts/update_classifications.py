@@ -47,7 +47,11 @@ def turso_execute(statements: list[dict]) -> dict:
         timeout=30,
     )
     response.raise_for_status()
-    return response.json()
+    data = response.json()
+    for result in data.get("results", []):
+        if result.get("type") == "error":
+            raise RuntimeError(result.get("error", {}).get("message", "Unknown Turso error"))
+    return data
 
 
 def flush(statements: list[dict], batch_size: int = 50) -> None:

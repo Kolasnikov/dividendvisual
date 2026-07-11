@@ -5,6 +5,8 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { SignalBadge } from '@/components/ui/SignalBadge'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
+import { getCollectionStocks } from '@/lib/stock-data'
+import { DataUnavailableNotice } from '@/components/seo/DataUnavailableNotice'
 
 type HighYieldRow = Company & ComputedMetrics
 
@@ -33,12 +35,7 @@ export const metadata: Metadata = {
 }
 
 async function getHighYieldStocks(): Promise<HighYieldRow[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-  const res = await fetch(`${baseUrl}/api/collections/high-yield`, {
-    next: { revalidate: 3600 },
-  })
-  if (!res.ok) return []
-  return res.json()
+  return getCollectionStocks('high-yield')
 }
 
 function pct(value: number | null, decimals = 2) {
@@ -162,6 +159,8 @@ export default async function HighYieldDividendStocksPage() {
           ))}
         </div>
       </section>
+
+      {rows.length === 0 ? <section className="mb-10"><DataUnavailableNotice label="high-yield screen" /></section> : null}
 
       <section className="mb-10 grid gap-4 lg:grid-cols-[1fr_340px]">
         <div className="overflow-x-auto rounded-lg border border-[#1e1e2e] bg-[#111118]">

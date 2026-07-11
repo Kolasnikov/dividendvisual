@@ -20,23 +20,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params
   const post = getPost(slug)
   if (!post) return { title: 'Post not found' }
+  const seoTitle = post.seoTitle ?? post.title
+  const seoDescription = post.seoDescription ?? post.description
   return {
-    title: post.title,
-    description: post.description,
+    // Use an absolute title so tightly optimized SERP titles are not lengthened
+    // by the site-wide title template.
+    title: post.seoTitle ? { absolute: seoTitle } : post.title,
+    description: seoDescription,
     alternates: {
       canonical: `https://dividendvisual.com/blog/${slug}`,
     },
     openGraph: {
-      title: `${post.title} | DividendVisual`,
-      description: post.description,
+      title: `${seoTitle} | DividendVisual`,
+      description: seoDescription,
       url: `https://dividendvisual.com/blog/${slug}`,
       type: 'article',
       publishedTime: post.date,
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.title,
-      description: post.description,
+      title: seoTitle,
+      description: seoDescription,
     },
   }
 }

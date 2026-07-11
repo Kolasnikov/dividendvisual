@@ -6,6 +6,8 @@ import { SignalBadge } from '@/components/ui/SignalBadge'
 import { DividendBadge } from '@/components/ui/DividendBadge'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
+import { getCollectionStocks } from '@/lib/stock-data'
+import { DataUnavailableNotice } from '@/components/seo/DataUnavailableNotice'
 
 type MonthlyDividendRow = Company & ComputedMetrics
 
@@ -35,12 +37,7 @@ export const metadata: Metadata = {
 }
 
 async function getMonthlyDividendStocks(): Promise<MonthlyDividendRow[]> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
-  const res = await fetch(`${baseUrl}/api/collections/monthly-dividend-payers`, {
-    next: { revalidate: 3600 },
-  })
-  if (!res.ok) return []
-  return res.json()
+  return getCollectionStocks('monthly-dividend-payers')
 }
 
 function pct(value: number | null, decimals = 2) {
@@ -177,6 +174,47 @@ export default async function MonthlyDividendStocksPage() {
         </div>
       </section>
 
+      {rows.length === 0 ? <section className="mb-10"><DataUnavailableNotice label="monthly dividend screen" /></section> : null}
+
+      <section className="mb-10">
+        <div className="mb-5 max-w-3xl">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#71717a]">Choose by income engine</p>
+          <h2 className="mt-2 text-xl font-semibold text-[#f4f4f5]">Monthly payers are not one homogeneous asset class</h2>
+          <p className="mt-2 text-sm leading-relaxed text-[#71717a]">
+            Payment frequency is only the schedule. The source of the cash determines which coverage metric and risk deserves the most attention.
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            {
+              href: '/analysis/o',
+              label: 'Net lease REIT',
+              title: 'Realty Income (O)',
+              description: 'Long property leases and diversified tenants. Verify recurring AFFO coverage, debt maturities, and tenant concentration.',
+            },
+            {
+              href: '/analysis/stag',
+              label: 'Industrial REIT',
+              title: 'STAG Industrial (STAG)',
+              description: 'Warehouse and logistics exposure. Focus on occupancy, lease renewals, rent growth, and AFFO payout coverage.',
+            },
+            {
+              href: '/analysis/main',
+              label: 'Business development company',
+              title: 'Main Street Capital (MAIN)',
+              description: 'Private credit and equity income. Review net investment income coverage, credit losses, leverage, and NAV per share.',
+            },
+          ].map((item) => (
+            <Link key={item.href} href={item.href} className="group rounded-lg border border-[#1e1e2e] bg-[#111118] p-5 hover:border-[#6366f1]/40">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#818cf8]">{item.label}</p>
+              <h3 className="mt-2 text-sm font-semibold text-[#f4f4f5] group-hover:text-[#818cf8]">{item.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-[#71717a]">{item.description}</p>
+              <p className="mt-4 text-xs text-[#6366f1]">Open dividend analysis -&gt;</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <section className="mb-10 grid gap-4 lg:grid-cols-[1fr_340px]">
         <div className="rounded-lg border border-[#1e1e2e] bg-[#111118] p-5">
           <h2 className="text-lg font-semibold text-[#f4f4f5] mb-3">
@@ -199,7 +237,7 @@ export default async function MonthlyDividendStocksPage() {
                   <tr key={row.symbol} className="border-b border-[#1e1e2e]/70 last:border-0">
                     <td className="py-3 pr-4">
                       <Link
-                        href={`/ticker/${row.symbol}`}
+                        href={`/analysis/${row.symbol.toLowerCase()}`}
                         className="font-mono font-semibold text-[#f4f4f5] hover:text-[#6366f1] transition-colors"
                       >
                         {row.symbol}
@@ -231,13 +269,13 @@ export default async function MonthlyDividendStocksPage() {
 
         <aside className="space-y-4">
           <div className="rounded-lg border border-[#1e1e2e] bg-[#111118] p-5">
-            <p className="text-sm font-semibold text-[#f4f4f5] mb-2">Current standout</p>
+            <p className="text-sm font-semibold text-[#f4f4f5] mb-2">Highest current yield</p>
             {highestYield ? (
               <>
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <Link
-                      href={`/ticker/${highestYield.symbol}`}
+                      href={`/analysis/${highestYield.symbol.toLowerCase()}`}
                       className="font-mono text-xl font-semibold text-[#f4f4f5] hover:text-[#6366f1]"
                     >
                       {highestYield.symbol}
@@ -246,6 +284,9 @@ export default async function MonthlyDividendStocksPage() {
                   </div>
                   <SignalBadge signal={highestYield.weissSignal} size="sm" />
                 </div>
+                <p className="mt-4 text-xs leading-relaxed text-[#52525b]">
+                  Highest yield does not mean highest quality. Verify the relevant cash-flow coverage and balance-sheet risks before treating it as an opportunity.
+                </p>
                 <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
                   <div>
                     <p className="text-[#71717a]">Yield</p>
@@ -271,6 +312,7 @@ export default async function MonthlyDividendStocksPage() {
                 { href: '/best-dividend-stocks', label: 'Best dividend stocks' },
                 { href: '/undervalued-dividend-stocks', label: 'Undervalued dividend stocks' },
                 { href: '/drip-calculator', label: 'Dividend DRIP calculator' },
+                { href: '/blog/best-monthly-dividend-stocks', label: 'Monthly income evaluation guide' },
                 { href: '/methodology', label: 'Weiss valuation methodology' },
               ].map((link) => (
                 <Link key={link.href} href={link.href} className="text-sm text-[#6366f1] hover:text-[#818cf8]">
@@ -344,7 +386,7 @@ export default async function MonthlyDividendStocksPage() {
             {rows.slice(0, 4).map((row) => (
               <Link
                 key={row.symbol}
-                href={`/ticker/${row.symbol}`}
+                href={`/analysis/${row.symbol.toLowerCase()}`}
                 className="rounded-md border border-[#2e2e3e] bg-[#1e1e2e] px-3 py-1.5 text-xs text-[#a1a1aa] hover:border-[#6366f1]/40 hover:text-[#f4f4f5]"
               >
                 {row.symbol}

@@ -38,7 +38,7 @@ function buildWelcomeEmail(email: string, source: string, symbol: string) {
     ? `You joined from ${source} while viewing ${symbol}.`
     : `You joined from ${source}.`
   const subject = 'Welcome to DividendVisual: start with the signal, then check the risk'
-  const ctaUrl = symbol ? `${siteUrl}/ticker/${symbol.toLowerCase()}` : `${siteUrl}/undervalued-dividend-stocks`
+  const ctaUrl = symbol ? `${siteUrl}/analysis/${symbol.toLowerCase()}` : `${siteUrl}/undervalued-dividend-stocks`
   const ctaLabel = symbol ? `Review ${symbol} analysis` : 'Open current opportunities'
 
   const sections = [
@@ -271,6 +271,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Service unavailable.' }, { status: 503 })
   }
 
+  let subscriptionState: 'new' | 'existing' | 'reactivated' = 'new'
+
   try {
     await db.execute(`
       CREATE TABLE IF NOT EXISTS newsletter_subscribers (
@@ -286,6 +288,12 @@ export async function POST(req: NextRequest) {
         updated_at TEXT NOT NULL
       )
     `)
+    const existing = await db.execute({
+      sql: 'SELECT status FROM newsletter_subscribers WHERE email = ?',
+      args: [email],
+    })
+    const previousStatus = String(existing.rows[0]?.status ?? '')
+
     await db.execute({
       sql: `
         INSERT INTO newsletter_subscribers (
@@ -302,8 +310,15 @@ export async function POST(req: NextRequest) {
       `,
       args: [email, source, symbol || null, path || null, referer || null],
     })
+
+    subscriptionState = previousStatus === 'active'
+      ? 'existing'
+      : previousStatus === 'unsubscribed'
+        ? 'reactivated'
+        : 'new'
   } catch (error) {
     console.error('Newsletter subscriber persistence error', error)
+    return NextResponse.json({ error: 'We could not save your subscription. Please try again.' }, { status: 500 })
   }
 
   try {
@@ -372,5 +387,5 @@ export async function POST(req: NextRequest) {
     }
   })
 
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, subscriptionState })
 }

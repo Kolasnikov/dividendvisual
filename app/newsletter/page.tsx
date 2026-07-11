@@ -64,6 +64,24 @@ const FAQ = [
   },
 ]
 
+const SAMPLE_ISSUE = [
+  {
+    step: '01',
+    title: 'What moved into attractive territory',
+    description: 'A focused watchlist of dividend stocks whose current yield is elevated versus their own history.',
+  },
+  {
+    step: '02',
+    title: 'Why the yield may be high',
+    description: 'Business context that helps distinguish a valuation opportunity from a deteriorating dividend.',
+  },
+  {
+    step: '03',
+    title: 'What to verify next',
+    description: 'Payout coverage, dividend growth, quality score, and direct links to the underlying research.',
+  },
+]
+
 function buildFaqJsonLd() {
   return {
     '@context': 'https://schema.org',
@@ -133,6 +151,25 @@ export default function NewsletterPage() {
             <p className="mt-2 text-sm leading-relaxed text-[#71717a]">{description}</p>
           </div>
         ))}
+      </section>
+
+      <section className="mt-14 rounded-xl border border-[#1e1e2e] bg-[#111118] p-6 sm:p-8">
+        <div className="max-w-2xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#818cf8]">Inside each issue</p>
+          <h2 className="mt-3 text-2xl font-bold text-[#f4f4f5]">A research brief you can scan in five minutes</h2>
+          <p className="mt-3 text-sm leading-relaxed text-[#a1a1aa]">
+            Each edition starts with the signal, explains the risk behind it, and ends with the checks needed for your own due diligence. No price targets and no automatic buy calls.
+          </p>
+        </div>
+        <div className="mt-7 grid gap-4 md:grid-cols-3">
+          {SAMPLE_ISSUE.map((item) => (
+            <div key={item.step} className="rounded-lg border border-[#27273a] bg-[#09090b] p-5">
+              <p className="font-mono text-xs font-semibold text-[#6366f1]">{item.step}</p>
+              <h3 className="mt-3 text-sm font-semibold text-[#f4f4f5]">{item.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-[#71717a]">{item.description}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="mt-14 grid gap-8 lg:grid-cols-[1fr_320px]">

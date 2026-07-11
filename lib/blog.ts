@@ -8,6 +8,8 @@ export interface PostMeta {
   slug: string
   title: string
   description: string
+  seoTitle?: string
+  seoDescription?: string
   date: string
   updated?: string
   readingTime: number
@@ -42,6 +44,8 @@ export function getAllPosts(): PostMeta[] {
         slug,
         title: data.title ?? slug,
         description: data.description ?? '',
+        seoTitle: data.seoTitle,
+        seoDescription: data.seoDescription,
         date: data.date ?? '',
         updated: data.updated,
         readingTime: readingTime(content),
@@ -61,6 +65,8 @@ export function getPost(slug: string): Post | null {
     slug,
     title: data.title ?? slug,
     description: data.description ?? '',
+    seoTitle: data.seoTitle,
+    seoDescription: data.seoDescription,
     date: data.date ?? '',
     updated: data.updated,
     readingTime: readingTime(content),
