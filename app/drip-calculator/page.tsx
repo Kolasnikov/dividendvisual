@@ -157,9 +157,9 @@ export default async function DRIPCalculatorPage({
       >
         <div>
           <p className="text-sm font-semibold text-[#f4f4f5] group-hover:text-white transition-colors">
-            Ready to start compounding? Invest commission-free on eToro
+            Compare your projection with eToro&apos;s current terms
           </p>
-          <p className="text-xs text-[#52525b] mt-0.5">€50 minimum · Fractional shares · Capital at risk</p>
+          <p className="text-xs text-[#52525b] mt-0.5">Fractional shares · Fees and availability vary · Capital at risk</p>
         </div>
         <span className="text-[#6366f1] group-hover:text-[#818cf8] transition-colors text-lg shrink-0">→</span>
       </a>

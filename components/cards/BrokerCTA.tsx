@@ -1,3 +1,5 @@
+import { TrackedOutboundLink } from '@/components/analytics/TrackedOutboundLink'
+
 interface BrokerCTAProps {
   signal: string
   symbol: string
@@ -14,36 +16,38 @@ export function BrokerCTA({ signal, symbol, companyName, etoroHref }: BrokerCTAP
         <>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
-            <span className="text-[10px] font-semibold text-[#22c55e] uppercase tracking-wide">In the buy zone</span>
+            <span className="text-[10px] font-semibold text-[#22c55e] uppercase tracking-wide">Historically elevated yield</span>
           </div>
           <p className="text-sm font-medium text-[#f4f4f5] mb-4 leading-snug">
-            {symbol} is historically undervalued. Ready to add it to your portfolio?
+            {symbol} has an undervalued Weiss signal. Review the risks and current trading costs before acting.
           </p>
         </>
       ) : (
         <>
           <p className="text-[10px] font-semibold text-[#71717a] uppercase tracking-wide mb-1.5">Invest in {symbol}</p>
           <p className="text-sm font-medium text-[#f4f4f5] mb-4 leading-snug">
-            Buy {companyName} commission-free on eToro
+            Check {companyName} availability and current costs on eToro
           </p>
         </>
       )}
 
-      <a
+      <TrackedOutboundLink
         href={etoroHref}
         target="_blank"
         rel="noopener noreferrer sponsored"
+        event="broker_cta_clicked"
+        properties={{ broker: 'eToro', symbol, signal }}
         className={`flex items-center justify-center w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
           isUndervalued
             ? 'bg-[#22c55e] text-[#07130b] hover:bg-[#4ade80]'
             : 'bg-[#6366f1] text-white hover:bg-[#818cf8]'
         }`}
       >
-        Start investing on eToro →
-      </a>
+        Check eToro terms and availability →
+      </TrackedOutboundLink>
 
       <div className="flex justify-center gap-4 mt-3">
-        {['No commission', '€50 minimum', 'Copy trading'].map((feat) => (
+        {['Fractional shares', 'Fees vary by country', 'Capital at risk'].map((feat) => (
           <span key={feat} className="text-[10px] text-[#3e3e4e]">{feat}</span>
         ))}
       </div>

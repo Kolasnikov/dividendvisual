@@ -5,7 +5,7 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 export const metadata: Metadata = {
   title: 'Resources for Dividend Investors | DividendVisual',
   description:
-    'Curated books, research tools, and brokers for serious dividend investors — from foundational texts on value investing to commission-free brokers for acting on Weiss signals.',
+    'Curated books, research tools, and broker comparisons for dividend investors — with methodology, limitations, and affiliate disclosures.',
   alternates: {
     canonical: 'https://dividendvisual.com/resources',
   },
@@ -73,7 +73,7 @@ export default function ResourcesPage() {
             Where to Invest
           </h2>
           <p className="text-sm text-[#71717a] leading-relaxed">
-            Commission-free brokers for acting on Weiss signals. eToro lets you start with €50 and buy fractional shares.
+            Compare broker availability, commissions, currency costs, fractional shares, DRIP support, and account trade-offs.
           </p>
           <p className="mt-4 text-sm text-[#22c55e] group-hover:text-[#4ade80] transition-colors">
             Browse brokers →

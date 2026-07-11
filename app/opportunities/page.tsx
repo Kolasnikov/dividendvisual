@@ -629,9 +629,9 @@ export default async function OpportunitiesPage() {
           rel="noopener noreferrer sponsored"
           className="flex flex-col items-center justify-center gap-2 rounded-lg border border-[#22c55e]/25 bg-[#0b1a10] px-6 py-4 text-center hover:border-[#22c55e]/50 transition-colors group lg:min-w-[200px]"
         >
-          <span className="text-[10px] font-semibold text-[#22c55e] uppercase tracking-wide">Commission-free</span>
-          <span className="text-sm font-semibold text-[#f4f4f5] group-hover:text-white transition-colors leading-snug">Buy these stocks<br />on eToro</span>
-          <span className="text-[10px] text-[#52525b]">€50 minimum · Capital at risk</span>
+          <span className="text-[10px] font-semibold text-[#22c55e] uppercase tracking-wide">Broker terms vary</span>
+          <span className="text-sm font-semibold text-[#f4f4f5] group-hover:text-white transition-colors leading-snug">Check availability<br />on eToro</span>
+          <span className="text-[10px] text-[#52525b]">Review fees · Capital at risk</span>
         </a>
       </div>
 
