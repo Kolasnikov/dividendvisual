@@ -90,7 +90,7 @@ export default function ToolsPage() {
             <TrackedOutboundLink
               href={tool.href}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener"
               event="affiliate_resource_clicked"
               properties={{ kind: 'tool', resource: tool.name }}
               className="inline-flex items-center px-4 py-2 rounded-lg border border-[#2e2e3e] text-sm text-[#a1a1aa] hover:text-[#f4f4f5] hover:border-[#6366f1]/40 transition-colors"

@@ -585,7 +585,7 @@ export default async function TickerPage({ params }: PageProps) {
               <a
                 href={`/go/tradingview?url=${encodeURIComponent(`https://www.tradingview.com/symbols/${company.symbol}/?aff_id=166728&aff_sub=ticker`)}&placement=ticker-page`}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener"
                 className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors whitespace-nowrap"
               >
                 TradingView ↗
@@ -596,7 +596,7 @@ export default async function TickerPage({ params }: PageProps) {
               <a
                 href={`/go/finviz?url=${encodeURIComponent(`https://finviz.com/quote.ashx?t=${company.symbol}&affilId=757578555`)}&placement=ticker-page`}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener"
                 className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors whitespace-nowrap"
               >
                 FinViz ↗

@@ -34,7 +34,7 @@ export function BrokerCTA({ signal, symbol, companyName, placement }: BrokerCTAP
       <TrackedOutboundLink
         href={`/go/etoro?placement=${encodeURIComponent(placement)}`}
         target="_blank"
-        rel="noopener noreferrer sponsored"
+        rel="noopener sponsored"
         event="broker_cta_clicked"
         properties={{ broker: 'eToro', symbol, signal }}
         className={`flex items-center justify-center w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors ${

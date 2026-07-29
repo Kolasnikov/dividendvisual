@@ -149,7 +149,7 @@ export default async function DRIPCalculatorPage({
       <a
         href="/go/etoro?placement=drip-calculator-page"
         target="_blank"
-        rel="noopener noreferrer sponsored"
+        rel="noopener sponsored"
         className="mt-6 flex items-center justify-between gap-4 rounded-xl border border-[#6366f1]/25 bg-[#111118] px-5 py-4 hover:border-[#6366f1]/50 transition-colors group"
       >
         <div>

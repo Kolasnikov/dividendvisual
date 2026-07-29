@@ -165,7 +165,7 @@ export default async function BrokersPage() {
                   {broker.officialLinks.map((link) => <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" className="text-xs text-[#6366f1] hover:text-[#818cf8]">{link.label} ↗</a>)}
                 </div>
               </div>
-              <TrackedOutboundLink href={destination} target="_blank" rel={`noopener noreferrer${broker.affiliate ? ' sponsored' : ''}`} event="broker_resource_clicked" properties={{ broker: broker.name, affiliate: broker.affiliate }} className="mt-6 inline-flex min-h-10 items-center justify-center rounded-lg border border-[#6366f1]/35 px-4 text-sm font-medium text-[#c7d2fe] hover:bg-[#6366f1]/10">
+              <TrackedOutboundLink href={destination} target="_blank" rel={`noopener${broker.affiliate ? ' sponsored' : ' noreferrer'}`} event="broker_resource_clicked" properties={{ broker: broker.name, affiliate: broker.affiliate }} className="mt-6 inline-flex min-h-10 items-center justify-center rounded-lg border border-[#6366f1]/35 px-4 text-sm font-medium text-[#c7d2fe] hover:bg-[#6366f1]/10">
                 Visit {broker.name} ↗
               </TrackedOutboundLink>
             </article>

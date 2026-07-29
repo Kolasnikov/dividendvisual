@@ -622,7 +622,7 @@ export default async function OpportunitiesPage() {
         <a
           href="/go/etoro?placement=opportunities-page"
           target="_blank"
-          rel="noopener noreferrer sponsored"
+          rel="noopener sponsored"
           className="flex flex-col items-center justify-center gap-2 rounded-lg border border-[#22c55e]/25 bg-[#0b1a10] px-6 py-4 text-center hover:border-[#22c55e]/50 transition-colors group lg:min-w-[200px]"
         >
           <span className="text-[10px] font-semibold text-[#22c55e] uppercase tracking-wide">Broker terms vary</span>
