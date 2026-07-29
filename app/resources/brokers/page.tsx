@@ -1,10 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { headers } from 'next/headers'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackedOutboundLink } from '@/components/analytics/TrackedOutboundLink'
 import { TrackNewsletterLanding } from '@/components/analytics/TrackNewsletterLanding'
-import { getEtoroLink } from '@/lib/etoro'
 import { serializeJsonLd } from '@/lib/json-ld'
 
 const PAGE_URL = 'https://dividendvisual.com/resources/brokers'
@@ -109,8 +107,6 @@ function faqJsonLd() {
 }
 
 export default async function BrokersPage() {
-  const etoroHref = getEtoroLink((await headers()).get('x-vercel-ip-country'))
-
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <TrackNewsletterLanding landing="resources-brokers" />
@@ -153,7 +149,7 @@ export default async function BrokersPage() {
 
       <section className="mb-12 grid gap-5 lg:grid-cols-3">
         {BROKERS.map((broker) => {
-          const destination = broker.name === 'eToro' ? etoroHref : broker.href
+          const destination = broker.name === 'eToro' ? '/go/etoro?placement=resources-brokers' : broker.href
           return (
             <article key={broker.name} className="flex flex-col rounded-xl border border-[#1e1e2e] bg-[#111118] p-6">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-[#818cf8]">{broker.tag}</p>

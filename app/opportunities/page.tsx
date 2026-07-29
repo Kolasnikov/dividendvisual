@@ -8,8 +8,6 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 import { db } from '@/lib/db'
-import { headers } from 'next/headers'
-import { getEtoroLink } from '@/lib/etoro'
 import { getWatchlistStocks } from '@/lib/stock-data'
 
 export const metadata: Metadata = {
@@ -548,12 +546,10 @@ const FAQ = [
 ]
 
 export default async function OpportunitiesPage() {
-  const [all, recentChanges, hdrs] = await Promise.all([
+  const [all, recentChanges] = await Promise.all([
     getWatchlist(),
     getRecentChanges(),
-    headers(),
   ])
-  const etoroHref = getEtoroLink(hdrs.get('x-vercel-ip-country'))
 
   const strong = all.filter((s) => s.weissSignal === 'undervalued')
   const watching = all
@@ -624,7 +620,7 @@ export default async function OpportunitiesPage() {
           description="We track the Weiss signal daily and send a short weekly digest when quality dividend stocks enter undervalued territory."
         />
         <a
-          href={etoroHref}
+          href="/go/etoro?placement=opportunities-page"
           target="_blank"
           rel="noopener noreferrer sponsored"
           className="flex flex-col items-center justify-center gap-2 rounded-lg border border-[#22c55e]/25 bg-[#0b1a10] px-6 py-4 text-center hover:border-[#22c55e]/50 transition-colors group lg:min-w-[200px]"

@@ -4,10 +4,10 @@ interface BrokerCTAProps {
   signal: string
   symbol: string
   companyName: string
-  etoroHref: string
+  placement: string
 }
 
-export function BrokerCTA({ signal, symbol, companyName, etoroHref }: BrokerCTAProps) {
+export function BrokerCTA({ signal, symbol, companyName, placement }: BrokerCTAProps) {
   const isUndervalued = signal === 'undervalued'
 
   return (
@@ -32,7 +32,7 @@ export function BrokerCTA({ signal, symbol, companyName, etoroHref }: BrokerCTAP
       )}
 
       <TrackedOutboundLink
-        href={etoroHref}
+        href={`/go/etoro?placement=${encodeURIComponent(placement)}`}
         target="_blank"
         rel="noopener noreferrer sponsored"
         event="broker_cta_clicked"

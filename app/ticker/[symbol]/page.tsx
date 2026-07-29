@@ -13,8 +13,6 @@ import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
 import { WatchlistButton } from '@/components/ui/WatchlistButton'
 import { BrokerCTA } from '@/components/cards/BrokerCTA'
-import { headers } from 'next/headers'
-import { getEtoroLink } from '@/lib/etoro'
 
 const TICKERS = [
   'KO', 'PEP', 'JNJ', 'PG', 'MMM', 'MCD', 'WMT', 'HD', 'LOW',
@@ -346,9 +344,6 @@ export default async function TickerPage({ params }: PageProps) {
   const data = await getTickerData(symbol)
   if (!data) notFound()
 
-  const country = (await headers()).get('x-vercel-ip-country')
-  const etoroHref = getEtoroLink(country)
-
   const { company, metrics, chartData } = data
   const changes = data.changes ?? {
     previousDate: null,
@@ -588,7 +583,7 @@ export default async function TickerPage({ params }: PageProps) {
             <div className="flex items-center justify-between gap-4">
               <p className="text-xs text-[#71717a]">Full price history &amp; technical analysis</p>
               <a
-                href={`https://www.tradingview.com/symbols/${company.symbol}/?aff_id=166728&aff_sub=ticker`}
+                href={`/go/tradingview?url=${encodeURIComponent(`https://www.tradingview.com/symbols/${company.symbol}/?aff_id=166728&aff_sub=ticker`)}&placement=ticker-page`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors whitespace-nowrap"
@@ -599,7 +594,7 @@ export default async function TickerPage({ params }: PageProps) {
             <div className="flex items-center justify-between gap-4 border-t border-[#1e1e2e] pt-3">
               <p className="text-xs text-[#71717a]">Fundamentals, valuation &amp; analyst ratings</p>
               <a
-                href={`https://finviz.com/quote.ashx?t=${company.symbol}&affilId=757578555`}
+                href={`/go/finviz?url=${encodeURIComponent(`https://finviz.com/quote.ashx?t=${company.symbol}&affilId=757578555`)}&placement=ticker-page`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors whitespace-nowrap"
@@ -639,7 +634,7 @@ export default async function TickerPage({ params }: PageProps) {
             <QualityScoreCard metrics={metrics} />
           </div>
           <MetricsCard metrics={metrics} />
-          <BrokerCTA signal={metrics.weissSignal} symbol={company.symbol} companyName={company.name} etoroHref={etoroHref} />
+          <BrokerCTA signal={metrics.weissSignal} symbol={company.symbol} companyName={company.name} placement="ticker-page" />
 
           {/* Dividend streak callout */}
           {company.yearsIncreasingDividends > 0 && (

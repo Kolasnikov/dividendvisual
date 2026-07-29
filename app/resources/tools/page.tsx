@@ -22,7 +22,7 @@ const TOOLS = [
   {
     name: 'TradingView',
     url: 'tradingview.com',
-    href: 'https://www.tradingview.com/?aff_id=166728',
+    href: '/go/tradingview?placement=resources-tools',
     tag: 'Charts',
     description:
       'The go-to platform for price charts, technical analysis, and historical data. Once the Weiss signal identifies a candidate, TradingView is where you look at the price structure, support levels, and longer-term context before sizing a position.',
@@ -30,7 +30,7 @@ const TOOLS = [
   {
     name: 'FinViz',
     url: 'finviz.com',
-    href: 'https://finviz.com/?affilId=757578555',
+    href: '/go/finviz?placement=resources-tools',
     tag: 'Screener',
     description:
       'A comprehensive stock screener and research platform. Where DividendVisual focuses on yield-based valuation and dividend quality, FinViz provides fundamental data, analyst ratings, earnings calendars, and sector maps. Useful for cross-referencing once a Weiss signal has identified a candidate.',
@@ -38,7 +38,7 @@ const TOOLS = [
   {
     name: 'Morningstar',
     url: 'morningstar.com',
-    href: 'https://www.awin1.com/cread.php?awinmid=81639&awinaffid=2899577',
+    href: '/go/morningstar?placement=resources-tools',
     tag: 'Analyst Research',
     description:
       "Morningstar's independent analyst team assigns economic moat ratings (wide / narrow / none) and fair value estimates to thousands of stocks. These are particularly useful alongside a Weiss undervalue signal: DividendVisual tells you the stock is historically cheap on yield — Morningstar tells you whether the underlying business still has the durable competitive advantage to justify holding it long term.",
@@ -46,7 +46,7 @@ const TOOLS = [
   {
     name: 'Sharesight',
     url: 'sharesight.com',
-    href: 'https://www.sharesight.com/dividendvisual/',
+    href: '/go/sharesight?placement=resources-tools',
     tag: 'Portfolio Tracking',
     description:
       'DividendVisual projects what your dividends could be. Sharesight tracks what you actually received — dividend income logged by payment date, cost basis from DRIP reinvestment, tax reports by broker, and portfolio performance across multiple accounts. Used by 500,000+ investors globally. Complementary to DividendVisual, not a replacement.',

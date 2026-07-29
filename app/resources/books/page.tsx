@@ -112,7 +112,7 @@ export default function BooksPage() {
             <p className="text-xs text-[#52525b] mt-0.5 mb-3">{book.author}</p>
             <p className="text-sm text-[#71717a] leading-relaxed mb-4">{book.description}</p>
             <TrackedOutboundLink
-              href={book.href}
+              href={`/go/amazon?url=${encodeURIComponent(book.href)}&placement=resources-books`}
               target="_blank"
               rel="noopener noreferrer"
               event="affiliate_resource_clicked"

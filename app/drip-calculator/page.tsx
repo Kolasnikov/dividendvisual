@@ -1,9 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { headers } from 'next/headers'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { DRIPCalculatorClient } from '@/components/calculators/DRIPCalculatorClient'
-import { getEtoroLink } from '@/lib/etoro'
 import { serializeJsonLd } from '@/lib/json-ld'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
 
@@ -91,7 +89,6 @@ export default async function DRIPCalculatorPage({
     years?: string | string[]
   }>
 }) {
-  const etoroHref = getEtoroLink((await headers()).get('x-vercel-ip-country'))
   const params = await searchParams
   const initialValues = {
     initialInvestment: numberParam(params.investment, 10_000, 100, 10_000_000),
@@ -150,7 +147,7 @@ export default async function DRIPCalculatorPage({
       </div>
 
       <a
-        href={etoroHref}
+        href="/go/etoro?placement=drip-calculator-page"
         target="_blank"
         rel="noopener noreferrer sponsored"
         className="mt-6 flex items-center justify-between gap-4 rounded-xl border border-[#6366f1]/25 bg-[#111118] px-5 py-4 hover:border-[#6366f1]/50 transition-colors group"
