@@ -930,9 +930,9 @@ export default async function AnalysisPage({ params }: PageProps) {
             Open Dividend Screener →
           </Link>
           <a
-            href={`https://www.tradingview.com/symbols/${sym}/?aff_id=166728&aff_sub=analysis`}
+            href={`/go/tradingview?url=${encodeURIComponent(`https://www.tradingview.com/symbols/${sym}/?aff_id=166728&aff_sub=analysis`)}&placement=analysis-page`}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener sponsored"
             className="inline-flex items-center px-4 py-2 rounded-lg border border-[#2e2e3e] text-[#71717a] text-sm hover:text-[#f4f4f5] hover:border-[#6366f1]/40 transition-colors"
           >
             View full chart on TradingView ↗

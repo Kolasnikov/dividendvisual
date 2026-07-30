@@ -193,9 +193,9 @@ export default async function BlogPostPage({ params }: PageProps) {
         </div>
         <p className="mt-4">
           <a
-            href="https://www.tradingview.com/?aff_id=166728&aff_sub=blog"
+            href={`/go/tradingview?url=${encodeURIComponent('https://www.tradingview.com/?aff_id=166728&aff_sub=blog')}&placement=blog-page`}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener sponsored"
             className="text-xs text-[#52525b] hover:text-[#71717a] transition-colors"
           >
             Full charts &amp; technical analysis on TradingView ↗

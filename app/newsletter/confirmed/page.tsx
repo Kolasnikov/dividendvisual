@@ -209,9 +209,9 @@ export default async function NewsletterConfirmedPage({
 
       <section className="mt-8">
         <a
-          href="https://www.sharesight.com/dividendvisual/"
+          href="/go/sharesight?placement=newsletter-confirmed"
           target="_blank"
-          rel="noopener noreferrer sponsored"
+          rel="noopener sponsored"
           className="flex items-center justify-between gap-6 rounded-xl border border-[#1e1e2e] bg-[#111118] px-5 py-4 hover:border-[#6366f1]/40 transition-colors group"
         >
           <div>

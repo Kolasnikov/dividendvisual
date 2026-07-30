@@ -165,9 +165,9 @@ export function PortfolioClient({ universe }: Props) {
             to find candidates.
           </p>
           <a
-            href="https://www.sharesight.com/dividendvisual/"
+            href="/go/sharesight?placement=portfolio-empty-state"
             target="_blank"
-            rel="noopener noreferrer sponsored"
+            rel="noopener sponsored"
             className="mt-6 inline-flex items-center gap-2 text-xs text-[#52525b] hover:text-[#a1a1aa] transition-colors"
           >
             Already investing? Track actual dividends received with Sharesight ↗
@@ -304,9 +304,9 @@ export function PortfolioClient({ universe }: Props) {
           </p>
 
           <a
-            href="https://www.sharesight.com/dividendvisual/"
+            href="/go/sharesight?placement=portfolio-with-items"
             target="_blank"
-            rel="noopener noreferrer sponsored"
+            rel="noopener sponsored"
             className="mt-4 flex items-center justify-between gap-4 rounded-xl border border-[#1e1e2e] bg-[#111118] px-5 py-4 hover:border-[#6366f1]/40 transition-colors group"
           >
             <div>

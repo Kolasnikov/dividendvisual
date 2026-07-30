@@ -781,9 +781,9 @@ export default async function OpportunitiesPage() {
               → Glossary: Weiss Method definition
             </Link>
             <a
-              href="https://www.awin1.com/cread.php?awinmid=81639&awinaffid=2899577"
+              href="/go/morningstar?placement=opportunities-page"
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener sponsored"
               className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors"
             >
               → Cross-check moat ratings &amp; fair value on Morningstar ↗

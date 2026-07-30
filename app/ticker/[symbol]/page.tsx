@@ -564,9 +564,9 @@ export default async function TickerPage({ params }: PageProps) {
 
           {/* Sharesight — track actual vs. projected */}
           <a
-            href="https://www.sharesight.com/dividendvisual/"
+            href="/go/sharesight?placement=ticker-page-top"
             target="_blank"
-            rel="noopener noreferrer sponsored"
+            rel="noopener sponsored"
             className="flex items-center justify-between gap-4 rounded-xl border border-[#1e1e2e] bg-[#111118] px-5 py-4 hover:border-[#6366f1]/40 transition-colors group"
           >
             <div>
@@ -605,9 +605,9 @@ export default async function TickerPage({ params }: PageProps) {
             <div className="flex items-center justify-between gap-4 border-t border-[#1e1e2e] pt-3">
               <p className="text-xs text-[#71717a]">Moat rating &amp; analyst fair value</p>
               <a
-                href="https://www.awin1.com/cread.php?awinmid=81639&awinaffid=2899577"
+                href="/go/morningstar?placement=ticker-page"
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener sponsored"
                 className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors whitespace-nowrap"
               >
                 Morningstar ↗
@@ -616,9 +616,9 @@ export default async function TickerPage({ params }: PageProps) {
             <div className="flex items-center justify-between gap-4 border-t border-[#1e1e2e] pt-3">
               <p className="text-xs text-[#71717a]">Track dividends received &amp; tax reports</p>
               <a
-                href="https://www.sharesight.com/dividendvisual/"
+                href="/go/sharesight?placement=ticker-page-bottom"
                 target="_blank"
-                rel="noopener noreferrer sponsored"
+                rel="noopener sponsored"
                 className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors whitespace-nowrap"
               >
                 Sharesight ↗

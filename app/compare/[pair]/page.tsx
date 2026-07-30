@@ -288,17 +288,17 @@ export default async function ComparePairPage({ params }: PageProps) {
       <div className="mt-8 pt-6 border-t border-[#1e1e2e] flex flex-wrap items-center gap-4">
         <span className="text-xs text-[#52525b]">Full charts on TradingView:</span>
         <a
-          href={`https://www.tradingview.com/symbols/${symA}/?aff_id=166728&aff_sub=pairs`}
+          href={`/go/tradingview?url=${encodeURIComponent(`https://www.tradingview.com/symbols/${symA}/?aff_id=166728&aff_sub=pairs`)}&placement=compare-page`}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener sponsored"
           className="text-sm font-mono text-[#6366f1] hover:text-[#818cf8] transition-colors"
         >
           {symA} ↗
         </a>
         <a
-          href={`https://www.tradingview.com/symbols/${symB}/?aff_id=166728&aff_sub=pairs`}
+          href={`/go/tradingview?url=${encodeURIComponent(`https://www.tradingview.com/symbols/${symB}/?aff_id=166728&aff_sub=pairs`)}&placement=compare-page`}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener sponsored"
           className="text-sm font-mono text-[#6366f1] hover:text-[#818cf8] transition-colors"
         >
           {symB} ↗

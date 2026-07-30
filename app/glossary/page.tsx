@@ -277,9 +277,9 @@ export default function GlossaryPage() {
             → Screener: Apply the Weiss Method to 150+ Dividend Stocks
           </Link>
           <a
-            href="https://www.tradingview.com/?aff_id=166728&aff_sub=glossary"
+            href={`/go/tradingview?url=${encodeURIComponent('https://www.tradingview.com/?aff_id=166728&aff_sub=glossary')}&placement=glossary-page`}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener sponsored"
             className="text-sm text-[#6366f1] hover:text-[#818cf8] transition-colors"
           >
             → View dividend stock charts on TradingView

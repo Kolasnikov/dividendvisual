@@ -570,9 +570,9 @@ export default async function SectorPage({ params }: PageProps) {
             </div>
             <div className="mt-6">
               <a
-                href="https://www.tradingview.com/markets/stocks-usa/?aff_id=166728&aff_sub=sector"
+                href={`/go/tradingview?url=${encodeURIComponent('https://www.tradingview.com/markets/stocks-usa/?aff_id=166728&aff_sub=sector')}&placement=sector-page`}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener sponsored"
                 className="text-xs text-[#52525b] hover:text-[#71717a] transition-colors"
               >
                 View US dividend stock charts on TradingView ↗
