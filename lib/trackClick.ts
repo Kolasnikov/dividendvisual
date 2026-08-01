@@ -27,7 +27,7 @@ export async function trackAffiliateClick(event: ClickEvent) {
     destination_url: event.destinationUrl,
     referrer_path: event.referrerPath,
     user_agent: event.userAgent,
-    is_bot: BOT_UA_PATTERN.test(event.userAgent),
+    is_bot: BOT_UA_PATTERN.test(event.userAgent) || !event.referrerPath,
     country: event.country,
   })
 }
