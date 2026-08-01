@@ -3,6 +3,15 @@ import { createClient } from '@supabase/supabase-js'
 const BOT_UA_PATTERN =
   /bot|crawl|spider|slurp|facebookexternalhit|preview|whatsapp|telegrambot|discordbot|linkedinbot|embedly/i
 
+function hasRealReferrerPath(referrer: string | null): boolean {
+  if (!referrer) return false
+  try {
+    return new URL(referrer).pathname.length > 1
+  } catch {
+    return false
+  }
+}
+
 type ClickEvent = {
   site: string
   partner: string
@@ -27,7 +36,7 @@ export async function trackAffiliateClick(event: ClickEvent) {
     destination_url: event.destinationUrl,
     referrer_path: event.referrerPath,
     user_agent: event.userAgent,
-    is_bot: BOT_UA_PATTERN.test(event.userAgent) || !event.referrerPath,
+    is_bot: BOT_UA_PATTERN.test(event.userAgent) || !hasRealReferrerPath(event.referrerPath),
     country: event.country,
   })
 }
