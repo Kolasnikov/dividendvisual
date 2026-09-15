@@ -7,6 +7,7 @@ import { DividendBadge } from '@/components/ui/DividendBadge'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { TrackPageView } from '@/components/analytics/TrackPageView'
 import { DividendAlertsCTA } from '@/components/seo/DividendAlertsCTA'
+import { unstable_cache } from 'next/cache'
 import { db } from '@/lib/db'
 import { getWatchlistStocks } from '@/lib/stock-data'
 
@@ -67,7 +68,8 @@ const emptyRecentChanges: RecentChanges = {
   leftUndervalued: [],
 }
 
-async function getRecentChanges(): Promise<RecentChanges> {
+const getRecentChanges = unstable_cache(
+  async (): Promise<RecentChanges> => {
   try {
     const result = await db.execute({
       sql: `WITH latest AS (
@@ -186,7 +188,10 @@ async function getRecentChanges(): Promise<RecentChanges> {
   } catch {
     return emptyRecentChanges
   }
-}
+  },
+  ['recent-changes'],
+  { revalidate: 3600, tags: ['stock-screens'] },
+)
 
 function pct(v: number | null, d = 2) {
   if (v == null) return '—'
